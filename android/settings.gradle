@@ -1,0 +1,3 @@
+rootProject.name = 'xanmar'
+
+include ':app'
