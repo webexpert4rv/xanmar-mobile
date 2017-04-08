@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry,
+import { AppRegistry, Alert,
         Button,
         View,
         Text, TextInput } from 'react-native';
@@ -18,18 +18,24 @@ export default class registerConsumer extends Component {
     };
   }
 
-  componentDidMount() {
-    this.fetchVehicles();
-  }
-
-  fetchVehicles() {
-    fetch('http://192.168.86.214:3000/api/vehicles')
+  registerUser() {
+    const { navigate } = this.props.navigation;
+    fetch('http://192.168.86.214:3000/api/user/registration', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: this.state.email,
+        pwd: this.state.pwd,
+      }),
+    })
       .then(response => response.json())
       .then((responseData) => {
         this.setState({
-          isLoading: !this.state.isLoading,
-          vehicles: responseData.vehicles,
+          userId: responseData.user_id,
         });
+        navigate('RegisterVehicle')
       })
       .done();
   }
@@ -45,10 +51,12 @@ export default class registerConsumer extends Component {
           <TextInput
             style={{ height: 60, width: 300 }}
             placeholder="email"
+            onChangeText={text => this.setState({ email: text })}
           />
           <TextInput
             style={{ height: 60, width: 300 }}
             placeholder="password"
+            onChangeText={text => this.setState({ pwd: text })}
           />
           <TextInput
             style={{ height: 60, width: 300 }}
@@ -58,7 +66,7 @@ export default class registerConsumer extends Component {
         <View style={{ marginTop: 50, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
           <Button
             style={{ width: 800 }}
-            onPress={() => navigate('RegisterVehicle')}
+            onPress={() => this.registerUser()}
             title="Create Account"
           />
         </View>

@@ -36,6 +36,27 @@ export default class registerVehicle extends Component {
       .done();
   }
 
+  registerVehicle() {
+    const { navigate } = this.props.navigation;
+    fetch('http://192.168.86.214:3000/api/user/vehicle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: this.state.userId,
+        make: this.state.make.make,
+        model: this.state.model,
+        year: this.state.vehicleYear,
+      }),
+    })
+      .then(response => response.json())
+      .then((responseData) => {
+        navigate('Main')
+      })
+      .done();
+  }
+
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -47,6 +68,7 @@ export default class registerVehicle extends Component {
           <TextInput
             style={{ height: 60, width: 100 }}
             placeholder="year"
+            onChangeText={text => this.setState({ vehicleYear: text })}
           />
         </View>
         <View style={{ width: 300, marginLeft: 20, marginTop: 50 }}>
@@ -79,7 +101,7 @@ export default class registerVehicle extends Component {
         <View style={{ marginTop: 20, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
           <Button
             style={{ width: 800 }}
-            onPress={() => navigate('Main')}
+            onPress={() => this.registerVehicle()}
             title="Register Vehicle"
           />
         </View>
