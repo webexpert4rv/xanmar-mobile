@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Alert,
-        AppRegistry,
+import { AppRegistry,
         Button,
         View,
         Picker,
         Text, TextInput } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 
 export default class registerVehicle extends Component {
   static navigationOptions = {
@@ -52,7 +52,13 @@ export default class registerVehicle extends Component {
     })
       .then(response => response.json())
       .then((responseData) => {
-        navigate('Main')
+        const resetAction = NavigationActions.reset({
+          index: 0,
+          actions: [
+            NavigationActions.navigate({ routeName: 'userNavigator' }),
+          ]
+        });
+        this.props.navigation.dispatch(resetAction);
       })
       .done();
   }

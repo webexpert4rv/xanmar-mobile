@@ -3,7 +3,7 @@ import { AppRegistry, Button, View, Text } from 'react-native';
 
 export default class registerMain extends Component {
   static navigationOptions = {
-    title: 'Registration',
+    title: 'Registration Main',
   };
 
   render() {

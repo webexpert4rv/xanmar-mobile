@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, Alert,
+import { AppRegistry, AsyncStorage,
         Button,
         View,
         Text, TextInput } from 'react-native';
@@ -32,8 +32,10 @@ export default class registerConsumer extends Component {
     })
       .then(response => response.json())
       .then((responseData) => {
+        const uId = responseData.user_id;
+        AsyncStorage.setItem('userId', uId.toString());
         this.setState({
-          userId: responseData.user_id,
+          userId: uId,
         });
         navigate('RegisterVehicle')
       })
