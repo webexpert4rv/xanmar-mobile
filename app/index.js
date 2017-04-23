@@ -2,12 +2,28 @@ import { StackNavigator } from 'react-navigation';
 import splash from './components/Splash';
 import registerMain from './components/registerMain';
 import registerConsumer from './components/registerConsumer';
-import registerAutoService from './components/registerMechanic';
+import registerMerchant from './components/registerMerchant';
 import registerServicesOffered from './components/RegisterServices';
 import registerVehicle from './components/RegisterVehicle';
 import main from './components/MainComponent';
+import requestService from './components/requestService';
+import services from './components/services';
 
+//  just dumb, hack for issue
+//  https://github.com/react-community/react-navigation/issues/199
 const userNavigator = StackNavigator({
+  Main: { screen: main },
+  RegisterServicesOffered: { screen: registerServicesOffered },
+  RequestService: { screen: requestService },
+  RegisterVehicle: { screen: registerVehicle },
+
+},
+  {
+    initialRouteName: 'Main',
+  },
+);
+
+const userNavigatorForOnBoarding = StackNavigator({
   Main: { screen: main },
   RegisterServicesOffered: { screen: registerServicesOffered },
   RegisterVehicle: { screen: registerVehicle },
@@ -20,17 +36,24 @@ const userNavigator = StackNavigator({
 
 const OnBoardingNavigator = StackNavigator({
   RegisterMain: { screen: registerMain },
-  ConsumerRegister: { screen: registerConsumer },
-  AutoServiceRegister: { screen: registerAutoService },
+  consumerRegister: { screen: registerConsumer },
+  merchantRegister: { screen: registerMerchant },
   RegisterServicesOffered: { screen: registerServicesOffered },
+  userNav: { screen: userNavigatorForOnBoarding },
   RegisterVehicle: { screen: registerVehicle },
-  userNavigator: { screen: userNavigator },
-});
+  svcs: { screen: services },
+},
+  {
+    initialRouteName: 'RegisterMain',
+    headerMode: 'screen',
+  },
+);
 
 const AppNavigator = StackNavigator({
   Splash: { screen: splash },
-  OnBoardingNavigator: { screen: OnBoardingNavigator },
   userNavigator: { screen: userNavigator },
+  OnBoardingNavigator: { screen: OnBoardingNavigator },
+
 },
   {
     initialRouteName: 'Splash',

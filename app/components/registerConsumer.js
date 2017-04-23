@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { AppRegistry, AsyncStorage,
+import { NavigationActions } from 'react-navigation';
+import { AppRegistry,
         Button,
         View,
         Text, TextInput } from 'react-native';
+import realm from './realm';
 
 export default class registerConsumer extends Component {
   static navigationOptions = {
@@ -19,6 +21,15 @@ export default class registerConsumer extends Component {
   }
 
   registerUser() {
+    // const resetAction = NavigationActions.reset({
+    //   type: NavigationActions.RESET,
+    //   index: 0,
+    //   key: 'AppNavigator',
+    //   actions: [
+    //     NavigationActions.navigate({ routeName: 'userNavigator' }),
+    //   ],
+    // });
+    // this.props.navigation.dispatch(resetAction);
     const { navigate } = this.props.navigation;
     fetch('http://192.168.86.214:3000/api/user/registration', {
       method: 'POST',
@@ -33,11 +44,13 @@ export default class registerConsumer extends Component {
       .then(response => response.json())
       .then((responseData) => {
         const uId = responseData.user_id;
-        AsyncStorage.setItem('userId', uId.toString());
+        realm.write(() => {
+          realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
+        });
         this.setState({
           userId: uId,
         });
-        navigate('RegisterVehicle')
+        navigate('RegisterVehicle');
       })
       .done();
   }

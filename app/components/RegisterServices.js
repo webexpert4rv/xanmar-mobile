@@ -29,14 +29,31 @@ export default class RegisterServices extends Component {
   }
 
   fetchData() {
-    const data = '[{ "category": "cat1","services":["service1","service2", "service3"] },{ "category": "cat2", "services":["service1","service2", "service3"] } ]';
-    this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(JSON.parse(data)),
-      isLoading: false,
-    });
+    // const data = '[{ "category": "cat1","services":["service1","service2", "service3"] },{ "category": "cat2", "services":["service1","service2", "service3"] } ]';
+    // this.setState({
+    //   dataSource: this.state.dataSource.cloneWithRows(JSON.parse(data)),
+    //   isLoading: false,
+    // });
+
+    fetch('http://192.168.86.214:3000/api/autoservices')
+      .then(response => response.json())
+      .then((responseData) => {
+        console.log(JSON.stringify(responseData));
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRows(responseData.categories),
+          isLoading: false,
+        });
+      })
+      .done();
   }
+    // *************
+    //******************
+    // TO DO: MODAL !!!! build out pick service page and create svc picker
+    // *************
+    //******************
 
   renderRow(rowData, sectionID, rowID, highlightRow){
+    console.log(JSON.stringify(rowData));
     return(
       <View style={styles.row}>
         <Text style={styles.name}>

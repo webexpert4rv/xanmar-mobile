@@ -5,6 +5,7 @@ import { AppRegistry,
         Picker,
         Text, TextInput } from 'react-native';
 import { NavigationActions } from 'react-navigation';
+import realm from './realm';
 
 export default class registerVehicle extends Component {
   static navigationOptions = {
@@ -38,6 +39,9 @@ export default class registerVehicle extends Component {
 
   registerVehicle() {
     const { navigate } = this.props.navigation;
+    realm.write(() => {
+      realm.create('Vehicle', { make: this.state.make.make, model: this.state.model, year: this.state.vehicleYear });
+    });
     fetch('http://192.168.86.214:3000/api/user/vehicle', {
       method: 'POST',
       headers: {
@@ -55,8 +59,8 @@ export default class registerVehicle extends Component {
         const resetAction = NavigationActions.reset({
           index: 0,
           actions: [
-            NavigationActions.navigate({ routeName: 'userNavigator' }),
-          ]
+            NavigationActions.navigate({ routeName: 'userNav' }),
+          ],
         });
         this.props.navigation.dispatch(resetAction);
       })
@@ -77,7 +81,7 @@ export default class registerVehicle extends Component {
             onChangeText={text => this.setState({ vehicleYear: text })}
           />
         </View>
-        <View style={{ width: 300, marginLeft: 20, marginTop: 50 }}>
+        <View style={{ width: 300, marginLeft: 20, marginTop: 25 }}>
           <Text style={{ marginLeft: 5, textAlign: 'left', fontSize: 15 }}>Make</Text>
           <Picker
             selectedValue={(this.state && this.state.make)}

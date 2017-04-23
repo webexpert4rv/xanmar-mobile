@@ -16,12 +16,12 @@ export default class registerMain extends Component {
         <View style={{ height: 200, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around' }}>
           <Button
             style={{ width: 800 }}
-            onPress={() => navigate('ConsumerRegister')}
+            onPress={() => navigate('consumerRegister')}
             title="Register as Consumer"
           />
           <Button
             style={{ width: 800 }}
-            onPress={() => navigate('AutoServiceRegister')}
+            onPress={() => navigate('merchantRegister')}
             title="Register as Mechanic"
           />
         </View>
