@@ -1,9 +1,19 @@
 import React, { Component } from 'react';
 import { AppRegistry, Button, View, Text } from 'react-native';
+import palette from '../style/palette';
 
 export default class registerMain extends Component {
   static navigationOptions = {
     title: 'Registration Main',
+    header: {
+      titleStyle: {
+        color: palette.WHITE,
+      },
+      style: {
+        backgroundColor: palette.PRIMARY_COLOR,
+      },
+      tintColor: palette.WHITE,
+    },
   };
 
   render() {
@@ -16,11 +26,13 @@ export default class registerMain extends Component {
         <View style={{ height: 200, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around' }}>
           <Button
             style={{ width: 800 }}
+            color={palette.PRIMARY_COLOR}
             onPress={() => navigate('consumerRegister')}
             title="Register as Consumer"
           />
           <Button
             style={{ width: 800 }}
+            color={palette.PRIMARY_COLOR_DARK}
             onPress={() => navigate('merchantRegister')}
             title="Register as Mechanic"
           />

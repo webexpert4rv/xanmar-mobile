@@ -9,23 +9,15 @@ import {
 } from 'react-native';
 import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation';
-import format from 'string-format';
-import constants from '../constants/c';
 import realm from './realm';
 import ServicePicker from './servicePicker';
 import palette from '../style/palette';
 
-export default class RegisterServices extends Component {
+export default class MerchantService extends Component {
   static navigationOptions = {
     title: 'Services',
     header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR_DARK,
-      },
-      tintColor: palette.WHITE,
+      visible: false,
     },
   };
 
@@ -51,6 +43,10 @@ export default class RegisterServices extends Component {
   _onServicePickCompleted(svcs) {
     let serviceChecked = false;
     const servicesCategoryMap = {};
+    const ms = [];
+    svcs.forEach((s) => {
+      ms.push(s);
+    });
     svcs.forEach((service) => {
       if (!servicesCategoryMap[service.name]) {
         // Create an entry in the map for the category if it hasn't yet been created
@@ -77,11 +73,28 @@ export default class RegisterServices extends Component {
       dataSource: ds.cloneWithRowsAndSections(servicesCategoryMap),
       currentServices: svcs,
     });
+
+
+    // realm.write(() => {
+    //   realm.delete(realm.objects('MerchantServices'));
+    // });
+    realm.write(() => {
+      svcs.forEach((s) => {
+        console.log('updating.....');
+        console.log(JSON.stringify(s.services));
+        const service = realm.create('MerchantServices', { category_id: s.category_id }, true);
+        // s.services.forEach((ss) => {
+        //   service.services.pop();
+        // });
+        s.services.forEach((ss) => {
+          service.services.push(realm.create('Service', { service_id: ss.service_id, checked: ss.checked }, true));
+        });
+        //realm.create('MerchantServices', { category_id: s.category_id, services: s.services }, true);
+      });
+    });
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    // console.log('row data');
-    // console.log(JSON.stringify(rowData));
     let d;
     if (rowData) {
       if (rowData.checked) {
@@ -93,11 +106,11 @@ export default class RegisterServices extends Component {
     } else {
       d = 'No svc defined';
     }
-    return(
+    return (
       <View>
-      <Text style={styles.name}>
-        {d}
-      </Text>
+        <Text style={styles.name}>
+          {d}
+        </Text>
       </View>
     );
   }
@@ -111,7 +124,7 @@ export default class RegisterServices extends Component {
 }
 
   renderSeparator(sectionID, rowID, adjacentRowHighlighted){
-    return(
+    return (
       <View
         key={`${sectionID}-${rowID}`}
         style={{
@@ -123,9 +136,40 @@ export default class RegisterServices extends Component {
   }
 
   fetchData() {
-    const sc = realm.objects('ServiceCategory');
+    const svcs = realm.objects('MerchantServices');
+    console.log('number of ms....')
+    console.log(JSON.stringify(svcs));
+    console.log(svcs.length);
+
+    let serviceChecked = false;
+    const servicesCategoryMap = {};
+    svcs.forEach((service) => {
+      if (!servicesCategoryMap[service.name]) {
+        // Create an entry in the map for the category if it hasn't yet been created
+        servicesCategoryMap[service.name] = [];
+      }
+
+      service.services.forEach((s) => {
+        if (s.checked) {
+          servicesCategoryMap[service.name].push(s);
+          serviceChecked = true;
+        }
+      });
+
+      if (!serviceChecked) {
+        delete servicesCategoryMap[service.name]
+      }
+    });
+
+console.log(JSON.stringify(servicesCategoryMap));
+
+    const ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2,
+      sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
+    });
     this.setState({
-      currentServices: sc,
+      dataSource: ds.cloneWithRowsAndSections(servicesCategoryMap),
+      currentServices: svcs,
     });
   }
 
@@ -158,8 +202,6 @@ export default class RegisterServices extends Component {
       serviceChecked = false;
     });
 
-// console.log('rrrrrr');
-// console.log('servicesCategoryMap');
     const r = [];
     Object.keys(servicesCategoryMap).forEach((key) => {
       const sv = servicesCategoryMap[key];
@@ -168,43 +210,33 @@ export default class RegisterServices extends Component {
       });
     });
 
-    // console.log(JSON.stringify(r));
-
     const { navigate } = this.props.navigation;
     const mySvcs = {
       service_provider_id: serviceProviderId,
       services: r,
     };
 
-    // const backAction = NavigationActions.back();
-    // this.props.navigation.dispatch(backAction);
-
-
-    fetch(format('{}/api/provider/services', constants.BASSE_URL), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(mySvcs),
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        realm.write(() => {
-          svcs.forEach((s) => {
-            realm.create('MerchantServices', s);
-          });
-        });
-        const resetAction = NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'merchantNav' }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+    const backAction = NavigationActions.back();
+    navigate.dispatch(backAction);
+    // fetch('http://192.168.86.214:3000/api/provider/services', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(mySvcs),
+    // })
+    //   .then(response => response.json())
+    //   .then((responseData) => {
+    //     console.log("done....");
+    //     console.log(JSON.stringify(svcs));
+    //     realm.write(() => {
+    //       realm.create('MerchantServices', svcs);
+    //     });
+    //     navigate('consumerTab');
+    //   }).catch((error) => {
+    //     console.log(error);
+    //   })
+    //   .done();
   }
 
   render() {
@@ -249,14 +281,6 @@ export default class RegisterServices extends Component {
             style={{ marginTop: 10 }}
           />
           </View>
-          <View style={styles.butSection}>
-          <Button
-            style={{ width: 300 }}
-            color={palette.PRIMARY_COLOR}
-            onPress={() => this.submitRequest()}
-            title="Submit Services"
-          />
-          </View>
       </View>
 
     );
@@ -268,13 +292,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listSection: {
-    flex: 0.70,
+    flex: 0.80,
   },
   butSection: {
     flex: 0.10,
   },
   infoSection: {
-    flex: 0.20,
+    flex: 0.10,
   },
   name: {
     fontSize: 20,
@@ -303,4 +327,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('RegisterServices', () => RegisterServices);
+AppRegistry.registerComponent('MerchantService', () => MerchantService);

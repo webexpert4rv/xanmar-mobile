@@ -1,26 +1,28 @@
 import React, { Component } from 'react';
-import { NavigationActions } from 'react-navigation';
 import { AppRegistry,
         Button,
+        Image,
         View,
         Text, TextInput } from 'react-native';
 import format from 'string-format';
-import realm from './realm';
-import palette from '../style/palette';
 import constants from '../constants/c';
+import realm from './realm';
 
+const profileIcon = require('../img/profile_icon.png');
 
-export default class registerConsumer extends Component {
+export default class ConsumerProfile extends Component {
   static navigationOptions = {
-    title: 'Register Consumer',
+    title: 'My Profile',
     header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+      visible: false,
+    },
+    tabBar: {
+      icon: ({ tintColor }) => (
+        <Image
+          source={profileIcon}
+          style={{ width: 26, height: 26, tintColor: tintColor }}
+        />
+     ),
     },
   };
 
@@ -33,16 +35,7 @@ export default class registerConsumer extends Component {
     };
   }
 
-  registerUser() {
-    // const resetAction = NavigationActions.reset({
-    //   type: NavigationActions.RESET,
-    //   index: 0,
-    //   key: 'AppNavigator',
-    //   actions: [
-    //     NavigationActions.navigate({ routeName: 'userNavigator' }),
-    //   ],
-    // });
-    // this.props.navigation.dispatch(resetAction);
+  updateProfile() {
     const { navigate } = this.props.navigation;
     fetch(format('{}/api/user/registration', constants.BASSE_URL), {
       method: 'POST',
@@ -84,20 +77,17 @@ export default class registerConsumer extends Component {
           <TextInput
             style={{ height: 60, width: 300 }}
             placeholder="password"
-            secureTextEntry={true}
             onChangeText={text => this.setState({ pwd: text })}
           />
           <TextInput
             style={{ height: 60, width: 300 }}
-            secureTextEntry={true}
             placeholder="confirm password"
           />
         </View>
         <View style={{ marginTop: 50, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
           <Button
             style={{ width: 800 }}
-            color={palette.PRIMARY_COLOR_DARK}
-            onPress={() => this.registerUser()}
+            onPress={() => this.updateProfile()}
             title="Create Account"
           />
         </View>
@@ -106,4 +96,4 @@ export default class registerConsumer extends Component {
   }
 }
 
-AppRegistry.registerComponent('registerConsumer', () => registerConsumer);
+AppRegistry.registerComponent('ConsumerProfile', () => ConsumerProfile);

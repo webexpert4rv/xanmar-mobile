@@ -23,11 +23,12 @@ class ServiceItem extends Component {
     let svc;
     realm.write(() => {
       const i = this.state.item;
+      console.log(JSON.stringify(i));
       i.checked = !i.checked;
       this.setState({
         item: i,
       });
-      svc = realm.create('Service', i);
+      svc = realm.create('Service', i, true);
     });
 
     // console.log('onCheckBoxPressed')

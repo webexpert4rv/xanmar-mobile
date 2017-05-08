@@ -1,4 +1,4 @@
-import { StackNavigator } from 'react-navigation';
+import { StackNavigator, TabNavigator } from 'react-navigation';
 import splash from './components/Splash';
 import registerMain from './components/registerMain';
 import registerConsumer from './components/registerConsumer';
@@ -8,6 +8,16 @@ import registerVehicle from './components/RegisterVehicle';
 import main from './components/MainComponent';
 import requestService from './components/requestService';
 import services from './components/services';
+
+import vehicles from './components/ConsumerVehicles';
+import consumerSvcHistory from './components/ConsumerSvcHistory';
+import consumerProfile from './components/ConsumerProfile';
+import consumerRequestSvc from './components/ConsumerRequestService';
+
+import merchantJobs from './components/MerchantJobs';
+import merchantSvcs from './components/MerchantServices';
+import merchantProfile from './components/MerchantProfile';
+import palette from './style/palette';
 
 //  just dumb, hack for issue
 //  https://github.com/react-community/react-navigation/issues/199
@@ -23,6 +33,83 @@ const userNavigator = StackNavigator({
   },
 );
 
+const consumerNavigator = TabNavigator({
+  Vehicles: { screen: vehicles },
+  SvcHistory: { screen: consumerSvcHistory },
+  Profile: { screen: consumerProfile },
+}, { tabBarOptions: {
+  activeTintColor: palette.WHITE,
+  inactiveTintColor: palette.WHITE,
+  labelStyle: {
+    fontSize: 15,
+  },
+  style: {
+    backgroundColor: palette.PRIMARY_COLOR, // Main color
+  },
+},
+},
+);
+
+
+const consumerNavigatorMain = StackNavigator({
+  consumerTab: { screen: consumerNavigator },
+  RegisterVehicle: { screen: registerVehicle },
+  RequestService: { screen: consumerRequestSvc },
+}, {
+  headerMode: 'screen',
+},
+);
+
+
+const consumerNavigatorForOnBoarding = StackNavigator({
+  consumerTab: { screen: consumerNavigator },
+  RegisterVehicle: { screen: registerVehicle },
+  RequestService: { screen: consumerRequestSvc },
+},
+  {
+    headerMode: 'screen',
+  },
+);
+
+const merchantNavigator = TabNavigator({
+  Jobs: { screen: merchantJobs },
+  Services: { screen: merchantSvcs },
+  Profile: { screen: merchantProfile },
+},
+  { tabBarOptions: {
+    activeTintColor: palette.WHITE,
+    inactiveTintColor: palette.WHITE,
+    labelStyle: {
+      fontSize: 15,
+    },
+    style: {
+      backgroundColor: palette.PRIMARY_COLOR_DARK, // Main color
+    },
+  },
+  },
+);
+
+const merchantNavigatorForOnBoarding = TabNavigator({
+  Jobs: { screen: merchantJobs },
+  Services: { screen: merchantSvcs },
+  Profile: { screen: merchantProfile },
+},
+  {
+    headerMode: 'screen',
+  },
+  { tabBarOptions: {
+    activeTintColor: palette.WHITE,
+    inactiveTintColor: palette.WHITE,
+    labelStyle: {
+      fontSize: 15,
+    },
+    style: {
+      backgroundColor: palette.PRIMARY_COLOR_DARK, // Main color
+    },
+  },
+  },
+);
+
 const userNavigatorForOnBoarding = StackNavigator({
   Main: { screen: main },
   RegisterServicesOffered: { screen: registerServicesOffered },
@@ -34,14 +121,17 @@ const userNavigatorForOnBoarding = StackNavigator({
   },
 );
 
-const OnBoardingNavigator = StackNavigator({
+const onBoardingNavigator = StackNavigator({
   RegisterMain: { screen: registerMain },
   consumerRegister: { screen: registerConsumer },
   merchantRegister: { screen: registerMerchant },
   RegisterServicesOffered: { screen: registerServicesOffered },
-  userNav: { screen: userNavigatorForOnBoarding },
+  consumerTab: { screen: consumerNavigator },
+  merchantNav: { screen: merchantNavigator },
   RegisterVehicle: { screen: registerVehicle },
   svcs: { screen: services },
+  merchantSvcs: { screen: merchantSvcs },
+  RequestService: { screen: consumerRequestSvc },
 },
   {
     initialRouteName: 'RegisterMain',
@@ -52,8 +142,10 @@ const OnBoardingNavigator = StackNavigator({
 const AppNavigator = StackNavigator({
   Splash: { screen: splash },
   userNavigator: { screen: userNavigator },
-  OnBoardingNavigator: { screen: OnBoardingNavigator },
-
+  OnBoardingNavigator: { screen: onBoardingNavigator },
+  // consumerNavigator: { screen: consumerNavigator },
+  merchantNavigator: { screen: merchantNavigator },
+  consumerNavigatorMain: { screen: consumerNavigatorMain },
 },
   {
     initialRouteName: 'Splash',

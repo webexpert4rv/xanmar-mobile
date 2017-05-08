@@ -23,6 +23,7 @@ Vehicle.schema = {
 class Service extends Realm.Object {}
 Service.schema = {
   name: 'Service',
+  primaryKey: 'service_id',
   properties: {
     service_id: 'int',
     name: 'string',
@@ -33,10 +34,36 @@ Service.schema = {
 class ServiceCategory extends Realm.Object {}
 ServiceCategory.schema = {
   name: 'ServiceCategory',
+  primaryKey: 'category_id',
   properties: {
+    category_id: 'int',
     name: 'string',
     services: { type: 'list', objectType: 'Service' },
   },
 };
 
-export default new Realm({ schema: [UserPreference, Vehicle, Service, ServiceCategory] });
+class MerchantServices extends Realm.Object {}
+MerchantServices.schema = {
+  name: 'MerchantServices',
+  primaryKey: 'category_id',
+  properties: {
+    category_id: 'int',
+    name: 'string',
+    services: { type: 'list', objectType: 'Service' },
+  },
+};
+
+class ServiceRequest extends Realm.Object {}
+ServiceRequest.schema = {
+  name: 'ServiceRequest',
+  properties: {
+    service_id: 'int',
+    service_date: 'date',
+    make: 'string',
+    model: 'string',
+    year: 'int',
+    services: { type: 'list', objectType: 'ServiceCategory' },
+  },
+};
+
+export default new Realm({ schema: [UserPreference, Vehicle, Service, ServiceCategory, ServiceRequest, MerchantServices] });

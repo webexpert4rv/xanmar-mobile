@@ -10,7 +10,8 @@ import {
   TouchableHighlight,
   ActivityIndicator,
 } from 'react-native';
-
+import format from 'string-format';
+import constants from '../constants/c';
 import ServiceItem from './ServiceItem';
 
 export default class servicePicker extends Component {
@@ -40,7 +41,7 @@ export default class servicePicker extends Component {
     //   isLoading: false,
     // });
 
-    fetch('http://192.168.86.214:3000/api/autoservices')
+    fetch(format('{}/api/autoservices', constants.BASSE_URL))
       .then(response => response.json())
       .then((responseData) => {
         this.setState({
@@ -67,7 +68,7 @@ export default class servicePicker extends Component {
   }
   renderRow(rowData, sectionID, rowID, highlightRow){
     // console.log('rowData');
-    console.log(JSON.stringify(rowData));
+    // console.log(JSON.stringify(rowData));
     var expand = false;
     return(
       <TouchableHighlight onPress={() => {
@@ -109,8 +110,8 @@ export default class servicePicker extends Component {
 // }
 
   _onCompletedChange(item) {
-    console.log('item:');
-    console.log(JSON.stringify(item));
+    // console.log('item:');
+    // console.log(JSON.stringify(item));
     // if (item.checked) {
     //   this.state.servicesPicked.push(item)
     // } else {
@@ -120,8 +121,8 @@ export default class servicePicker extends Component {
     //   }
     // }
 
-    console.log('all items:');
-    console.log(JSON.stringify(this.state.currentServices));
+    // console.log('all items:');
+    // console.log(JSON.stringify(this.state.currentServices));
 
     // const ii = this.state.currentServices.indexOf(item);
     // console.log(ii);
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
    },
    row: {
     paddingVertical: 20,
-    backgroundColor: '#C70039',
+    backgroundColor: '#6495ed',
   },
 });
 

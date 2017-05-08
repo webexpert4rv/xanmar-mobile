@@ -8,19 +8,24 @@ import {
   View,
 } from 'react-native';
 import { ListView } from 'realm/react-native';
+import format from 'string-format';
+import constants from '../constants/c';
 import realm from './realm';
 import ServicePicker from './servicePicker';
+import DatePicker from 'react-native-datepicker'
 import palette from '../style/palette';
 
-export default class services extends Component {
+const calIcon = require('../img/google_calendar.png');
+
+export default class ConsumerRequestService extends Component {
   static navigationOptions = {
-    title: 'Services you offer',
+    title: 'Service Request',
     header: {
       titleStyle: {
         color: palette.WHITE,
       },
       style: {
-        backgroundColor: palette.PRIMARY_COLOR_DARK,
+        backgroundColor: palette.PRIMARY_COLOR,
       },
       tintColor: palette.WHITE,
     },
@@ -65,18 +70,6 @@ export default class services extends Component {
         delete servicesCategoryMap[service.name]
       }
     });
-
-    // let servicesCategoryMap = {};
-    // svcs.forEach((service) => {
-    //   if (!servicesCategoryMap[service.name]) {
-    //     // Create an entry in the map for the category if it hasn't yet been created
-    //     servicesCategoryMap[service.name] = [];
-    //   }
-    //   service.services.forEach((s) => {
-    //     // servicesCategoryMap[service.category].push(s.name);
-    //     servicesCategoryMap[service.name].push(s);
-    //   });
-    // });
 
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
@@ -133,19 +126,21 @@ export default class services extends Component {
 
   fetchData() {
     const sc = realm.objects('ServiceCategory');
-    console.log(JSON.stringify(sc));
-    // this.setState({
-    //   isLoading: false,
-    //   currentServices: sc,
-    // });
+    this.setState({
+      currentServices: sc,
+    });
+  }
 
+  submitRequest() {
+    const svcs = this.state.currentServices;
+    let serviceChecked = false;
     const servicesCategoryMap = {};
-    sc.forEach((service) => {
+    svcs.forEach((service) => {
       if (!servicesCategoryMap[service.name]) {
         // Create an entry in the map for the category if it hasn't yet been created
         servicesCategoryMap[service.name] = [];
       }
-      var serviceChecked = false;
+
       service.services.forEach((s) => {
         if (s.checked) {
           servicesCategoryMap[service.name].push(s);
@@ -154,76 +149,84 @@ export default class services extends Component {
       });
 
       if (!serviceChecked) {
-        delete servicesCategoryMap[service.name]
+        delete servicesCategoryMap[service.name];
       }
+      serviceChecked = false;
     });
 
-    this.setState({
-      dataSource: this.state.dataSource.cloneWithRowsAndSections(servicesCategoryMap),
-      isLoading: false,
-      currentServices: sc,
+    const r = [];
+    Object.keys(servicesCategoryMap).forEach((key) => {
+      const sv = servicesCategoryMap[key];
+      sv.forEach((s) => {
+        r.push(s);
+      });
     });
 
-    // fetch('http://192.168.86.214:3000/api/autoservices')
-    //   .then(response => response.json())
-    //   .then((responseData) => {
-    //     // console.log(JSON.stringify(responseData));
-    //     // var foodCategoryMap = {};
-    //     // responseData.categories.forEach((foodItem) => {
-    //     //   // console.log('foodItem');
-    //     //   // console.log(JSON.stringify(foodItem));
-    //     //   if (!foodCategoryMap[foodItem.category]) {
-    //     //     // Create an entry in the map for the category if it hasn't yet been created
-    //     //     foodCategoryMap[foodItem.category] = [];
-    //     //   }
-    //     //   foodItem.services.forEach((s) => {
-    //     //     foodCategoryMap[foodItem.category].push(s.name);
-    //     //   });
-    //     // });
-    //     const allServices = responseData.categories;
-    //     allServices.forEach((service) => {
-    //       service.services.forEach((s) => {
-    //         s.checked = false;
-    //       });
-    //     });
-    //
-    //     // const servicesCategoryMap = {};
-    //     // responseData.categories.forEach((service) => {
-    //     //   if (!servicesCategoryMap[service.category]) {
-    //     //     // Create an entry in the map for the category if it hasn't yet been created
-    //     //     servicesCategoryMap[service.category] = [];
-    //     //     svc = {category: service.category, }
-    //     //   }
-    //     //   service.services.forEach((s) => {
-    //     //     servicesCategoryMap[service.category].push(s);
-    //     //   });
-    //     // });
-    //
-    //     // this.setState({
-    //     //   //dataSource: this.state.dataSource.cloneWithRowsAndSections(servicesCategoryMap),
-    //     //   isLoading: false,
-    //     //   currentServices: allServices,
-    //     // });
-    //   })
-    //   .done();
+    const { state } = this.props.navigation;
+    console.log(new Date());
+    const svcRequest = {
+      service_date: new Date(this.state.date),
+      make: state.params.vehicle.make,
+      model: state.params.vehicle.model,
+      year: parseInt(state.params.vehicle.year, 10),
+      services: r,
+    };
+
+    console.log(JSON.stringify(svcRequest));
+    const { navigate } = this.props.navigation;
+    fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(svcRequest),
+    })
+      .then(response => response.json())
+      .then((responseData) => {
+        console.log("done....");
+        svcRequest.service_id = responseData.service_request_id;
+        console.log(svcRequest.service_id);
+        console.log(JSON.stringify(svcRequest));
+        realm.write(() => {
+          realm.create('ServiceRequest', svcRequest);
+        });
+        navigate('consumerTab');
+      }).catch((error) => {
+        console.log(error);
+      })
+      .done();
   }
 
   render() {
-
-    // if (this.state.isLoading) {
-    //        return this.renderLoadingView();
-    // }
-
+    const { state } = this.props.navigation;
     return (
+      <View style={styles.listContainer}>
+        <View style={styles.infoSection}>
+          <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
+          {state.params.vehicle.year} {state.params.vehicle.make} {state.params.vehicle.model}</Text>
+          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
+            <View>
+              <DatePicker
+                style={{width: 200, marginLeft: 10}}
+                date={this.state.date}
+                mode="date"
+                placeholder="service date"
+                format="MM/DD/YYYY"
+                confirmBtnText="Confirm"
+                cancelBtnText="Cancel"
+                iconSource={calIcon}
+                onDateChange={(date) => { this.setState({ date: date})}}
+              />
+            </View>
+            <View style={{ marginRight: 10, flexDirection: 'column', alignItems: 'flex-end' }}>
+              <Button
+                style={{ width: 300 }}
+                onPress={() => this.setState({ showServicePicker: true })}
+                title="Add service"
+              />
+            </View>
+          </View>
 
-      <View>
-        <View style={{ marginRight: 10, marginTop: 20, flexDirection: 'column', alignItems: 'flex-end' }}>
-          <Button
-            style={{ width: 300 }}
-            color={palette.PRIMARY_COLOR}
-            onPress={() => this.setState({ showServicePicker: true })}
-            title="Add service"
-          />
         </View>
         <Modal
            animationType={'slide'}
@@ -240,13 +243,21 @@ export default class services extends Component {
             />
           </View>
          </Modal>
-
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow}
-          renderSectionHeader={this.renderSectionHeader}
-          style={{ marginTop: 10 } }
-        />
+          <View style={styles.listSection}>
+          <ListView
+            dataSource={this.state.dataSource}
+            renderRow={this.renderRow}
+            renderSectionHeader={this.renderSectionHeader}
+            style={{ marginTop: 10 }}
+          />
+          </View>
+          <View style={styles.butSection}>
+          <Button
+            style={{ width: 300 }}
+            onPress={() => this.submitRequest()}
+            title="Submit service request"
+          />
+          </View>
       </View>
 
     );
@@ -254,11 +265,17 @@ export default class services extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  listContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+  },
+  listSection: {
+    flex: 0.70,
+  },
+  butSection: {
+    flex: 0.10,
+  },
+  infoSection: {
+    flex: 0.20,
   },
   name: {
     fontSize: 20,
@@ -287,4 +304,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('services', () => services);
+AppRegistry.registerComponent('ConsumerRequestService', () => ConsumerRequestService);

@@ -8,19 +8,12 @@ import { Alert,
 import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
-import palette from '../style/palette';
 
-export default class registerMerchant extends Component {
+export default class MerchantProfile extends Component {
   static navigationOptions = {
-    title: 'Register As Auto Service Shop',
+    title: 'My Profile',
     header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR_DARK,
-      },
-      tintColor: palette.WHITE,
+      visible: false,
     },
   };
 
@@ -53,7 +46,7 @@ export default class registerMerchant extends Component {
         this.setState({
           userId: uId,
         });
-        navigate('RegisterServicesOffered', { businessName: this.state.name, businessId: uId });
+        navigate('svcs');
       })
       .done();
   }
@@ -75,13 +68,11 @@ export default class registerMerchant extends Component {
             <TextInput
               style={{ height: 60, width: 300 }}
               placeholder="password"
-              secureTextEntry={true}
               onChangeText={text => this.setState({ pwd: text })}
             />
             <TextInput
               style={{ height: 60, width: 300 }}
               placeholder="confirm password"
-              secureTextEntry={true}
             />
           </View>
           <View>
@@ -118,7 +109,6 @@ export default class registerMerchant extends Component {
           <View style={{ marginTop: 20, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
             <Button
               style={{ width: 800 }}
-              color={palette.PRIMARY_COLOR}
               onPress={() => this.postMerchant()}
               title="Select services offered"
             />
@@ -129,4 +119,4 @@ export default class registerMerchant extends Component {
   }
 }
 
-AppRegistry.registerComponent('registerMerchant', () => registerMerchant);
+AppRegistry.registerComponent('MerchantProfile', () => MerchantProfile);

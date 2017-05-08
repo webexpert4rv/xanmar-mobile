@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { AppRegistry, Image, View } from 'react-native';
 import { NavigationActions } from 'react-navigation';
+import format from 'string-format';
+import constants from '../constants/c';
 import realm from './realm';
 
 const splashIcon = require('../img/splash_icon.png');
-
 
 export default class splash extends Component {
   static navigationOptions = {
@@ -26,7 +27,7 @@ export default class splash extends Component {
   }
 
   downloadAutoServices() {
-    fetch('http://192.168.86.214:3000/api/autoservices')
+    fetch(format('{}/api/autoservices', constants.BASSE_URL))
       .then(response => response.json())
       .then((responseData) => {
         responseData.categories.forEach((category) => {
@@ -38,7 +39,7 @@ export default class splash extends Component {
           });
           if (categoryServices.length > 0) {
             realm.write(() => {
-              realm.create('ServiceCategory', { name: category.category, services: categoryServices });
+              realm.create('ServiceCategory', { category_id: category.category_id, name: category.category, services: categoryServices });
             });
           }
         });
@@ -56,7 +57,7 @@ export default class splash extends Component {
           const resetAction = NavigationActions.reset({
             index: 0,
             actions: [
-              NavigationActions.navigate({ routeName: 'userNavigator' }),
+              NavigationActions.navigate({ routeName: 'consumerNavigatorMain' }),
             ],
           });
           this.props.navigation.dispatch(resetAction);
@@ -64,7 +65,7 @@ export default class splash extends Component {
           const resetAction = NavigationActions.reset({
             index: 0,
             actions: [
-              NavigationActions.navigate({ routeName: 'userNavigator' }),
+              NavigationActions.navigate({ routeName: 'merchantNavigator' }),
             ],
           });
           this.props.navigation.dispatch(resetAction);
@@ -78,7 +79,12 @@ export default class splash extends Component {
           this.props.navigation.dispatch(resetAction);
         }
       } else {
-        this.downloadAutoServices();
+        const sc = realm.objects('ServiceCategory');
+        console.log("Size is hat.....");
+        console.log(sc.length);
+        if (sc.length === 0) {
+          this.downloadAutoServices();
+        }
         const resetAction = NavigationActions.reset({
           index: 0,
           actions: [
