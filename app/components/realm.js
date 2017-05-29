@@ -5,8 +5,9 @@ UserPreference.schema = {
   name: 'UserPreference',
   properties: {
     onboarded: { type: 'bool', default: false },
-    userId: 'int',
-    role: 'string',
+    userId: { type: 'int', default: 0 },
+    role: { type: 'string', default: '' },
+    deviceToken: { type: 'string', default: '' },
   },
 };
 

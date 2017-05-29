@@ -50,7 +50,6 @@ const consumerNavigator = TabNavigator({
 },
 );
 
-
 const consumerNavigatorMain = StackNavigator({
   consumerTab: { screen: consumerNavigator },
   RegisterVehicle: { screen: registerVehicle },
@@ -58,17 +57,6 @@ const consumerNavigatorMain = StackNavigator({
 }, {
   headerMode: 'screen',
 },
-);
-
-
-const consumerNavigatorForOnBoarding = StackNavigator({
-  consumerTab: { screen: consumerNavigator },
-  RegisterVehicle: { screen: registerVehicle },
-  RequestService: { screen: consumerRequestSvc },
-},
-  {
-    headerMode: 'screen',
-  },
 );
 
 const merchantNavigator = TabNavigator({
@@ -86,38 +74,6 @@ const merchantNavigator = TabNavigator({
       backgroundColor: palette.PRIMARY_COLOR_DARK, // Main color
     },
   },
-  },
-);
-
-const merchantNavigatorForOnBoarding = TabNavigator({
-  Jobs: { screen: merchantJobs },
-  Services: { screen: merchantSvcs },
-  Profile: { screen: merchantProfile },
-},
-  {
-    headerMode: 'screen',
-  },
-  { tabBarOptions: {
-    activeTintColor: palette.WHITE,
-    inactiveTintColor: palette.WHITE,
-    labelStyle: {
-      fontSize: 15,
-    },
-    style: {
-      backgroundColor: palette.PRIMARY_COLOR_DARK, // Main color
-    },
-  },
-  },
-);
-
-const userNavigatorForOnBoarding = StackNavigator({
-  Main: { screen: main },
-  RegisterServicesOffered: { screen: registerServicesOffered },
-  RegisterVehicle: { screen: registerVehicle },
-},
-  {
-    initialRouteName: 'Main',
-    headerMode: 'none',
   },
 );
 
@@ -152,32 +108,5 @@ const AppNavigator = StackNavigator({
     headerMode: 'none',
   },
 );
-
-// class xanmar extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {};
-//   }
-//
-//   render() {
-//     const { nav } = this.props.navigation;
-//     return (
-//       <View>
-//         <Button
-//           onPress={() => nav.navigate('First')}
-//           title="Go to next screen"
-//         />
-//       </View>
-//     )
-//   }
-// }
-//
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center'
-//   }
-// });
 
 export default AppNavigator;

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "869494925647",
+    "firebase_url": "https://xanmar-auto-app.firebaseio.com",
+    "project_id": "xanmar-auto-app",
+    "storage_bucket": "xanmar-auto-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869494925647:android:3f7aa658143bf508",
+        "android_client_info": {
+          "package_name": "com.xanmar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "869494925647-pu39bc2v4i1crpt9as2d0880b40hrbdp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiSK61hL96M6c9lus3THKrV82pksbl810"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

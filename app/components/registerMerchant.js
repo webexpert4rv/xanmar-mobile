@@ -24,6 +24,15 @@ export default class registerMerchant extends Component {
     },
   };
 
+  // getDeviceToken() {
+  //   let token = 'not defined';
+  //   const userPrefs = realm.objects('UserPreference');
+  //   if (userPrefs.length > 0) {
+  //     token = userPrefs[0].deviceToken;
+  //   }
+  //   return token;
+  // }
+
   postMerchant() {
     const { navigate } = this.props.navigation;
     fetch(format('{}/api/provider', constants.BASSE_URL), {
