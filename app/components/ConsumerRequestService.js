@@ -5,6 +5,7 @@ import {
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { ListView } from 'realm/react-native';
@@ -131,6 +132,15 @@ export default class ConsumerRequestService extends Component {
     });
   }
 
+  getUserId() {
+    let uId = 0;
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      uId = userPrefs[0].userId;
+    }
+    return uId;
+  }
+
   submitRequest() {
     const svcs = this.state.currentServices;
     let serviceChecked = false;
@@ -163,16 +173,16 @@ export default class ConsumerRequestService extends Component {
     });
 
     const { state } = this.props.navigation;
-    console.log(new Date());
     const svcRequest = {
+      user_id: this.getUserId(),
       service_date: new Date(this.state.date),
+      service_zip: this.state.zip,
       make: state.params.vehicle.make,
       model: state.params.vehicle.model,
       year: parseInt(state.params.vehicle.year, 10),
       services: r,
     };
 
-    console.log(JSON.stringify(svcRequest));
     const { navigate } = this.props.navigation;
     fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
       method: 'POST',
@@ -183,10 +193,7 @@ export default class ConsumerRequestService extends Component {
     })
       .then(response => response.json())
       .then((responseData) => {
-        console.log("done....");
         svcRequest.service_id = responseData.service_request_id;
-        console.log(svcRequest.service_id);
-        console.log(JSON.stringify(svcRequest));
         realm.write(() => {
           realm.create('ServiceRequest', svcRequest);
         });
@@ -226,8 +233,12 @@ export default class ConsumerRequestService extends Component {
               />
             </View>
           </View>
-
         </View>
+        <TextInput
+          style={{ height: 60, width: 100 }}
+          placeholder="service zip"
+          onChangeText={text => this.setState({ zip: text })}
+        />
         <Modal
            animationType={'slide'}
            transparent={true}

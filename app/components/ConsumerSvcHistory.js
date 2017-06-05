@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { AppRegistry, Button, Image, View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { ListView } from 'realm/react-native';
+import format from 'string-format';
 import realm from './realm';
+import constants from '../constants/c';
 import df from 'dateformat';
 
 const svcHistoryIcon = require('../img/svc_history_icon.png');
 
 export default class ConsumerSvcHistory extends Component {
   static navigationOptions = {
-    title: 'Service History',
+    title: 'Service Request',
     header: {
       visible: false,
     },
@@ -31,18 +33,52 @@ export default class ConsumerSvcHistory extends Component {
     };
   }
 
+  componentDidMount() {
+    //this.fetchData();
+  }
+
+  getUserId() {
+    let uId = 0;
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      uId = userPrefs[0].userId;
+    }
+    return uId;
+  }
+
+  fetchData() {
+    fetch(format('{}/api/user/bids/{}', constants.BASSE_URL, this.getUserId()))
+      .then(response => response.json())
+      .then((responseData) => {
+        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.setState({
+          dataSource: ds.cloneWithRows(responseData.bids),
+          isLoading: false,
+        });
+      })
+      .done();
+  }
+
   renderRow(rowData, sectionID, rowID, highlightRow){
+    console.log('Service Request RowData');
     console.log(JSON.stringify(rowData));
     const sd = df(rowData.service_date, 'dddd mmmm dS, yyyy');
+    //const buttonText = format('{} Bid(s)', rowData.service_bids.length);
     return(
       <View style={styles.container}>
         <View style={styles.vehicle}>
           <Text style={styles.title}>
             {rowData.year} {rowData.make} {rowData.model}
           </Text>
-          <Text style={styles.footnote}>
-            {sd}
+          <Text>
+             Service Date: {sd}
           </Text>
+        </View>
+        <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+          <Button
+            onPress={() => { this.props.navigation.navigate('ConsumerSvcRequestBids', {srid: rowData.service_id })}}
+            title="See bids"
+          />
         </View>
       </View>
     );

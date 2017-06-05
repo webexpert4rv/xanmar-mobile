@@ -117,10 +117,12 @@ export default class registerMerchant extends Component {
             <TextInput
               style={{ height: 60, width: 100 }}
               placeholder="State"
+              onChangeText={text => this.setState({ st: text })}
             />
             <TextInput
               style={{ height: 60, width: 100 }}
               placeholder="zip"
+              onChangeText={text => this.setState({ zip: text })}
             />
           </View>
 
