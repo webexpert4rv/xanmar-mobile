@@ -164,29 +164,55 @@ export default class MerchantJobDetail extends Component {
 // TRY AGAIN
   render() {
     const { state } = this.props.navigation;
-    return (
-      <View style={styles.listContainer}>
-        <View style={styles.infoSection}>
-          <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
-          {state.params.job.year} {state.params.job.make} {state.params.job.model}</Text>
-        </View>
-        <View style={styles.listSection}>
-          <ListView
-            dataSource={this.state.dataSource}
-            renderRow={this.renderRow.bind(this)}
-            renderSectionHeader={this.renderSectionHeader}
-            style={{ marginTop: 10 }}
-          />
-          </View>
-          <View style={styles.butSection}>
-          <Button
-            style={{ width: 300 }}
-            onPress={() => this.postBid()}
-            title="Submit Bid"
-          />
-          </View>
-      </View>
-    );
+
+    if (this.state.job.accepted) {
+       return (
+         <View style={styles.customerInfo}>
+           <View>
+             <Text style={{ textAlign: 'center', marginTop: 30, marginBottom: 15, fontSize: 20, fontWeight: 'bold' }}>Customer Contact Information </Text>
+           </View>
+           <View>
+             <Text style={ styles.customerDetail}>
+              Name: {this.state.job.customer_info.name}
+             </Text>
+           </View>
+           <View>
+             <Text style={ styles.customerDetail}>
+              Phone: {this.state.job.customer_info.phone}
+             </Text>
+           </View>
+           <View>
+             <Text style={ styles.customerDetail}>
+              Email: {this.state.job.customer_info.email}
+             </Text>
+           </View>
+         </View>
+       );
+     } else {
+       return (
+         <View style={styles.listContainer}>
+           <View style={styles.infoSection}>
+             <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
+             {state.params.job.year} {state.params.job.make} {state.params.job.model}</Text>
+           </View>
+           <View style={styles.listSection}>
+             <ListView
+               dataSource={this.state.dataSource}
+               renderRow={this.renderRow.bind(this)}
+               renderSectionHeader={this.renderSectionHeader}
+               style={{ marginTop: 10 }}
+             />
+             </View>
+             <View style={styles.butSection}>
+             <Button
+               style={{ width: 300 }}
+               onPress={() => this.postBid()}
+               title="Submit Bid"
+             />
+             </View>
+         </View>
+       );
+     }
   }
 }
 
@@ -199,6 +225,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   vehicle: {
+    padding: 10,
+  },
+  customerInfo: {
+    paddingLeft: 10,
+  },
+  customerDetail: {
+    fontSize: 15,
+    fontWeight: 'bold',
     padding: 10,
   },
   title: {

@@ -37,7 +37,7 @@ export default class MerchantJobs extends Component {
   }
 
   fetchData() {
-    fetch(format('{}/api/provider/jobs/{}', constants.BASSE_URL, this.getUserId()))
+    fetch(format('{}/api/provider/jobs/{}', constants.BASSE_URL,110))
       .then(response => response.json())
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
@@ -50,8 +50,19 @@ export default class MerchantJobs extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    console.log('rowData');
-    console.log(JSON.stringify(rowData));
+    var status;
+    var s;
+    var buttonText;
+    console.log(JSON.stringify(rowData.customer_info));
+    if (rowData.accepted) {
+      status = 'Accepted';
+      s = styles.statusAccepted;
+      buttonText = "View customer information";
+    } else {
+      status = 'Open';
+      s = styles.statusOpen;
+      buttonText = "Bid on service request";
+    }
     return(
       <View style={styles.container}>
         <View style={styles.vehicle}>
@@ -61,11 +72,14 @@ export default class MerchantJobs extends Component {
           <Text style={styles.footnote}>
             Requested service date: {rowData.service_date}
           </Text>
+          <Text style={s}>
+            {status}
+          </Text>
         </View>
         <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
           <Button
             onPress={() => { this.props.navigation.navigate('JobDetails', {job: rowData })}}
-            title="Service Request Details"
+            title={buttonText}
           />
         </View>
       </View>
@@ -120,13 +134,21 @@ export default class MerchantJobs extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: 100,
+    height: 120,
     backgroundColor: '#F5FCFF',
     marginLeft: 8,
     marginRight: 8,
   },
   vehicle: {
     padding: 10,
+  },
+  statusAccepted: {
+    fontSize: 13,
+    color: '#2ECC71',
+  },
+  statusOpen: {
+    fontSize: 13,
+    color: '#FF8C00',
   },
   title: {
     fontSize: 15,
