@@ -1,6 +1,25 @@
 import { Platform, StyleSheet } from 'react-native';
-import Color from 'color';
+
 import palette from './palette';
+
+export const bidStyles = StyleSheet.create({
+  statusAccepted: {
+    fontSize: 13,
+    color: '#2ECC71',
+  },
+  statusOpen: {
+    fontSize: 13,
+    color: '#FF8C00',
+  },
+  customerInfo: {
+    paddingLeft: 10,
+  },
+  customerDetail: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    padding: 10,
+  },
+});
 
 export const listStyles = StyleSheet.create({
   mainContainer: {
@@ -26,36 +45,6 @@ export const listStyles = StyleSheet.create({
   },
 });
 
-export const cellStyles = StyleSheet.create({
-  textContainer: {
-    flex: 1,
-  },
-  cellName: {
-    fontSize: 18,
-    fontWeight: '500',
-    marginBottom: 2,
-    color: 'black',
-  },
-  cellRow: {
-    alignItems: 'center',
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    padding: 10,
-  },
-  cellDetails: {
-    fontSize: 10,
-    color: palette.HELP_COLOR,
-  },
-  cellDetailsRed: {
-    color: Color(palette.red).desaturate(0.7).fade(0).rgb().string(),
-  },
-  cellDetailsOrange: {
-    color: Color(palette.orange).desaturate(0.7).fade(0).rgb().string(),
-  },
-  cellDetailsGreen: {
-    color: Color(palette.green).desaturate(0.7).fade(0).rgb().string(),
-  },
-});
 
 export const navStyles = StyleSheet.create({
   container: {

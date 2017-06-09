@@ -6,10 +6,11 @@ import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
+import { bidStyles } from '../style/style';
 
 export default class ConsumerSvcRequestBidDetails extends Component {
   static navigationOptions = {
-    title: 'Service Request Details',
+    title: 'Bid Details',
     header: {
       titleStyle: {
         color: palette.WHITE,
@@ -32,14 +33,15 @@ export default class ConsumerSvcRequestBidDetails extends Component {
     this.state = {
       dataSource: ds,
       dict: {},
-      bidDetails: state.params.details,
+      bid: state.params.bid,
+      srid: state.params.srid,
     };
   }
 
   componentDidMount() {
     // const { state } = this.props.navigation
     // console.log(JSON.stringify(this.state.job));
-    this.loadRequest(this.state.bidDetails);
+    this.loadRequest(this.state.bid.bid_detail);
   }
 
   loadRequest(svcs) {
@@ -84,34 +86,14 @@ export default class ConsumerSvcRequestBidDetails extends Component {
      return uId;
    }
 
-   postBid() {
-
-     let svcs = [];
-     const data = this.state.dict;
-    //  for (var key of data) {
-    //    svcs.push({ service_id: key, bid: data[key] })
-    //  }
-
-    //  data.map((obj) => {
-    //     svcs.push({ service_id: obj.key, bid: obj.value });
-    //     return nil;
-    //  });
-
-     for (let value of Object.keys(data)) {
-        // console.log(value);
-       svcs.push({ service_id: value, bid: data[value] });
-      }
-
-     const bid = {
-       service_request_id: this.state.job.service_request_id,
-       services: svcs };
-
-       console.log('POST BID');
-       console.log(JSON.stringify(bid));
-
-
+   acceptBid() {
      const { goBack } = this.props.navigation;
-     fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {
+     const bid = {
+       service_request_id: this.state.srid,
+       service_provider_id: this.state.bid.service_provider_id,
+       user_id: this.getUserId(),
+     };
+     fetch(format('{}/api/user/bid/accept', constants.BASSE_URL), {
        method: 'POST',
        headers: {
          'Content-Type': 'application/json',
@@ -120,11 +102,9 @@ export default class ConsumerSvcRequestBidDetails extends Component {
      })
        .then(response => response.json())
        .then((responseData) => {
-        //  const uId = responseData.user_id;
-        //  realm.write(() => {
-        //    realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
-        //  });
          goBack();
+       }).catch((error) => {
+         console.log(error);
        })
        .done();
    }
@@ -159,31 +139,87 @@ export default class ConsumerSvcRequestBidDetails extends Component {
 
 // TRY AGAIN {state.params.job.year} {state.params.job.make} {state.params.job.model}
   render() {
-    const { state } = this.props.navigation;
-    return (
-      <View style={styles.listContainer}>
-        <View style={styles.infoSection}>
-          <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
-          "wwwww"</Text>
+    //const { state } = this.props.navigation;
+
+    if (this.state.bid.accepted) {
+      return (
+        <View style={bidStyles.customerInfo}>
+          <View>
+            <Text style={{ textAlign: 'center', marginTop: 30, marginBottom: 15, fontSize: 20, fontWeight: 'bold' }}>Service Provider Contact Information </Text>
+          </View>
+          <View>
+            <Text style={ bidStyles.customerDetail}>
+             Name: {this.state.bid.business_name}
+            </Text>
+          </View>
+          <View>
+            <Text style={ bidStyles.customerDetail}>
+             Phone: {'this.state.bid.phone'}
+            </Text>
+          </View>
+          <View>
+            <Text style={ bidStyles.customerDetail}>
+             Email: 'this.state.bid.email'
+            </Text>
+          </View>
+          <View>
+            <Text style={ bidStyles.customerDetail}>
+             Address: 'this.state.bid.address'
+            </Text>
+          </View>
         </View>
-        <View style={styles.listSection}>
-          <ListView
-            dataSource={this.state.dataSource}
-            renderRow={this.renderRow.bind(this)}
-            renderSectionHeader={this.renderSectionHeader}
-            style={{ marginTop: 10 }}
-          />
+      );
+    } else {
+      return (
+        <View style={styles.listContainer}>
+          <View style={styles.infoSection}>
+            <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
+            {this.state.bid.business_name}</Text>
           </View>
-          <View style={{ marginBottom: 15, marginLeft: 8, marginRight: 8, flex: .05, flexDirection: 'row', justifyContent: 'center' }} >
-            <View style={{ width: 200}}>
-              <Button
-                onPress={() => this.postBid()}
-                title="Accept Bid"
-              />
+          <View style={styles.listSection}>
+            <ListView
+              dataSource={this.state.dataSource}
+              renderRow={this.renderRow.bind(this)}
+              renderSectionHeader={this.renderSectionHeader}
+              style={{ marginTop: 10 }}
+            />
             </View>
-          </View>
-      </View>
-    );
+            <View style={{ marginBottom: 15, marginLeft: 8, marginRight: 8, flex: .05, flexDirection: 'row', justifyContent: 'center' }} >
+              <View style={{ width: 200}}>
+                <Button
+                  onPress={() => this.acceptBid()}
+                  title="Accept Bid"
+                />
+              </View>
+            </View>
+        </View>
+      );
+    }
+
+    // return (
+    //   <View style={styles.listContainer}>
+    //     <View style={styles.infoSection}>
+    //       <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
+    //       {this.state.bid.business_name}</Text>
+    //     </View>
+    //     <View style={styles.listSection}>
+    //       <ListView
+    //         dataSource={this.state.dataSource}
+    //         renderRow={this.renderRow.bind(this)}
+    //         renderSectionHeader={this.renderSectionHeader}
+    //         style={{ marginTop: 10 }}
+    //       />
+    //       </View>
+    //       <View style={{ marginBottom: 15, marginLeft: 8, marginRight: 8, flex: .05, flexDirection: 'row', justifyContent: 'center' }} >
+    //         <View style={{ width: 200}}>
+    //           <Button
+    //             onPress={() => this.postBid()}
+    //             title="Accept Bid"
+    //           />
+    //         </View>
+    //       </View>
+    //   </View>
+    // );
   }
 }
 

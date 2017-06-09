@@ -6,6 +6,7 @@ import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
+import { bidStyles } from '../style/style';
 
 export default class ConsumerSvcRequestBids extends Component {
   static navigationOptions = {
@@ -31,7 +32,7 @@ export default class ConsumerSvcRequestBids extends Component {
     this.state = {
       dataSource: ds,
       dict: {},
-      srid: state.params.srid
+      srid: state.params.srid,
     };
   }
 
@@ -52,9 +53,27 @@ export default class ConsumerSvcRequestBids extends Component {
       .done();
   }
 
+  acceptBid() {
+    //do a post somewhere to accept bid
+  }
+
    renderRow(rowData, sectionID, rowID, highlightRow){
      console.log('rowData');
      console.log(JSON.stringify(rowData));
+     var status;
+     var s;
+     var buttonText;
+     console.log(JSON.stringify(rowData.customer_info));
+     if (rowData.accepted) {
+       status = 'Accepted';
+       s = bidStyles.statusAccepted;
+       buttonText = "View merchant information";
+     } else {
+       status = 'Open';
+       s = bidStyles.statusOpen;
+       buttonText = "View bid details";
+     }
+
      var total = rowData.bid_total;
      return(
        <View style={styles.container}>
@@ -65,15 +84,14 @@ export default class ConsumerSvcRequestBids extends Component {
            <Text style={styles.title}>
              ${total.toFixed(2)}
            </Text>
+           <Text style={s}>
+             {status}
+           </Text>
          </View>
-         <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'space-around' }} >
+         <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
            <Button
-             onPress={() => { this.props.navigation.navigate('JobDetails', {spi: rowData.service_provider_id })}}
-             title="Accept"
-           />
-           <Button
-             onPress={() => { this.props.navigation.navigate('ConsumerSvcRequestBidDetails', {details: rowData.bid_detail })}}
-             title="View details"
+             onPress={() => { this.props.navigation.navigate('ConsumerSvcRequestBidDetails', {bid: rowData, srid: this.state.srid })}}
+             title={buttonText}
            />
          </View>
        </View>
@@ -95,24 +113,33 @@ export default class ConsumerSvcRequestBids extends Component {
 
 // TRY AGAIN
   render() {
-    const { state } = this.props.navigation;
-    return (
-      <View>
-        <ListView
-          style={{ marginTop: 10 }}
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow.bind(this)}
-          renderSeparator={this.renderSeparator}
-        />
-      </View>
-    );
+    console.log('row count');
+    console.log(this.state.dataSource.getRowCount());
+    if (this.state.dataSource.getRowCount() > 0) {
+      return (
+        <View>
+          <ListView
+            style={{ marginTop: 10 }}
+            dataSource={this.state.dataSource}
+            renderRow={this.renderRow.bind(this)}
+            renderSeparator={this.renderSeparator}
+          />
+        </View>
+      );
+    } else {
+      return (
+        <View>
+          <Text style={{ textAlign: 'center', marginTop: 60, fontSize: 20 }}>No one has bidded on your service request. </Text>
+        </View>
+      );
+    }
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: 100,
+    height: 120,
     backgroundColor: '#F5FCFF',
     marginLeft: 8,
     marginRight: 8,

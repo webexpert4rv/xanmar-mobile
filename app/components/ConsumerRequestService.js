@@ -183,7 +183,8 @@ export default class ConsumerRequestService extends Component {
       services: r,
     };
 
-    const { navigate } = this.props.navigation;
+    // const { navigate } = this.props.navigation;
+    const { goBack } = this.props.navigation;
     fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
       method: 'POST',
       headers: {
@@ -197,7 +198,8 @@ export default class ConsumerRequestService extends Component {
         realm.write(() => {
           realm.create('ServiceRequest', svcRequest);
         });
-        navigate('consumerTab');
+        // navigate('consumerTab');
+        goBack();
       }).catch((error) => {
         console.log(error);
       })
