@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
+import { DeviceEventEmitter, AppRegistry, Button, View, StyleSheet, Text } from 'react-native';
 import { ListView } from 'realm/react-native';
+import { NavigationActions } from 'react-navigation'
 import format from 'string-format';
 import realm from './realm';
 import constants from '../constants/c';
@@ -102,6 +103,7 @@ export default class ConsumerSvcRequestBidDetails extends Component {
      })
        .then(response => response.json())
        .then((responseData) => {
+         DeviceEventEmitter.emit('onBidAccepted', {});
          goBack();
        }).catch((error) => {
          console.log(error);
@@ -137,10 +139,7 @@ export default class ConsumerSvcRequestBidDetails extends Component {
     )
   }
 
-// TRY AGAIN {state.params.job.year} {state.params.job.make} {state.params.job.model}
   render() {
-    //const { state } = this.props.navigation;
-
     if (this.state.bid.accepted) {
       return (
         <View style={bidStyles.customerInfo}>
@@ -195,31 +194,6 @@ export default class ConsumerSvcRequestBidDetails extends Component {
         </View>
       );
     }
-
-    // return (
-    //   <View style={styles.listContainer}>
-    //     <View style={styles.infoSection}>
-    //       <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
-    //       {this.state.bid.business_name}</Text>
-    //     </View>
-    //     <View style={styles.listSection}>
-    //       <ListView
-    //         dataSource={this.state.dataSource}
-    //         renderRow={this.renderRow.bind(this)}
-    //         renderSectionHeader={this.renderSectionHeader}
-    //         style={{ marginTop: 10 }}
-    //       />
-    //       </View>
-    //       <View style={{ marginBottom: 15, marginLeft: 8, marginRight: 8, flex: .05, flexDirection: 'row', justifyContent: 'center' }} >
-    //         <View style={{ width: 200}}>
-    //           <Button
-    //             onPress={() => this.postBid()}
-    //             title="Accept Bid"
-    //           />
-    //         </View>
-    //       </View>
-    //   </View>
-    // );
   }
 }
 

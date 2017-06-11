@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
+import { DeviceEventEmitter, AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import realm from './realm';
@@ -35,7 +35,9 @@ export default class ConsumerSvcRequestBids extends Component {
       srid: state.params.srid,
     };
   }
-
+  componentWillMount() {
+    DeviceEventEmitter.addListener('onBidAccepted', this.fetchData.bind(this))
+  }
   componentDidMount() {
     this.fetchData();
   }
@@ -51,10 +53,6 @@ export default class ConsumerSvcRequestBids extends Component {
         });
       })
       .done();
-  }
-
-  acceptBid() {
-    //do a post somewhere to accept bid
   }
 
    renderRow(rowData, sectionID, rowID, highlightRow){
@@ -90,7 +88,7 @@ export default class ConsumerSvcRequestBids extends Component {
          </View>
          <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
            <Button
-             onPress={() => { this.props.navigation.navigate('ConsumerSvcRequestBidDetails', {bid: rowData, srid: this.state.srid })}}
+             onPress={() => { this.props.navigation.navigate('ConsumerSvcRequestBidDetails', { bid: rowData, srid: this.state.srid })}}
              title={buttonText}
            />
          </View>
