@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, Button, Image, View, StyleSheet, Text, TouchableHighlight } from 'react-native';
+import { AppRegistry, Button, DeviceEventEmitter, Image, View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import realm from './realm';
@@ -26,6 +26,18 @@ export default class ConsumerSvcHistory extends Component {
 
   constructor(props) {
     super(props);
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    const v = realm.objects('ServiceRequest');
+    this.state = {
+      dataSource: ds.cloneWithRows(v),
+    };
+  }
+
+  // componentWillMount() {
+  //   DeviceEventEmitter.addListener('onNewSvcRequest', this.loadSvcRequests.bind(this));
+  // }
+
+  loadSvcRequests() {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     const v = realm.objects('ServiceRequest');
     this.state = {

@@ -59,11 +59,12 @@ ServiceRequest.schema = {
   name: 'ServiceRequest',
   properties: {
     service_id: 'int',
+    user_id: 'int',
     service_date: 'date',
+    service_zip: 'string',
     make: 'string',
     model: 'string',
     year: 'int',
-    services: { type: 'list', objectType: 'ServiceCategory' },
   },
 };
 

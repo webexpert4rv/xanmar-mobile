@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   AppRegistry,
   Button,
+  DeviceEventEmitter,
   Modal,
   StyleSheet,
   Text,
@@ -126,6 +127,7 @@ export default class ConsumerRequestService extends Component {
   }
 
   fetchData() {
+    console.log('fetch data on request svc page');
     const sc = realm.objects('ServiceCategory');
     this.setState({
       currentServices: sc,
@@ -195,10 +197,31 @@ export default class ConsumerRequestService extends Component {
       .then(response => response.json())
       .then((responseData) => {
         svcRequest.service_id = responseData.service_request_id;
+
+        //save request locally
+        const rSvcRequest = {
+          service_id: svcRequest.service_id,
+          user_id: svcRequest.user_id,
+          service_date: svcRequest.service_date,
+          service_zip: svcRequest.service_zip,
+          make: svcRequest.make,
+          model: svcRequest.model,
+          year: svcRequest.year,
+        };
         realm.write(() => {
-          realm.create('ServiceRequest', svcRequest);
+          realm.create('ServiceRequest', rSvcRequest);
         });
-        // navigate('consumerTab');
+
+        //reset services and categories
+        const localSvc = realm.objects('Service');
+        localSvc.forEach((s) => {
+          realm.write(() => {
+             s.checked = false;
+           });
+        });
+
+        //notify history page to reload
+        // DeviceEventEmitter.emit('onNewSvcRequest', {});
         goBack();
       }).catch((error) => {
         console.log(error);
@@ -245,7 +268,7 @@ export default class ConsumerRequestService extends Component {
            animationType={'slide'}
            transparent={true}
            visible={this.state.showServicePicker}
-           onRequestClose={() => {alert('Modal has been closed.')}}
+           onRequestClose={() => this.setState({ showServicePicker: false })}
            >
           <View style={{ margin: 50, backgroundColor: '#ffffff', padding: 20 }}>
             <ServicePicker currentServices={this.state.currentServices} onServicePickCompleted={this._onServicePickCompleted} />

@@ -36,7 +36,7 @@ export default class ConsumerSvcRequestBids extends Component {
     };
   }
   componentWillMount() {
-    DeviceEventEmitter.addListener('onBidAccepted', this.fetchData.bind(this))
+    DeviceEventEmitter.addListener('onBidAccepted', this.fetchData.bind(this));
   }
   componentDidMount() {
     this.fetchData();
