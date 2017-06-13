@@ -24,6 +24,15 @@ export default class registerMerchant extends Component {
     },
   };
 
+  // getDeviceToken() {
+  //   let token = 'not defined';
+  //   const userPrefs = realm.objects('UserPreference');
+  //   if (userPrefs.length > 0) {
+  //     token = userPrefs[0].deviceToken;
+  //   }
+  //   return token;
+  // }
+
   postMerchant() {
     const { navigate } = this.props.navigation;
     fetch(format('{}/api/provider', constants.BASSE_URL), {
@@ -108,10 +117,12 @@ export default class registerMerchant extends Component {
             <TextInput
               style={{ height: 60, width: 100 }}
               placeholder="State"
+              onChangeText={text => this.setState({ st: text })}
             />
             <TextInput
               style={{ height: 60, width: 100 }}
               placeholder="zip"
+              onChangeText={text => this.setState({ zip: text })}
             />
           </View>
 

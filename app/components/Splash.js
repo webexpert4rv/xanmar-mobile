@@ -65,7 +65,7 @@ export default class splash extends Component {
           const resetAction = NavigationActions.reset({
             index: 0,
             actions: [
-              NavigationActions.navigate({ routeName: 'merchantNavigator' }),
+              NavigationActions.navigate({ routeName: 'merchantNavigatorMain' }),
             ],
           });
           this.props.navigation.dispatch(resetAction);

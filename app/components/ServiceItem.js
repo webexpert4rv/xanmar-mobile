@@ -28,7 +28,7 @@ class ServiceItem extends Component {
       this.setState({
         item: i,
       });
-      svc = realm.create('Service', i, true);
+      //svc = realm.create('Service', i, true);
     });
 
     // console.log('onCheckBoxPressed')

@@ -71,15 +71,17 @@ export default class servicePicker extends Component {
     // console.log(JSON.stringify(rowData));
     var expand = false;
     return(
-      <TouchableHighlight onPress={() => {
-          this.doSomething(rowData);
-        }}>
-        <View style={styles.row}>
-          <Text style={styles.name}>
-            {rowData.name}
-          </Text>
-        </View>
-      </TouchableHighlight>
+      <View>
+        <TouchableHighlight onPress={() => {
+            this.doSomething(rowData);
+          }}>
+          <View style={styles.row}>
+            <Text style={styles.name}>
+              {rowData.name}
+            </Text>
+          </View>
+        </TouchableHighlight>
+      </View>
     );
   }
 

@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import {
   AppRegistry,
   Button,
+  DeviceEventEmitter,
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { ListView } from 'realm/react-native';
@@ -125,10 +127,20 @@ export default class ConsumerRequestService extends Component {
   }
 
   fetchData() {
+    console.log('fetch data on request svc page');
     const sc = realm.objects('ServiceCategory');
     this.setState({
       currentServices: sc,
     });
+  }
+
+  getUserId() {
+    let uId = 0;
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      uId = userPrefs[0].userId;
+    }
+    return uId;
   }
 
   submitRequest() {
@@ -163,17 +175,18 @@ export default class ConsumerRequestService extends Component {
     });
 
     const { state } = this.props.navigation;
-    console.log(new Date());
     const svcRequest = {
+      user_id: this.getUserId(),
       service_date: new Date(this.state.date),
+      service_zip: this.state.zip,
       make: state.params.vehicle.make,
       model: state.params.vehicle.model,
       year: parseInt(state.params.vehicle.year, 10),
       services: r,
     };
 
-    console.log(JSON.stringify(svcRequest));
-    const { navigate } = this.props.navigation;
+    // const { navigate } = this.props.navigation;
+    const { goBack } = this.props.navigation;
     fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
       method: 'POST',
       headers: {
@@ -183,14 +196,33 @@ export default class ConsumerRequestService extends Component {
     })
       .then(response => response.json())
       .then((responseData) => {
-        console.log("done....");
         svcRequest.service_id = responseData.service_request_id;
-        console.log(svcRequest.service_id);
-        console.log(JSON.stringify(svcRequest));
+
+        //save request locally
+        const rSvcRequest = {
+          service_id: svcRequest.service_id,
+          user_id: svcRequest.user_id,
+          service_date: svcRequest.service_date,
+          service_zip: svcRequest.service_zip,
+          make: svcRequest.make,
+          model: svcRequest.model,
+          year: svcRequest.year,
+        };
         realm.write(() => {
-          realm.create('ServiceRequest', svcRequest);
+          realm.create('ServiceRequest', rSvcRequest);
         });
-        navigate('consumerTab');
+
+        //reset services and categories
+        const localSvc = realm.objects('Service');
+        localSvc.forEach((s) => {
+          realm.write(() => {
+             s.checked = false;
+           });
+        });
+
+        //notify history page to reload
+        // DeviceEventEmitter.emit('onNewSvcRequest', {});
+        goBack();
       }).catch((error) => {
         console.log(error);
       })
@@ -226,13 +258,17 @@ export default class ConsumerRequestService extends Component {
               />
             </View>
           </View>
-
         </View>
+        <TextInput
+          style={{ height: 60, width: 100 }}
+          placeholder="service zip"
+          onChangeText={text => this.setState({ zip: text })}
+        />
         <Modal
            animationType={'slide'}
            transparent={true}
            visible={this.state.showServicePicker}
-           onRequestClose={() => {alert('Modal has been closed.')}}
+           onRequestClose={() => this.setState({ showServicePicker: false })}
            >
           <View style={{ margin: 50, backgroundColor: '#ffffff', padding: 20 }}>
             <ServicePicker currentServices={this.state.currentServices} onServicePickCompleted={this._onServicePickCompleted} />

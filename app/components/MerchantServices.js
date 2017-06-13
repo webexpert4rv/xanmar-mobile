@@ -137,9 +137,6 @@ export default class MerchantService extends Component {
 
   fetchData() {
     const svcs = realm.objects('MerchantServices');
-    console.log('number of ms....')
-    console.log(JSON.stringify(svcs));
-    console.log(svcs.length);
 
     let serviceChecked = false;
     const servicesCategoryMap = {};
@@ -160,8 +157,6 @@ export default class MerchantService extends Component {
         delete servicesCategoryMap[service.name]
       }
     });
-
-console.log(JSON.stringify(servicesCategoryMap));
 
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,

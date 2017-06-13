@@ -5,8 +5,9 @@ UserPreference.schema = {
   name: 'UserPreference',
   properties: {
     onboarded: { type: 'bool', default: false },
-    userId: 'int',
-    role: 'string',
+    userId: { type: 'int', default: 0 },
+    role: { type: 'string', default: '' },
+    deviceToken: { type: 'string', default: '' },
   },
 };
 
@@ -58,11 +59,12 @@ ServiceRequest.schema = {
   name: 'ServiceRequest',
   properties: {
     service_id: 'int',
+    user_id: 'int',
     service_date: 'date',
+    service_zip: 'string',
     make: 'string',
     model: 'string',
     year: 'int',
-    services: { type: 'list', objectType: 'ServiceCategory' },
   },
 };
 

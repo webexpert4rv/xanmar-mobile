@@ -13,8 +13,12 @@ import vehicles from './components/ConsumerVehicles';
 import consumerSvcHistory from './components/ConsumerSvcHistory';
 import consumerProfile from './components/ConsumerProfile';
 import consumerRequestSvc from './components/ConsumerRequestService';
+import consumerSvcRequestDetail from './components/ConsumerSvcRequestDetail';
+import consumerSvcRequestBids from './components/ConsumerSvcRequestBids';
+import consumerSvcRequestBidDetails from './components/ConsumerSvcRequestBidDetails';
 
 import merchantJobs from './components/MerchantJobs';
+import merchantJobDetail from './components/MerchantJobDetail';
 import merchantSvcs from './components/MerchantServices';
 import merchantProfile from './components/MerchantProfile';
 import palette from './style/palette';
@@ -50,25 +54,16 @@ const consumerNavigator = TabNavigator({
 },
 );
 
-
 const consumerNavigatorMain = StackNavigator({
   consumerTab: { screen: consumerNavigator },
   RegisterVehicle: { screen: registerVehicle },
   RequestService: { screen: consumerRequestSvc },
+  ConsumerSvcRequestDetail: { screen: consumerSvcRequestDetail },
+  ConsumerSvcRequestBids: { screen: consumerSvcRequestBids },
+  ConsumerSvcRequestBidDetails: { screen: consumerSvcRequestBidDetails },
 }, {
   headerMode: 'screen',
 },
-);
-
-
-const consumerNavigatorForOnBoarding = StackNavigator({
-  consumerTab: { screen: consumerNavigator },
-  RegisterVehicle: { screen: registerVehicle },
-  RequestService: { screen: consumerRequestSvc },
-},
-  {
-    headerMode: 'screen',
-  },
 );
 
 const merchantNavigator = TabNavigator({
@@ -89,36 +84,12 @@ const merchantNavigator = TabNavigator({
   },
 );
 
-const merchantNavigatorForOnBoarding = TabNavigator({
-  Jobs: { screen: merchantJobs },
-  Services: { screen: merchantSvcs },
-  Profile: { screen: merchantProfile },
+const merchantNavigatorMain = StackNavigator({
+  merchantTab: { screen: merchantNavigator },
+  JobDetails: { screen: merchantJobDetail },
+}, {
+  headerMode: 'screen',
 },
-  {
-    headerMode: 'screen',
-  },
-  { tabBarOptions: {
-    activeTintColor: palette.WHITE,
-    inactiveTintColor: palette.WHITE,
-    labelStyle: {
-      fontSize: 15,
-    },
-    style: {
-      backgroundColor: palette.PRIMARY_COLOR_DARK, // Main color
-    },
-  },
-  },
-);
-
-const userNavigatorForOnBoarding = StackNavigator({
-  Main: { screen: main },
-  RegisterServicesOffered: { screen: registerServicesOffered },
-  RegisterVehicle: { screen: registerVehicle },
-},
-  {
-    initialRouteName: 'Main',
-    headerMode: 'none',
-  },
 );
 
 const onBoardingNavigator = StackNavigator({
@@ -132,6 +103,10 @@ const onBoardingNavigator = StackNavigator({
   svcs: { screen: services },
   merchantSvcs: { screen: merchantSvcs },
   RequestService: { screen: consumerRequestSvc },
+  JobDetails: { screen: merchantJobDetail },
+  ConsumerSvcRequestDetail: { screen: consumerSvcRequestDetail },
+  ConsumerSvcRequestBids: { screen: consumerSvcRequestBids },
+  ConsumerSvcRequestBidDetails: { screen: consumerSvcRequestBidDetails },
 },
   {
     initialRouteName: 'RegisterMain',
@@ -144,7 +119,7 @@ const AppNavigator = StackNavigator({
   userNavigator: { screen: userNavigator },
   OnBoardingNavigator: { screen: onBoardingNavigator },
   // consumerNavigator: { screen: consumerNavigator },
-  merchantNavigator: { screen: merchantNavigator },
+  merchantNavigatorMain: { screen: merchantNavigatorMain },
   consumerNavigatorMain: { screen: consumerNavigatorMain },
 },
   {
@@ -152,32 +127,5 @@ const AppNavigator = StackNavigator({
     headerMode: 'none',
   },
 );
-
-// class xanmar extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {};
-//   }
-//
-//   render() {
-//     const { nav } = this.props.navigation;
-//     return (
-//       <View>
-//         <Button
-//           onPress={() => nav.navigate('First')}
-//           title="Go to next screen"
-//         />
-//       </View>
-//     )
-//   }
-// }
-//
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center'
-//   }
-// });
 
 export default AppNavigator;
