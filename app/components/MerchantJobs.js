@@ -111,7 +111,7 @@ export default class MerchantJobs extends Component {
     if (this.state.dataSource.getRowCount() > 0) {
       return (
         <View>
-
+          <PushController />
           <ListView
             style={{ marginTop: 10 }}
             dataSource={this.state.dataSource}
@@ -123,7 +123,7 @@ export default class MerchantJobs extends Component {
     } else {
       return (
         <View>
-
+          <PushController />
           <Text style={{ textAlign: 'center', marginTop: 30, fontSize: 20 }}>No current jobs available for your service area </Text>
         </View>
       );
