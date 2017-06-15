@@ -4,6 +4,7 @@ import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation';
 import realm from './realm';
 import palette from '../style/palette';
+import PushController from './PushController';
 
 const vehicleIcon = require('../img/vehicle_icon.png');
 
@@ -87,6 +88,7 @@ export default class ConsumerVehicles extends Component {
     if (this.state.dataSource.getRowCount() > 0) {
       return (
         <View>
+          <PushController />
           <View style={{ marginRight: 10, marginTop: 20, flexDirection: 'column', alignItems: 'flex-end' }}>
             <Button
               style={{ width: 300 }}
@@ -106,6 +108,7 @@ export default class ConsumerVehicles extends Component {
     } else {
       return (
         <View>
+          <PushController />
           <View style={{ marginRight: 10, marginTop: 20, flexDirection: 'column', alignItems: 'flex-end' }}>
             <Button
               style={{ width: 300 }}

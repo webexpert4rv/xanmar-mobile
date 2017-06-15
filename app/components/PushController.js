@@ -13,11 +13,13 @@ export default class PushController extends Component {
   componentDidMount() {
     FCM.requestPermissions();
 
-    FCM.getFCMToken().then(token => {
-      console.log("TOKEN (getFCMToken)", token);
-      this.postDeviceToken(token);
-      // this.props.onChangeToken(token);
-    });
+    if (!this.hasTokenSet()) {
+      FCM.getFCMToken().then(token => {
+        console.log("TOKEN (getFCMToken)", token);
+        this.postDeviceToken(token);
+        // this.props.onChangeToken(token);
+      });
+    }
 
     FCM.getInitialNotification().then(notif => {
       console.log("INITIAL NOTIFICATION", notif)
@@ -79,6 +81,17 @@ export default class PushController extends Component {
     }
   }
 
+  hasTokenSet() {
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      if (userPrefs[0].deviceToken !== '') {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
   getUserId() {
     let uId = 0;
     const userPrefs = realm.objects('UserPreference');
@@ -90,6 +103,15 @@ export default class PushController extends Component {
 
   postDeviceToken(token) {
     this.updateLocalToken(token);
+    const userPrefs = realm.objects('UserPreference');
+    let r = '';
+    if (userPrefs.length > 0) {
+      if (userPrefs[0].role === 'consumer') {
+        r = 'consumer';
+      } else {
+        r = 'merchant';
+      }
+    }
     fetch(format('{}/api/user/token', constants.BASSE_URL), {
       method: 'POST',
       headers: {
@@ -98,6 +120,7 @@ export default class PushController extends Component {
       body: JSON.stringify({
         user_id: this.getUserId(),
         dt: token,
+        role: r
       }),
     })
       .then(response => response.json())
