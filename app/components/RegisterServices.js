@@ -18,15 +18,16 @@ import palette from '../style/palette';
 export default class RegisterServices extends Component {
   static navigationOptions = {
     title: 'Services',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR_DARK,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {

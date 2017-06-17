@@ -5,15 +5,16 @@ import palette from '../style/palette';
 export default class registerMain extends Component {
   static navigationOptions = {
     title: 'Registration Main',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   render() {

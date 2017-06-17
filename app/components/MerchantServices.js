@@ -16,9 +16,7 @@ import palette from '../style/palette';
 export default class MerchantService extends Component {
   static navigationOptions = {
     title: 'Services',
-    header: {
-      visible: false,
-    },
+    header: null,
   };
 
   constructor(props) {

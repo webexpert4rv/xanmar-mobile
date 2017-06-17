@@ -5,8 +5,6 @@ import registerConsumer from './components/registerConsumer';
 import registerMerchant from './components/registerMerchant';
 import registerServicesOffered from './components/RegisterServices';
 import registerVehicle from './components/RegisterVehicle';
-import main from './components/MainComponent';
-import requestService from './components/requestService';
 import services from './components/services';
 
 import vehicles from './components/ConsumerVehicles';
@@ -25,33 +23,38 @@ import palette from './style/palette';
 
 //  just dumb, hack for issue
 //  https://github.com/react-community/react-navigation/issues/199
-const userNavigator = StackNavigator({
-  Main: { screen: main },
-  RegisterServicesOffered: { screen: registerServicesOffered },
-  RequestService: { screen: requestService },
-  RegisterVehicle: { screen: registerVehicle },
+// const userNavigator = StackNavigator({
+//   Main: { screen: main },
+//   RegisterServicesOffered: { screen: registerServicesOffered },
+//   RequestService: { screen: requestService },
+//   RegisterVehicle: { screen: registerVehicle },
+//
+// },
+//   {
+//     initialRouteName: 'Main',
+//   },
+// );
 
-},
+const consumerNavigator = TabNavigator(
   {
-    initialRouteName: 'Main',
+    Vehicles: { screen: vehicles },
+    SvcHistory: { screen: consumerSvcHistory },
+    Profile: { screen: consumerProfile },
   },
-);
-
-const consumerNavigator = TabNavigator({
-  Vehicles: { screen: vehicles },
-  SvcHistory: { screen: consumerSvcHistory },
-  Profile: { screen: consumerProfile },
-}, { tabBarOptions: {
-  activeTintColor: palette.WHITE,
-  inactiveTintColor: palette.WHITE,
-  labelStyle: {
-    fontSize: 15,
+  {
+    lazy: true,
   },
-  style: {
-    backgroundColor: palette.PRIMARY_COLOR, // Main color
+  { tabBarOptions: {
+    activeTintColor: palette.WHITE,
+    inactiveTintColor: palette.WHITE,
+    labelStyle: {
+      fontSize: 15,
+    },
+    style: {
+      backgroundColor: palette.PRIMARY_COLOR, // Main color
+    },
   },
-},
-},
+  },
 );
 
 const consumerNavigatorMain = StackNavigator({
@@ -116,9 +119,7 @@ const onBoardingNavigator = StackNavigator({
 
 const AppNavigator = StackNavigator({
   Splash: { screen: splash },
-  userNavigator: { screen: userNavigator },
   OnBoardingNavigator: { screen: onBoardingNavigator },
-  // consumerNavigator: { screen: consumerNavigator },
   merchantNavigatorMain: { screen: merchantNavigatorMain },
   consumerNavigatorMain: { screen: consumerNavigatorMain },
 },

@@ -13,15 +13,16 @@ import palette from '../style/palette';
 export default class registerMerchant extends Component {
   static navigationOptions = {
     title: 'Register As Auto Service Shop',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR_DARK,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   // getDeviceToken() {
@@ -121,6 +122,8 @@ export default class registerMerchant extends Component {
             />
             <TextInput
               style={{ height: 60, width: 100 }}
+              keyboardType="numeric"
+              maxLength={5}
               placeholder="zip"
               onChangeText={text => this.setState({ zip: text })}
             />

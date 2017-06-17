@@ -11,17 +11,13 @@ const vehicleIcon = require('../img/vehicle_icon.png');
 export default class ConsumerVehicles extends Component {
   static navigationOptions = {
     title: 'Vehichles',
-    header: {
-      visible: false,
-    },
-    tabBar: {
-      icon: ({ tintColor }) => (
-        <Image
-          source={vehicleIcon}
-          style={{ width: 26, height: 26, tintColor: tintColor }}
-        />
-     ),
-    },
+    header: null,
+    tabBarIcon:({ tintColor }) => (
+      <Image
+        source={profileIcon}
+        style={{ width: 26, height: 26, tintColor: tintColor }}
+      />
+   ),
   };
 
   constructor(props) {

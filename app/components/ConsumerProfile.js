@@ -13,17 +13,13 @@ const profileIcon = require('../img/profile_icon.png');
 export default class ConsumerProfile extends Component {
   static navigationOptions = {
     title: 'My Profile',
-    header: {
-      visible: false,
-    },
-    tabBar: {
-      icon: ({ tintColor }) => (
-        <Image
-          source={profileIcon}
-          style={{ width: 26, height: 26, tintColor: tintColor }}
-        />
-     ),
-    },
+    header: null,
+    tabBarIcon:({ tintColor }) => (
+      <Image
+        source={profileIcon}
+        style={{ width: 26, height: 26, tintColor: tintColor }}
+      />
+   ),
   };
 
   constructor(props) {

@@ -9,9 +9,7 @@ import PushController from './PushController';
 export default class MerchantJobs extends Component {
   static navigationOptions = {
     title: 'Jobs',
-    header: {
-      visible: false,
-    },
+    header: null,
   };
 
   constructor(props) {

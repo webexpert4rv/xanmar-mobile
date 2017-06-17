@@ -11,17 +11,13 @@ const svcHistoryIcon = require('../img/svc_history_icon.png');
 export default class ConsumerSvcHistory extends Component {
   static navigationOptions = {
     title: 'Service Request',
-    header: {
-      visible: false,
-    },
-    tabBar: {
-      icon: ({ tintColor }) => (
-        <Image
-          source={svcHistoryIcon}
-          style={{ width: 26, height: 26, tintColor: tintColor }}
-        />
-     ),
-    },
+    header: null,
+    tabBarIcon:({ tintColor }) => (
+      <Image
+        source={profileIcon}
+        style={{ width: 26, height: 26, tintColor: tintColor }}
+      />
+   ),
   };
 
   constructor(props) {
@@ -33,9 +29,7 @@ export default class ConsumerSvcHistory extends Component {
     };
   }
 
-  // componentWillMount() {
-  //   DeviceEventEmitter.addListener('onNewSvcRequest', this.loadSvcRequests.bind(this));
-  // }
+
 
   loadSvcRequests() {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });

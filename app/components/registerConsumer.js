@@ -13,15 +13,16 @@ import constants from '../constants/c';
 export default class registerConsumer extends Component {
   static navigationOptions = {
     title: 'Register Consumer',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {

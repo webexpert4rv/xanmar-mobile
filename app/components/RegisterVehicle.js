@@ -19,6 +19,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import MakePicker from './MakePicker';
 import ModelPicker from './ModelPicker';
+import palette from '../style/palette';
 
 const styles = StyleSheet.create({
   container: {
@@ -41,15 +42,16 @@ const styles = StyleSheet.create({
 export default class registerVehicle extends Component {
   static navigationOptions = {
     title: 'Register Vehicle',
-    header: {
-      titleStyle: {
-        color: '#FFFFFF',
-      },
-      style: {
-        backgroundColor: '#6495ed',
-      },
-      tintColor: '#FFFFFF',
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {
