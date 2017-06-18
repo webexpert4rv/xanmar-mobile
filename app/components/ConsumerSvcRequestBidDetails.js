@@ -154,17 +154,18 @@ export default class ConsumerSvcRequestBidDetails extends Component {
           </View>
           <View>
             <Text style={ bidStyles.customerDetail}>
-             Phone: {'this.state.bid.phone'}
+             Phone: {this.state.bid.phone}
             </Text>
           </View>
           <View>
             <Text style={ bidStyles.customerDetail}>
-             Email: 'this.state.bid.email'
+             Email: {this.state.bid.email}
             </Text>
           </View>
           <View>
             <Text style={ bidStyles.customerDetail}>
-             Address: 'this.state.bid.address'
+             Address: {this.state.bid.address}
+             {this.state.bid.city} {this.state.bid.state} {this.state.bid.zip}
             </Text>
           </View>
         </View>

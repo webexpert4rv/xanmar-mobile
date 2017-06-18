@@ -57,12 +57,9 @@ export default class ConsumerSvcRequestBids extends Component {
   }
 
    renderRow(rowData, sectionID, rowID, highlightRow){
-     console.log('rowData');
-     console.log(JSON.stringify(rowData));
      var status;
      var s;
      var buttonText;
-     console.log(JSON.stringify(rowData.customer_info));
      if (rowData.accepted) {
        status = 'Accepted';
        s = bidStyles.statusAccepted;
