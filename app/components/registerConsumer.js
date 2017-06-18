@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { NavigationActions } from 'react-navigation';
 import { AppRegistry,
         Button,
         View,
@@ -35,15 +34,6 @@ export default class registerConsumer extends Component {
   }
 
   registerUser() {
-    // const resetAction = NavigationActions.reset({
-    //   type: NavigationActions.RESET,
-    //   index: 0,
-    //   key: 'AppNavigator',
-    //   actions: [
-    //     NavigationActions.navigate({ routeName: 'userNavigator' }),
-    //   ],
-    // });
-    // this.props.navigation.dispatch(resetAction);
     const { navigate } = this.props.navigation;
     fetch(format('{}/api/user/registration', constants.BASSE_URL), {
       method: 'POST',
@@ -53,6 +43,8 @@ export default class registerConsumer extends Component {
       body: JSON.stringify({
         email: this.state.email,
         pwd: this.state.pwd,
+        name: this.state.name,
+        phone: this.state.phone,
       }),
     })
       .then(response => response.json())
@@ -79,8 +71,20 @@ export default class registerConsumer extends Component {
         <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
           <TextInput
             style={{ height: 60, width: 300 }}
+            placeholder="name"
+            onChangeText={text => this.setState({ name: text })}
+          />
+          <TextInput
+            style={{ height: 60, width: 300 }}
             placeholder="email"
             onChangeText={text => this.setState({ email: text })}
+          />
+          <TextInput
+            style={{ height: 60, width: 300 }}
+            keyboardType="phone-pad"
+            placeholder="contact number"
+            maxLength={10}
+            onChangeText={text => this.setState({ phone: text })}
           />
           <TextInput
             style={{ height: 60, width: 300 }}
