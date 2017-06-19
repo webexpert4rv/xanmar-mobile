@@ -21,6 +21,13 @@ export const bidStyles = StyleSheet.create({
   },
 });
 
+export const formStyles = StyleSheet.create({
+  error: {
+    fontSize: 13,
+    color: '#FF0000',
+  },
+});
+
 export const listStyles = StyleSheet.create({
   mainContainer: {
     flex: 1,

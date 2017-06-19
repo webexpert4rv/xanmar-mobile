@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import constants from '../constants/c';
@@ -22,15 +23,16 @@ const calIcon = require('../img/google_calendar.png');
 export default class ConsumerRequestService extends Component {
   static navigationOptions = {
     title: 'Service Request',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {
@@ -221,8 +223,17 @@ export default class ConsumerRequestService extends Component {
         });
 
         //notify history page to reload
-        // DeviceEventEmitter.emit('onNewSvcRequest', {});
-        goBack();
+        //DeviceEventEmitter.emit('onSvcRequest', {});
+
+        const resetAction = NavigationActions.reset({
+          index: 0,
+          actions: [
+            NavigationActions.navigate({ routeName: 'consumerTab' }),
+          ],
+        });
+        this.props.navigation.dispatch(resetAction);
+
+        //goBack();
       }).catch((error) => {
         console.log(error);
       })

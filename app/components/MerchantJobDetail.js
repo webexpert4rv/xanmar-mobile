@@ -10,23 +10,22 @@ import palette from '../style/palette';
 export default class MerchantJobDetail extends Component {
   static navigationOptions = {
     title: 'Service Request Details',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {
     super(props);
     this.addService = this.addService.bind(this);
     const { state } = this.props.navigation
-    console.log('STATE');
-    console.log(JSON.stringify(state.params.job));
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,

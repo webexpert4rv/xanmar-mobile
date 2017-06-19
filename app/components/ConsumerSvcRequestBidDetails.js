@@ -12,15 +12,16 @@ import { bidStyles } from '../style/style';
 export default class ConsumerSvcRequestBidDetails extends Component {
   static navigationOptions = {
     title: 'Bid Details',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {
@@ -153,17 +154,18 @@ export default class ConsumerSvcRequestBidDetails extends Component {
           </View>
           <View>
             <Text style={ bidStyles.customerDetail}>
-             Phone: {'this.state.bid.phone'}
+             Phone: {this.state.bid.phone}
             </Text>
           </View>
           <View>
             <Text style={ bidStyles.customerDetail}>
-             Email: 'this.state.bid.email'
+             Email: {this.state.bid.email}
             </Text>
           </View>
           <View>
             <Text style={ bidStyles.customerDetail}>
-             Address: 'this.state.bid.address'
+             Address: {this.state.bid.address}
+             {this.state.bid.city} {this.state.bid.state} {this.state.bid.zip}
             </Text>
           </View>
         </View>

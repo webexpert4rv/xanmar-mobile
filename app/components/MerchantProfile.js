@@ -12,9 +12,7 @@ import realm from './realm';
 export default class MerchantProfile extends Component {
   static navigationOptions = {
     title: 'My Profile',
-    header: {
-      visible: false,
-    },
+    header: null,
   };
 
   postMerchant() {

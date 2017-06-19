@@ -11,15 +11,16 @@ import { bidStyles } from '../style/style';
 export default class ConsumerSvcRequestBids extends Component {
   static navigationOptions = {
     title: 'Service Request Bids',
-    header: {
-      titleStyle: {
-        color: palette.WHITE,
-      },
-      style: {
-        backgroundColor: palette.PRIMARY_COLOR,
-      },
-      tintColor: palette.WHITE,
+    headerStyle: {
+      backgroundColor: palette.PRIMARY_COLOR,
     },
+    headerTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerBackTitleStyle: {
+      color: palette.WHITE,
+    },
+    headerTintColor: palette.WHITE,
   };
 
   constructor(props) {
@@ -56,12 +57,9 @@ export default class ConsumerSvcRequestBids extends Component {
   }
 
    renderRow(rowData, sectionID, rowID, highlightRow){
-     console.log('rowData');
-     console.log(JSON.stringify(rowData));
      var status;
      var s;
      var buttonText;
-     console.log(JSON.stringify(rowData.customer_info));
      if (rowData.accepted) {
        status = 'Accepted';
        s = bidStyles.statusAccepted;
