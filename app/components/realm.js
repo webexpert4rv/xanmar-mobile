@@ -11,6 +11,33 @@ UserPreference.schema = {
   },
 };
 
+class ConsumerProfile extends Realm.Object {}
+ConsumerProfile.schema = {
+  name: 'ConsumerProfile',
+  properties: {
+    name: { type: 'string', default: '' },
+    email: { type: 'string', default: '' },
+    pwd: { type: 'string', default: '' },
+    phone: { type: 'string', default: '' },
+  },
+};
+
+class ServiceProviderProfile extends Realm.Object {}
+ServiceProviderProfile.schema = {
+  name: 'ServiceProviderProfile',
+  properties: {
+    email: { type: 'string', default: '' },
+    pwd: { type: 'string', default: '' },
+    business_name: { type: 'string', default: '' },
+    phone: { type: 'string', default: '' },
+    contact_name: { type: 'string', default: '' },
+    address: { type: 'string', default: '' },
+    city: { type: 'string', default: '' },
+    state: { type: 'string', default: '' },
+    zip: { type: 'string', default: '' },
+  },
+};
+
 class Vehicle extends Realm.Object {}
 Vehicle.schema = {
   name: 'Vehicle',
@@ -68,4 +95,7 @@ ServiceRequest.schema = {
   },
 };
 
-export default new Realm({ schema: [UserPreference, Vehicle, Service, ServiceCategory, ServiceRequest, MerchantServices] });
+export default new Realm({ schema:
+[UserPreference, Vehicle, Service,
+  ServiceCategory, ServiceRequest, MerchantServices,
+  ConsumerProfile, ServiceProviderProfile] });
