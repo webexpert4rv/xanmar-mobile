@@ -71,9 +71,7 @@ export default class MerchantJobDetail extends Component {
   }
 
    addService(s, bid) {
-     this.state.dict[s.service_id] = bid;
-    //  console.log('ggg');
-    //  console.log(this.state.dict);
+     this.state.dict[s.service_id] = parseInt(bid);
    }
 
    getUserId() {
@@ -145,7 +143,7 @@ export default class MerchantJobDetail extends Component {
             keyboardType="numeric"
             onChangeText={text => this.addService(rowData, text)}
             style={{ height: 60, width: 100 }}
-            placeholder="0.00"
+            placeholder="0"
           />
         </View>
       </View>
