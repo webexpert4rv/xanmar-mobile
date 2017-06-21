@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
+import { Alert, AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import realm from './realm';
@@ -83,25 +83,29 @@ export default class MerchantJobDetail extends Component {
      return uId;
    }
 
-   postBid() {
+  validateBid() {
+    const data = this.state.dict;
+    let bidValid = true;
 
-     let svcs = [];
-     const data = this.state.dict;
-    //  for (var key of data) {
-    //    svcs.push({ service_id: key, bid: data[key] })
-    //  }
+    for (let value of Object.keys(data)) {
+      if (data[value] === 0) {
+        bidValid = false;
+      }
+    }
+    return bidValid;
+  }
 
-    //  data.map((obj) => {
-    //     svcs.push({ service_id: obj.key, bid: obj.value });
-    //     return nil;
-    //  });
+  postBid() {
+    if (this.validateBid()) {
+      let svcs = [];
+      const data = this.state.dict;
 
-     for (let value of Object.keys(data)) {
+      for (let value of Object.keys(data)) {
         // console.log(value);
        svcs.push({ service_id: value, bid: data[value] });
       }
 
-     const bid = {
+      const bid = {
        service_request_id: this.state.job.service_request_id,
        services: svcs };
 
@@ -109,14 +113,14 @@ export default class MerchantJobDetail extends Component {
        console.log(JSON.stringify(bid));
 
 
-     const { goBack } = this.props.navigation;
-     fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {
+      const { goBack } = this.props.navigation;
+      fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {
        method: 'POST',
        headers: {
          'Content-Type': 'application/json',
        },
        body: JSON.stringify(bid),
-     })
+      })
        .then(response => response.json())
        .then((responseData) => {
         //  const uId = responseData.user_id;
@@ -126,7 +130,17 @@ export default class MerchantJobDetail extends Component {
          goBack();
        })
        .done();
-   }
+    } else {
+      Alert.alert(
+      'Error',
+      'Zero bids is not allowed',
+        [
+          { text: 'OK' },
+        ],
+      { cancelable: false }
+    );
+    }
+  }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
     return(
