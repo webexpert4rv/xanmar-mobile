@@ -48,10 +48,10 @@ export default class MerchantJobs extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    var status;
-    var s;
-    var buttonText;
-    console.log(JSON.stringify(rowData.customer_info));
+    let status;
+    let s;
+    let buttonText;
+
     if (rowData.accepted) {
       status = 'Accepted';
       s = styles.statusAccepted;

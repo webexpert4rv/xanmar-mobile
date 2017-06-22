@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
+import { Alert, AppRegistry, Button, View, StyleSheet, Text, TextInput, TouchableHighlight } from 'react-native';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import realm from './realm';
@@ -71,9 +71,7 @@ export default class MerchantJobDetail extends Component {
   }
 
    addService(s, bid) {
-     this.state.dict[s.service_id] = bid;
-    //  console.log('ggg');
-    //  console.log(this.state.dict);
+     this.state.dict[s.service_id] = parseInt(bid);
    }
 
    getUserId() {
@@ -85,40 +83,48 @@ export default class MerchantJobDetail extends Component {
      return uId;
    }
 
-   postBid() {
+  validateBid() {
+    const data = this.state.dict;
+    const size = Object.keys(data).length;
+    const rows = this.state.dataSource.getRowCount();
+    let bidValid = true;
 
-     let svcs = [];
-     const data = this.state.dict;
-    //  for (var key of data) {
-    //    svcs.push({ service_id: key, bid: data[key] })
-    //  }
+    if (size === 0 || rows !== size) {
+      bidValid = false;
+    }
 
-    //  data.map((obj) => {
-    //     svcs.push({ service_id: obj.key, bid: obj.value });
-    //     return nil;
-    //  });
+    for (let value of Object.keys(data)) {
+      if (data[value] === 0) {
+        bidValid = false;
+      }
+    }
 
-     for (let value of Object.keys(data)) {
+    return bidValid;
+  }
+
+  postBid() {
+    if (this.validateBid()) {
+      let svcs = [];
+      const data = this.state.dict;
+
+      for (let value of Object.keys(data)) {
         // console.log(value);
        svcs.push({ service_id: value, bid: data[value] });
       }
 
-     const bid = {
-       service_request_id: this.state.job.service_request_id,
-       services: svcs };
-
-       console.log('POST BID');
-       console.log(JSON.stringify(bid));
+      const bid = {
+        service_request_id: this.state.job.service_request_id,
+        services: svcs };
 
 
-     const { goBack } = this.props.navigation;
-     fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-       },
-       body: JSON.stringify(bid),
-     })
+      const { goBack } = this.props.navigation;
+      fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bid),
+      })
        .then(response => response.json())
        .then((responseData) => {
         //  const uId = responseData.user_id;
@@ -128,12 +134,20 @@ export default class MerchantJobDetail extends Component {
          goBack();
        })
        .done();
-   }
+    } else {
+      Alert.alert(
+      'Error',
+      'Zero bids are not allowed',
+        [
+          { text: 'OK' },
+        ],
+      { cancelable: false }
+    );
+    }
+  }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    return(
-
-
+    return (
       <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
         <View>
         <Text style={styles.name}>
@@ -145,7 +159,7 @@ export default class MerchantJobDetail extends Component {
             keyboardType="numeric"
             onChangeText={text => this.addService(rowData, text)}
             style={{ height: 60, width: 100 }}
-            placeholder="0.00"
+            placeholder="0"
           />
         </View>
       </View>

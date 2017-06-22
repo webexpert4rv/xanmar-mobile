@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { AppRegistry,
+import { Alert,
+        AppRegistry,
         Button,
         Modal,
         View,
@@ -9,11 +10,8 @@ import { AppRegistry,
         TouchableHighlight,
         TouchableWithoutFeedback } from 'react-native';
 import { NavigationActions } from 'react-navigation';
-import DropDown, {
-  Select,
-  Option,
-  OptionList,
-} from 'react-native-selectme';
+import renderIf from 'render-if';
+import { formStyles } from '../style/style';
 import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
@@ -65,6 +63,9 @@ export default class registerVehicle extends Component {
       model: 'Model',
       vehicles: [],
       models: [],
+      showYearError: false,
+      showMakeError: false,
+      showModelError: false,
     };
   }
 
@@ -84,35 +85,63 @@ export default class registerVehicle extends Component {
       .done();
   }
 
+  validateForm() {
+    let formValid = true;
+
+    const re = /^(19|20)\d{2}$/;
+    const validYear = re.test(this.state.vehicleYear);
+    if (validYear) {
+      this.setState({ showYearError: false });
+    } else {
+      this.setState({ yearError: 'Must be valid year (1900 - 2099)', showYearError: true });
+      formValid = false;
+    }
+
+    if (this.state.make === 'Make') {
+      this.setState({ showMakeError: true });
+      formValid = false;
+    } else {
+      this.setState({ showMakeError: false });
+    }
+
+    if (this.state.model === 'Model') {
+      this.setState({ showModelError: true });
+      formValid = false;
+    } else {
+      this.setState({ showModelError: false });
+    }
+    return formValid;
+  }
   registerVehicle() {
-    console.log(this.state.vehicleYear);
-    const { navigate } = this.props.navigation;
-    realm.write(() => {
-      realm.create('Vehicle', { make: this.state.make, model: this.state.model, year: this.state.vehicleYear });
-    });
-    fetch(format('{}/api/user/vehicle', constants.BASSE_URL), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: this.state.userId,
-        make: this.state.make.make,
-        model: this.state.model,
-        year: this.state.vehicleYear,
-      }),
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        const resetAction = NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'consumerTab' }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);
+    if (this.validateForm()) {
+      const { navigate } = this.props.navigation;
+      realm.write(() => {
+        realm.create('Vehicle', { make: this.state.make, model: this.state.model, year: this.state.vehicleYear });
+      });
+      fetch(format('{}/api/user/vehicle', constants.BASSE_URL), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: this.state.userId,
+          make: this.state.make.make,
+          model: this.state.model,
+          year: this.state.vehicleYear,
+        }),
       })
-      .done();
+        .then(response => response.json())
+        .then((responseData) => {
+          const resetAction = NavigationActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({ routeName: 'consumerTab' }),
+            ],
+          });
+          this.props.navigation.dispatch(resetAction);
+        })
+        .done();
+    }
   }
 
   showMakeList() {
@@ -127,6 +156,21 @@ export default class registerVehicle extends Component {
     this.setState({ model: m, showModelPicker: false });
   }
 
+  onModelClick() {
+    if (this.state.make === 'Make') {
+      Alert.alert(
+      'Error',
+      'Please choose Make first',
+        [
+          { text: 'OK' },
+        ],
+      { cancelable: false }
+    )
+    } else {
+      this.setState({ showModelPicker: true });
+    }
+  }
+
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -135,6 +179,9 @@ export default class registerVehicle extends Component {
           <Text style={{ marginLeft: 20, textAlign: 'left', marginTop: 30, fontSize: 20 }}>Vehicle Information </Text>
         </View>
         <View style={{ width: 300, marginLeft: 20, marginTop: 25 }}>
+        {renderIf(this.state.showYearError)(
+          <Text style={formStyles.error}>{this.state.yearError}</Text>
+        )}
         <TextInput
           keyboardType="numeric"
           returnKeyType="done"
@@ -145,7 +192,9 @@ export default class registerVehicle extends Component {
           underlineColorAndroid="transparent"
           onChangeText={text => this.setState({ vehicleYear: text })}
         />
-
+          {renderIf(this.state.showMakeError)(
+            <Text style={formStyles.error}>Field required.</Text>
+          )}
           <TouchableWithoutFeedback onPress={() => this.setState({ showMakePicker: true })}>
             <View style={styles.container}>
               <Text style={styles.hint}>{this.state.make}</Text>
@@ -155,14 +204,16 @@ export default class registerVehicle extends Component {
             animationType={'slide'}
             transparent={true}
             visible={this.state.showMakePicker}
-            onRequestClose={() => {alert('Modal has been closed.') }}
+            onRequestClose={() => this.setState({ showMakePicker: false })}
           >
             <View style={{ width: 325, height: 500, margin: 50, backgroundColor: '#ffffff', padding: 20 }}>
               <MakePicker make={this.state.vehicles} onMakePickCompleted={this.onMakePickCompleted} />
             </View>
           </Modal>
-
-          <TouchableWithoutFeedback onPress={() => this.setState({ showModelPicker: true })}>
+          {renderIf(this.state.showModelError)(
+            <Text style={formStyles.error}>Field required.</Text>
+          )}
+          <TouchableWithoutFeedback onPress={() => this.onModelClick()}>
             <View style={styles.container}>
               <Text style={styles.hint}>{this.state.model}</Text>
             </View>
@@ -171,8 +222,7 @@ export default class registerVehicle extends Component {
             animationType={'slide'}
             transparent={true}
             visible={this.state.showModelPicker}
-            onRequestClose={() => {alert('Modal has been closed.') }}
-          >
+            onRequestClose={() => this.setState({ showModelPicker: false })}>
             <View style={{ margin: 50, backgroundColor: '#ffffff', padding: 20 }}>
               <ModelPicker models={this.state.models} onModelPickCompleted={this.onModelPickCompleted} />
             </View>

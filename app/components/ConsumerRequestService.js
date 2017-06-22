@@ -9,6 +9,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import renderIf from 'render-if';
+import { formStyles } from '../style/style';
 import { NavigationActions } from 'react-navigation';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
@@ -47,11 +49,54 @@ export default class ConsumerRequestService extends Component {
       showServicePicker: false,
       servicesPicked: [],
       currentServices: [],
+      showSvcDateError: false,
+      showSvcListError: false,
+      showSvcZipError: false,
     };
   }
 
   componentDidMount() {
     this.fetchData();
+  }
+
+  validateForm() {
+    let formValid = true;
+    // // email
+    // const re = /.+@.+/;
+    // const validEmail = re.test(this.state.email);
+    // if (validEmail) {
+    //   this.setState({ showEmailError: false });
+    // } else {
+    //   this.setState({ emailError: 'invalid email.', showEmailError: true });
+    //   formValid = false;
+    // }
+
+    //service date
+    if (this.state.date === undefined) {
+      this.setState({ showSvcDateError: true });
+      formValid = false;
+    } else {
+      this.setState({ showSvcDateError: false });
+    }
+
+    //service list
+    console.log(this.state.dataSource.getRowCount());
+    if (this.state.dataSource.getRowCount() === 0) {
+      this.setState({ showSvcListError: true });
+      formValid = false;
+    } else {
+      this.setState({ showSvcListError: false });
+    }
+
+    // service zip
+    if (this.state.zip === undefined || this.state.zip.length < 5) {
+      this.setState({ showSvcZipError: true });
+      formValid = false;
+    } else {
+      this.setState({ showSvcZipError: false });
+    }
+
+    return formValid;
   }
 
   _onServicePickCompleted(svcs) {
@@ -146,98 +191,95 @@ export default class ConsumerRequestService extends Component {
   }
 
   submitRequest() {
-    const svcs = this.state.currentServices;
-    let serviceChecked = false;
-    const servicesCategoryMap = {};
-    svcs.forEach((service) => {
-      if (!servicesCategoryMap[service.name]) {
-        // Create an entry in the map for the category if it hasn't yet been created
-        servicesCategoryMap[service.name] = [];
-      }
-
-      service.services.forEach((s) => {
-        if (s.checked) {
-          servicesCategoryMap[service.name].push(s);
-          serviceChecked = true;
+    if (this.validateForm()) {
+      const svcs = this.state.currentServices;
+      let serviceChecked = false;
+      const servicesCategoryMap = {};
+      svcs.forEach((service) => {
+        if (!servicesCategoryMap[service.name]) {
+          // Create an entry in the map for the category if it hasn't yet been created
+          servicesCategoryMap[service.name] = [];
         }
+
+        service.services.forEach((s) => {
+          if (s.checked) {
+            servicesCategoryMap[service.name].push(s);
+            serviceChecked = true;
+          }
+        });
+
+        if (!serviceChecked) {
+          delete servicesCategoryMap[service.name];
+        }
+        serviceChecked = false;
       });
 
-      if (!serviceChecked) {
-        delete servicesCategoryMap[service.name];
-      }
-      serviceChecked = false;
-    });
-
-    const r = [];
-    Object.keys(servicesCategoryMap).forEach((key) => {
-      const sv = servicesCategoryMap[key];
-      sv.forEach((s) => {
-        r.push(s);
+      const r = [];
+      Object.keys(servicesCategoryMap).forEach((key) => {
+        const sv = servicesCategoryMap[key];
+        sv.forEach((s) => {
+          r.push(s);
+        });
       });
-    });
 
-    const { state } = this.props.navigation;
-    const svcRequest = {
-      user_id: this.getUserId(),
-      service_date: new Date(this.state.date),
-      service_zip: this.state.zip,
-      make: state.params.vehicle.make,
-      model: state.params.vehicle.model,
-      year: parseInt(state.params.vehicle.year, 10),
-      services: r,
-    };
+      const { state } = this.props.navigation;
+      const svcRequest = {
+        user_id: this.getUserId(),
+        service_date: new Date(this.state.date),
+        service_zip: this.state.zip,
+        make: state.params.vehicle.make,
+        model: state.params.vehicle.model,
+        year: parseInt(state.params.vehicle.year, 10),
+        services: r,
+      };
 
-    // const { navigate } = this.props.navigation;
-    const { goBack } = this.props.navigation;
-    fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(svcRequest),
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        svcRequest.service_id = responseData.service_request_id;
-
-        //save request locally
-        const rSvcRequest = {
-          service_id: svcRequest.service_id,
-          user_id: svcRequest.user_id,
-          service_date: svcRequest.service_date,
-          service_zip: svcRequest.service_zip,
-          make: svcRequest.make,
-          model: svcRequest.model,
-          year: svcRequest.year,
-        };
-        realm.write(() => {
-          realm.create('ServiceRequest', rSvcRequest);
-        });
-
-        //reset services and categories
-        const localSvc = realm.objects('Service');
-        localSvc.forEach((s) => {
-          realm.write(() => {
-             s.checked = false;
-           });
-        });
-
-        //notify history page to reload
-        //DeviceEventEmitter.emit('onSvcRequest', {});
-
-        const resetAction = NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'consumerTab' }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);
-
-        //goBack();
-      }).catch((error) => {
-        console.log(error);
+      // const { navigate } = this.props.navigation;
+      const { goBack } = this.props.navigation;
+      fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(svcRequest),
       })
-      .done();
+        .then(response => response.json())
+        .then((responseData) => {
+          svcRequest.service_id = responseData.service_request_id;
+
+          // save request locally
+          const rSvcRequest = {
+            service_id: svcRequest.service_id,
+            user_id: svcRequest.user_id,
+            service_date: svcRequest.service_date,
+            service_zip: svcRequest.service_zip,
+            make: svcRequest.make,
+            model: svcRequest.model,
+            year: svcRequest.year,
+          };
+          realm.write(() => {
+            realm.create('ServiceRequest', rSvcRequest);
+          });
+
+          // reset services and categories
+          const localSvc = realm.objects('Service');
+          localSvc.forEach((s) => {
+            realm.write(() => {
+             s.checked = false;
+            });
+          });
+
+          const resetAction = NavigationActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({ routeName: 'consumerTab' }),
+            ],
+          });
+          this.props.navigation.dispatch(resetAction);
+        }).catch((error) => {
+          console.log(error);
+        })
+        .done();
+    }
   }
 
   render() {
@@ -247,6 +289,9 @@ export default class ConsumerRequestService extends Component {
         <View style={styles.infoSection}>
           <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
           {state.params.vehicle.year} {state.params.vehicle.make} {state.params.vehicle.model}</Text>
+          {renderIf(this.state.showSvcDateError)(
+            <Text style={formStyles.error}>Field required</Text>
+          )}
           <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
             <View>
               <DatePicker
@@ -270,11 +315,18 @@ export default class ConsumerRequestService extends Component {
             </View>
           </View>
         </View>
-        <TextInput
-          style={{ height: 60, width: 100 }}
-          placeholder="service zip"
-          onChangeText={text => this.setState({ zip: text })}
-        />
+        <View>
+          {renderIf(this.state.showSvcZipError)(
+            <Text style={formStyles.error}>Zip Field required (must be 5 digits)</Text>
+          )}
+          <TextInput
+            style={{ height: 60, width: 100 }}
+            keyboardType="numeric"
+            maxLength={5}
+            placeholder="service zip"
+            onChangeText={text => this.setState({ zip: text })}
+          />
+        </View>
         <Modal
            animationType={'slide'}
            transparent={true}
@@ -291,6 +343,9 @@ export default class ConsumerRequestService extends Component {
           </View>
          </Modal>
           <View style={styles.listSection}>
+          {renderIf(this.state.showSvcListError)(
+            <Text style={formStyles.error}>Field required, must include at lease 1 sevice.</Text>
+          )}
           <ListView
             dataSource={this.state.dataSource}
             renderRow={this.renderRow}
@@ -314,15 +369,16 @@ export default class ConsumerRequestService extends Component {
 const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
+    marginLeft: 10,
   },
   listSection: {
-    flex: 0.70,
+    flex: 0.65,
   },
   butSection: {
     flex: 0.10,
   },
   infoSection: {
-    flex: 0.20,
+    flex: 0.25,
   },
   name: {
     fontSize: 20,

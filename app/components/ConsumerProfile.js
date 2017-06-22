@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { AppRegistry,
+import { Alert, AppRegistry,
         Button,
         Image,
         View,
         Text, TextInput } from 'react-native';
+import renderIf from 'render-if';
+import { formStyles } from '../style/style';
 import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
@@ -25,36 +27,103 @@ export default class ConsumerProfile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false,
-      vehicles: [],
-      models: [],
+      showEmailError: false,
+      showNameError: false,
+      showPhoneError: false,
     };
+    this.loadProfile();
+  }
+
+  loadProfile() {
+    const profile = realm.objects('ConsumerProfile');
+    if (profile.length > 0) {
+      this.state = {
+        name: profile[0].name,
+        email: profile[0].email,
+        phone: profile[0].phone,
+      };
+    }
+  }
+
+  validateForm() {
+    let formValid = true;
+    // email
+    const re = /.+@.+/;
+    const validEmail = re.test(this.state.email);
+    if (validEmail) {
+      this.setState({ showEmailError: false });
+    } else {
+      this.setState({ emailError: 'invalid email.', showEmailError: true });
+      formValid = false;
+    }
+
+    // name
+    if (this.state.name === undefined || this.state.name.length === 0) {
+      this.setState({ showNameError: true });
+      formValid = false;
+    } else {
+      this.setState({ showNameError: false });
+    }
+
+    // phone
+    if (this.state.phone === undefined || this.state.phone.length < 10) {
+      this.setState({ showPhoneError: true });
+      formValid = false;
+    } else {
+      this.setState({ showPhoneError: false });
+    }
+
+    return formValid;
   }
 
   updateProfile() {
-    const { navigate } = this.props.navigation;
-    fetch(format('{}/api/user/registration', constants.BASSE_URL), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: this.state.email,
-        pwd: this.state.pwd,
-      }),
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        const uId = responseData.user_id;
+    if (this.validateForm()) {
+      const { navigate } = this.props.navigation;
+
+      const profile = realm.objects('ConsumerProfile');
+      if (profile.length > 0) {
         realm.write(() => {
-          realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
+          profile[0].name = this.state.name;
+          profile[0].email = this.state.email;
+          profile[0].phone = this.state.phone;
         });
-        this.setState({
-          userId: uId,
-        });
-        navigate('RegisterVehicle');
+      }
+
+      Alert.alert(
+      'Info',
+      'Profile information has been updated.',
+        [
+          { text: 'OK' },
+        ],
+      { cancelable: false }
+    );
+
+      fetch(format('{}/api/user/registration', constants.BASSE_URL), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.state.email,
+          name: this.state.name,
+          phone: this.state.phone,
+          user_id: this.getUserId(),
+        }),
       })
-      .done();
+        .then(response => response.json())
+        .then((responseData) => {
+        })
+        .done();
+    }
+  }
+
+  getUserId() {
+    let uId = 0;
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      uId = userPrefs[0].userId;
+    }
+    return uId;
   }
 
   render() {
@@ -65,26 +134,39 @@ export default class ConsumerProfile extends Component {
           <Text style={{ marginLeft: 20, textAlign: 'left', marginTop: 30, fontSize: 20 }}>Account Information</Text>
         </View>
         <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
+          {renderIf(this.state.showNameError)(
+            <Text style={formStyles.error}>Field required</Text>
+          )}
           <TextInput
             style={{ height: 60, width: 300 }}
-            placeholder="email"
+            value={this.state.name}
+            onChangeText={text => this.setState({ name: text })}
+          />
+          {renderIf(this.state.showEmailError)(
+            <Text style={formStyles.error}>{this.state.emailError}</Text>
+          )}
+          <TextInput
+            style={{ height: 60, width: 300 }}
+            value={this.state.email}
             onChangeText={text => this.setState({ email: text })}
           />
+          {renderIf(this.state.showPhoneError)(
+            <Text style={formStyles.error}>Field required (must be 10 digits)</Text>
+          )}
           <TextInput
             style={{ height: 60, width: 300 }}
-            placeholder="password"
-            onChangeText={text => this.setState({ pwd: text })}
+            value={this.state.phone}
+            maxLength={10}
+            keyboardType="phone-pad"
+            onChangeText={text => this.setState({ phone: text })}
           />
-          <TextInput
-            style={{ height: 60, width: 300 }}
-            placeholder="confirm password"
-          />
+
         </View>
         <View style={{ marginTop: 50, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
           <Button
             style={{ width: 800 }}
             onPress={() => this.updateProfile()}
-            title="Create Account"
+            title="Update Account"
           />
         </View>
       </View>

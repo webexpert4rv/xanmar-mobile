@@ -115,6 +115,12 @@ export default class registerConsumer extends Component {
           const uId = responseData.user_id;
           realm.write(() => {
             realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
+            realm.create('ConsumerProfile',
+              { name: this.state.name,
+                email: this.state.email,
+                pwd: this.state.pwd,
+                phone: this.state.phone,
+              });
           });
           this.setState({
             userId: uId,
