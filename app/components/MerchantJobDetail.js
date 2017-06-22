@@ -85,13 +85,20 @@ export default class MerchantJobDetail extends Component {
 
   validateBid() {
     const data = this.state.dict;
+    const size = Object.keys(data).length;
+    const rows = this.state.dataSource.getRowCount();
     let bidValid = true;
+
+    if (size === 0 || rows !== size) {
+      bidValid = false;
+    }
 
     for (let value of Object.keys(data)) {
       if (data[value] === 0) {
         bidValid = false;
       }
     }
+
     return bidValid;
   }
 
@@ -106,20 +113,17 @@ export default class MerchantJobDetail extends Component {
       }
 
       const bid = {
-       service_request_id: this.state.job.service_request_id,
-       services: svcs };
-
-       console.log('POST BID');
-       console.log(JSON.stringify(bid));
+        service_request_id: this.state.job.service_request_id,
+        services: svcs };
 
 
       const { goBack } = this.props.navigation;
       fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-       },
-       body: JSON.stringify(bid),
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bid),
       })
        .then(response => response.json())
        .then((responseData) => {
@@ -133,7 +137,7 @@ export default class MerchantJobDetail extends Component {
     } else {
       Alert.alert(
       'Error',
-      'Zero bids is not allowed',
+      'Zero bids are not allowed',
         [
           { text: 'OK' },
         ],
@@ -143,9 +147,7 @@ export default class MerchantJobDetail extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    return(
-
-
+    return (
       <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
         <View>
         <Text style={styles.name}>

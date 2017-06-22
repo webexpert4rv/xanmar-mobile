@@ -321,6 +321,8 @@ export default class ConsumerRequestService extends Component {
           )}
           <TextInput
             style={{ height: 60, width: 100 }}
+            keyboardType="numeric"
+            maxLength={5}
             placeholder="service zip"
             onChangeText={text => this.setState({ zip: text })}
           />
@@ -354,7 +356,7 @@ export default class ConsumerRequestService extends Component {
           <View style={styles.butSection}>
           <Button
             style={{ width: 300 }}
-            onPress={() => this.validateForm()}
+            onPress={() => this.submitRequest()}
             title="Submit service request"
           />
           </View>

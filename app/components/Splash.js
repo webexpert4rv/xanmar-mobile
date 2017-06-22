@@ -51,7 +51,7 @@ export default class splash extends Component {
     try {
       const { navigate } = this.props.navigation;
       const userPrefs = realm.objects('UserPreference');
-      console.log(JSON.stringify(userPrefs));
+
       if (userPrefs.length > 0) {
         if (userPrefs[0].onboarded && userPrefs[0].role === 'consumer') {
           const resetAction = NavigationActions.reset({

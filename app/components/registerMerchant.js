@@ -166,6 +166,17 @@ export default class registerMerchant extends Component {
           const uId = responseData.service_provider_id;
           realm.write(() => {
             realm.create('UserPreference', { onboarded: true, userId: uId, role: 'merchant' });
+            realm.create('ServiceProviderProfile',
+              { email: this.state.email,
+                pwd: this.state.pwd,
+                business_name: this.state.name,
+                phone: this.state.phone,
+                contact_name: this.state.contactName,
+                address: this.state.address,
+                city: this.state.city,
+                state: this.state.st,
+                zip: this.state.zip,
+              });
           });
           this.setState({
             userId: uId,
