@@ -35,7 +35,11 @@ export default class MerchantJobs extends Component {
   }
 
   fetchData() {
-    fetch(format('{}/api/provider/jobs/{}', constants.BASSE_URL, this.getUserId()))
+    fetch(format('{}/api/provider/jobs/{}', constants.BASSE_URL, this.getUserId()), {
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
       .then(response => response.json())
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });

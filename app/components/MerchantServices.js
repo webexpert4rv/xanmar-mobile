@@ -211,25 +211,6 @@ export default class MerchantService extends Component {
 
     const backAction = NavigationActions.back();
     navigate.dispatch(backAction);
-    // fetch('http://192.168.86.214:3000/api/provider/services', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(mySvcs),
-    // })
-    //   .then(response => response.json())
-    //   .then((responseData) => {
-    //     console.log("done....");
-    //     console.log(JSON.stringify(svcs));
-    //     realm.write(() => {
-    //       realm.create('MerchantServices', svcs);
-    //     });
-    //     navigate('consumerTab');
-    //   }).catch((error) => {
-    //     console.log(error);
-    //   })
-    //   .done();
   }
 
   render() {

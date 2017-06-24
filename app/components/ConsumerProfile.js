@@ -102,6 +102,7 @@ export default class ConsumerProfile extends Component {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: constants.API_KEY,
         },
         body: JSON.stringify({
           email: this.state.email,

@@ -41,7 +41,11 @@ export default class servicePicker extends Component {
     //   isLoading: false,
     // });
 
-    fetch(format('{}/api/autoservices', constants.BASSE_URL))
+    fetch(format('{}/api/autoservices', constants.BASSE_URL), {
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
       .then(response => response.json())
       .then((responseData) => {
         this.setState({

@@ -74,7 +74,11 @@ export default class registerVehicle extends Component {
   }
 
   fetchVehicles() {
-    fetch(format('{}/api/vehicles', constants.BASSE_URL))
+    fetch(format('{}/api/vehicles', constants.BASSE_URL), {
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
       .then(response => response.json())
       .then((responseData) => {
         this.setState({
@@ -122,6 +126,7 @@ export default class registerVehicle extends Component {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: constants.API_KEY,
         },
         body: JSON.stringify({
           user_id: this.state.userId,
