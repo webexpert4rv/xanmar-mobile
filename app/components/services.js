@@ -163,49 +163,6 @@ export default class services extends Component {
       isLoading: false,
       currentServices: sc,
     });
-
-    // fetch('http://192.168.86.214:3000/api/autoservices')
-    //   .then(response => response.json())
-    //   .then((responseData) => {
-    //     // console.log(JSON.stringify(responseData));
-    //     // var foodCategoryMap = {};
-    //     // responseData.categories.forEach((foodItem) => {
-    //     //   // console.log('foodItem');
-    //     //   // console.log(JSON.stringify(foodItem));
-    //     //   if (!foodCategoryMap[foodItem.category]) {
-    //     //     // Create an entry in the map for the category if it hasn't yet been created
-    //     //     foodCategoryMap[foodItem.category] = [];
-    //     //   }
-    //     //   foodItem.services.forEach((s) => {
-    //     //     foodCategoryMap[foodItem.category].push(s.name);
-    //     //   });
-    //     // });
-    //     const allServices = responseData.categories;
-    //     allServices.forEach((service) => {
-    //       service.services.forEach((s) => {
-    //         s.checked = false;
-    //       });
-    //     });
-    //
-    //     // const servicesCategoryMap = {};
-    //     // responseData.categories.forEach((service) => {
-    //     //   if (!servicesCategoryMap[service.category]) {
-    //     //     // Create an entry in the map for the category if it hasn't yet been created
-    //     //     servicesCategoryMap[service.category] = [];
-    //     //     svc = {category: service.category, }
-    //     //   }
-    //     //   service.services.forEach((s) => {
-    //     //     servicesCategoryMap[service.category].push(s);
-    //     //   });
-    //     // });
-    //
-    //     // this.setState({
-    //     //   //dataSource: this.state.dataSource.cloneWithRowsAndSections(servicesCategoryMap),
-    //     //   isLoading: false,
-    //     //   currentServices: allServices,
-    //     // });
-    //   })
-    //   .done();
   }
 
   render() {

@@ -185,6 +185,7 @@ export default class RegisterServices extends Component {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
       },
       body: JSON.stringify(mySvcs),
     })

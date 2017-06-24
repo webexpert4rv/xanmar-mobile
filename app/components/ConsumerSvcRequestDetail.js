@@ -26,8 +26,6 @@ export default class ConsumerSvcRequestDetail extends Component {
     super(props);
     this.addService = this.addService.bind(this);
     const { state } = this.props.navigation
-    console.log('STATE');
-    console.log(JSON.stringify(state.params.job));
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
@@ -40,8 +38,6 @@ export default class ConsumerSvcRequestDetail extends Component {
   }
 
   componentDidMount() {
-    // const { state } = this.props.navigation
-    // console.log(JSON.stringify(this.state.job));
     this.loadRequest(this.state.job.services);
   }
 
@@ -118,6 +114,7 @@ export default class ConsumerSvcRequestDetail extends Component {
        method: 'POST',
        headers: {
          'Content-Type': 'application/json',
+         Authorization: constants.API_KEY,
        },
        body: JSON.stringify(bid),
      })

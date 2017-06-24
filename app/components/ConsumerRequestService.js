@@ -239,6 +239,7 @@ export default class ConsumerRequestService extends Component {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: constants.API_KEY,
         },
         body: JSON.stringify(svcRequest),
       })

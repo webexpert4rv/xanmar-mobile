@@ -159,6 +159,7 @@ export default class MerchantProfile extends Component {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
       },
       body: JSON.stringify({
         service_provider_id: this.getUserId(),

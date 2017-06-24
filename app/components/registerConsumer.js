@@ -102,6 +102,7 @@ export default class registerConsumer extends Component {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: constants.API_KEY,
         },
         body: JSON.stringify({
           email: this.state.email,

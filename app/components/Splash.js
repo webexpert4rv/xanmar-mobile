@@ -27,7 +27,11 @@ export default class splash extends Component {
   }
 
   downloadAutoServices() {
-    fetch(format('{}/api/autoservices', constants.BASSE_URL))
+    fetch(format('{}/api/autoservices', constants.BASSE_URL), {
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
       .then(response => response.json())
       .then((responseData) => {
         responseData.categories.forEach((category) => {
