@@ -4,6 +4,7 @@ import FCM, { FCMEvent, RemoteNotificationResult, WillPresentNotificationResult,
 import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
+import * as events from '../broadcast/events';
 
 export default class PushController extends Component {
   constructor(props) {
@@ -22,11 +23,23 @@ export default class PushController extends Component {
     }
 
     FCM.getInitialNotification().then(notif => {
-      console.log("INITIAL NOTIFICATION", notif)
+      console.log("INITIAL NOTIFICATION", notif);
     });
 
     this.notificationListner = FCM.on(FCMEvent.Notification, (notif) => {
       console.log("Notification", notif);
+      console.log(JSON.stringify(notif));
+      if (notif.evt === 'job') {
+        events.sendMerchantJobEvent(true);
+      }
+      if (notif.evt === 'merchantBid') {
+        console.log('Got merchant bid...');
+        events.sendSvcRequestBidEvent(true);
+        //this.props.onNotificationReceived(notif);
+      }
+      if (notif.evt === 'bidAccepted') {
+        events.sendMerchantJobAcceptedEvent(true);
+      }
       if (notif.local_notification) {
         return;
       }
@@ -116,6 +129,7 @@ export default class PushController extends Component {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
       },
       body: JSON.stringify({
         user_id: this.getUserId(),

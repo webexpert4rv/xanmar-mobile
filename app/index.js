@@ -37,12 +37,9 @@ import palette from './style/palette';
 
 const consumerNavigator = TabNavigator(
   {
-    Vehicles: { screen: vehicles },
     SvcHistory: { screen: consumerSvcHistory },
+    Vehicles: { screen: vehicles },
     Profile: { screen: consumerProfile },
-  },
-  {
-    lazy: true,
   },
   { tabBarOptions: {
     activeTintColor: palette.WHITE,

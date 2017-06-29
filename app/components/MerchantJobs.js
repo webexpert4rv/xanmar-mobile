@@ -5,10 +5,11 @@ import format from 'string-format';
 import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
+import * as jobEvents from '../broadcast/events';
 
 export default class MerchantJobs extends Component {
   static navigationOptions = {
-    title: 'Jobs',
+    title: 'Service Requests',
     header: null,
   };
 
@@ -23,6 +24,12 @@ export default class MerchantJobs extends Component {
 
   componentDidMount() {
     this.fetchData();
+    jobEvents.getMerchantJobsEvents().subscribe((value) => {
+      this.fetchData();
+    });
+    jobEvents.getMerchantJobAcceptedEvents().subscribe((value) => {
+      this.fetchData();
+    });
   }
 
   getUserId() {

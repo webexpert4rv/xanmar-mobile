@@ -10,7 +10,7 @@ const vehicleIcon = require('../img/vehicle_icon.png');
 
 export default class ConsumerVehicles extends Component {
   static navigationOptions = {
-    title: 'Vehichles',
+    title: 'My Vehichles',
     header: null,
     tabBarIcon:({ tintColor }) => (
       <Image
@@ -22,6 +22,7 @@ export default class ConsumerVehicles extends Component {
 
   constructor(props) {
     super(props);
+    this._onNotificationReceived = this._onNotificationReceived.bind(this);
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     const v = realm.objects('Vehicle');
     this.state = {
@@ -69,6 +70,14 @@ export default class ConsumerVehicles extends Component {
     navigate('ff');
   }
 
+  _onNotificationReceived(n) {
+    console.log('Notification recieved...sne to history page');
+    // this.props.navigation.navigate('SvcHistory');
+    // this.state = {
+    //   gotoSvcHistory: true,
+    // };
+  }
+
   addVehicle() {
     const navigateAction = NavigationActions.navigate({
       routeName: 'RegisterVehicle',
@@ -84,12 +93,12 @@ export default class ConsumerVehicles extends Component {
     if (this.state.dataSource.getRowCount() > 0) {
       return (
         <View>
-          <PushController />
+          <PushController onNotificationReceived={this._onNotificationReceived} />
           <View style={{ marginRight: 10, marginTop: 20, flexDirection: 'column', alignItems: 'flex-end' }}>
             <Button
               style={{ width: 300 }}
               color={palette.PRIMARY_COLOR_DARK}
-              onPress={() => this.props.navigation.navigate('RegisterVehicle')}
+              onPress={() => this.props.navigation.navigate('SvcHistory')}
               title="Add Vechicle"
             />
           </View>
@@ -104,7 +113,7 @@ export default class ConsumerVehicles extends Component {
     } else {
       return (
         <View>
-          <PushController />
+          <PushController onNotificationReceived={this._onNotificationReceived} />
           <View style={{ marginRight: 10, marginTop: 20, flexDirection: 'column', alignItems: 'flex-end' }}>
             <Button
               style={{ width: 300 }}

@@ -5,6 +5,7 @@ import format from 'string-format';
 import realm from './realm';
 import constants from '../constants/c';
 import df from 'dateformat';
+import * as events from '../broadcast/events';
 
 const svcHistoryIcon = require('../img/svc_history_icon.png');
 
@@ -40,7 +41,14 @@ export default class ConsumerSvcHistory extends Component {
   }
 
   componentDidMount() {
-    //this.fetchData();
+    events.getSvcRequestEvents().subscribe((value) => {
+      console.log('got value from subject');
+      console.log(value);
+      this.loadSvcRequests();
+    });
+    events.getSvcRequestBidsEvents().subscribe((value) => {
+      this.loadSvcRequests();
+    });
   }
 
   getUserId() {
@@ -70,8 +78,6 @@ export default class ConsumerSvcHistory extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    console.log('Service Request RowData');
-    console.log(JSON.stringify(rowData));
     const sd = df(rowData.service_date, 'dddd mmmm dS, yyyy');
     //const buttonText = format('{} Bid(s)', rowData.service_bids.length);
     return(
