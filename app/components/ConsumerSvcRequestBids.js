@@ -7,6 +7,7 @@ import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
 import { bidStyles } from '../style/style';
+import * as events from '../broadcast/events';
 
 export default class ConsumerSvcRequestBids extends Component {
   static navigationOptions = {
@@ -36,11 +37,14 @@ export default class ConsumerSvcRequestBids extends Component {
       srid: state.params.srid,
     };
   }
-  componentWillMount() {
-    DeviceEventEmitter.addListener('onBidAccepted', this.fetchData.bind(this));
-  }
+  // componentWillMount() {
+  //   DeviceEventEmitter.addListener('onBidAccepted', this.fetchData.bind(this));
+  // }
   componentDidMount() {
     this.fetchData();
+    events.getMerchantJobAcceptedEvents().subscribe((value) => {
+      this.fetchData();
+    });
   }
 
   fetchData() {

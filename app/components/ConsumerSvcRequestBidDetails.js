@@ -8,6 +8,7 @@ import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
 import { bidStyles } from '../style/style';
+import * as events from '../broadcast/events';
 
 export default class ConsumerSvcRequestBidDetails extends Component {
   static navigationOptions = {
@@ -105,7 +106,8 @@ export default class ConsumerSvcRequestBidDetails extends Component {
      })
        .then(response => response.json())
        .then((responseData) => {
-         DeviceEventEmitter.emit('onBidAccepted', {});
+         //DeviceEventEmitter.emit('onBidAccepted', {});
+         events.sendMerchantJobAcceptedEvent(true);
          goBack();
        }).catch((error) => {
          console.log(error);

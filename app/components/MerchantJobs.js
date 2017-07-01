@@ -5,10 +5,11 @@ import format from 'string-format';
 import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
+import * as jobEvents from '../broadcast/events';
 
 export default class MerchantJobs extends Component {
   static navigationOptions = {
-    title: 'Jobs',
+    title: 'Service Requests',
     header: null,
   };
 
@@ -23,6 +24,12 @@ export default class MerchantJobs extends Component {
 
   componentDidMount() {
     this.fetchData();
+    jobEvents.getMerchantJobChangeEvents().subscribe((value) => {
+      this.fetchData();
+    });
+    // jobEvents.getMerchantJobAcceptedEvents().subscribe((value) => {
+    //   this.fetchData();
+    // });
   }
 
   getUserId() {
@@ -55,37 +62,61 @@ export default class MerchantJobs extends Component {
     let status;
     let s;
     let buttonText;
-
+console.log(JSON.stringify(rowData));
     if (rowData.accepted) {
       status = 'Accepted';
       s = styles.statusAccepted;
-      buttonText = "View customer information";
+      buttonText = 'View customer information';
     } else {
       status = 'Open';
       s = styles.statusOpen;
-      buttonText = "Bid on service request";
+      if (rowData.did_bid) {
+        buttonText = 'Bid submitted';
+      } else {
+        buttonText = 'Bid on service request';
+      }
     }
-    return(
-      <View style={styles.container}>
-        <View style={styles.vehicle}>
-          <Text style={styles.title}>
-            {rowData.year} {rowData.make} {rowData.model}
-          </Text>
-          <Text style={styles.footnote}>
-            Requested service date: {rowData.service_date}
-          </Text>
-          <Text style={s}>
-            {status}
-          </Text>
+
+    if ((rowData.status === 'closed' && rowData.accepted) || (rowData.status === 'open' && !rowData.accepted)) {
+      return(
+        <View style={styles.container}>
+          <View style={styles.vehicle}>
+            <Text style={styles.title}>
+              {rowData.year} {rowData.make} {rowData.model}
+            </Text>
+            <Text style={styles.footnote}>
+              Requested service date: {rowData.service_date}
+            </Text>
+            <Text style={s}>
+              {status}
+            </Text>
+          </View>
+          <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+            <Button
+              onPress={() => { this.props.navigation.navigate('JobDetails', {job: rowData })}}
+              title={buttonText}
+            />
+          </View>
         </View>
-        <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
-          <Button
-            onPress={() => { this.props.navigation.navigate('JobDetails', {job: rowData })}}
-            title={buttonText}
-          />
+      );
+    } else {
+      return (
+        <View style={styles.closedContainer}>
+          <View style={styles.vehicle}>
+            <Text style={styles.title}>
+              {rowData.year} {rowData.make} {rowData.model}
+            </Text>
+            <Text style={styles.footnote}>
+              Requested service date: {rowData.service_date}
+            </Text>
+            <Text style={styles.statusClosed}>
+              closed
+            </Text>
+          </View>
         </View>
-      </View>
-    );
+      );
+    }
+
   }
 
   renderSeparator(sectionID, rowID, adjacentRowHighlighted){
@@ -141,6 +172,13 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginRight: 8,
   },
+  closedContainer: {
+    flex: 1,
+    height: 120,
+    backgroundColor: '#D3D3D3',
+    marginLeft: 8,
+    marginRight: 8,
+  },
   vehicle: {
     padding: 10,
   },
@@ -151,6 +189,10 @@ const styles = StyleSheet.create({
   statusOpen: {
     fontSize: 13,
     color: '#FF8C00',
+  },
+  statusClosed: {
+    fontSize: 13,
+    color: '#A80000',
   },
   title: {
     fontSize: 15,

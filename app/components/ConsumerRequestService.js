@@ -19,6 +19,7 @@ import realm from './realm';
 import ServicePicker from './servicePicker';
 import DatePicker from 'react-native-datepicker'
 import palette from '../style/palette';
+import * as events from '../broadcast/events';
 
 const calIcon = require('../img/google_calendar.png');
 
@@ -260,6 +261,9 @@ export default class ConsumerRequestService extends Component {
           realm.write(() => {
             realm.create('ServiceRequest', rSvcRequest);
           });
+
+          //send service request events
+          events.sendSvcRequestEvent(rSvcRequest);
 
           // reset services and categories
           const localSvc = realm.objects('Service');

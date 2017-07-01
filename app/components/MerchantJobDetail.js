@@ -231,6 +231,19 @@ export default class MerchantJobDetail extends Component {
 }
 
 const styles = StyleSheet.create({
+  listContainer: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  listSection: {
+    flex: 0.80,
+  },
+  butSection: {
+    flex: 0.10,
+  },
+  infoSection: {
+    flex: 0.10,
+  },
   container: {
     flex: 1,
     height: 100,
