@@ -29,16 +29,16 @@ export default class PushController extends Component {
     this.notificationListner = FCM.on(FCMEvent.Notification, (notif) => {
       console.log("Notification", notif);
       console.log(JSON.stringify(notif));
-      if (notif.evt === 'job') {
-        events.sendMerchantJobEvent(true);
-      }
+      // if (notif.evt === 'job') {
+      //   events.sendMerchantJobChangeEvent(true);
+      // }
       if (notif.evt === 'merchantBid') {
         console.log('Got merchant bid...');
         events.sendSvcRequestBidEvent(true);
         //this.props.onNotificationReceived(notif);
       }
-      if (notif.evt === 'bidAccepted') {
-        events.sendMerchantJobAcceptedEvent(true);
+      if (notif.evt === 'bidAccepted' || notif.evt === 'job' || notif.evt === 'jobClosed') {
+        events.sendMerchantJobChangeEvent(true);
       }
       if (notif.local_notification) {
         return;

@@ -5,6 +5,15 @@ export const merchantJobsBroadcast = new Rx.Subject();
 export const svcRequestBidsBroadcast = new Rx.Subject();
 export const merchantJobAcceptedBroadcast = new Rx.Subject();
 
+export const merchantJobChangeBroadcast = new Rx.Subject();
+export const getMerchantJobChangeEvents = () => {
+  return merchantJobChangeBroadcast;
+};
+
+export const sendMerchantJobChangeEvent = (change) => {
+  merchantJobChangeBroadcast.next(change);
+};
+
 export const getSvcRequestEvents = () => {
   return svcRequestBroadcast;
 };
