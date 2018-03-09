@@ -423,7 +423,7 @@ export default class MerchantJobDetail extends Component {
      } else {
 
        let submitButtonText = 'Submit';
-       if (this.state.job.status === 'bidding') {
+       if (this.state.job.did_bid) {
          submitButtonText = 'Update'
        }
        return (
