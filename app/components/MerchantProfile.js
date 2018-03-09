@@ -3,17 +3,23 @@ import { Alert,
         AppRegistry,
         Button,
         View,
+        Image,
         Picker,
-        ScrollView, Text, TextInput } from 'react-native';
+        Platform,
+        ScrollView, Text, TextInput, TouchableOpacity } from 'react-native';
 import renderIf from 'render-if';
-import { formStyles } from '../style/style';
+import { HeaderBackButton, NavigationActions } from 'react-navigation';
+import { formStyles, common } from '../style/style';
 import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
+import palette from '../style/palette';
+
+const profileIcon = require('../img/tabbar/profile_on.png');
 
 export default class MerchantProfile extends Component {
   static navigationOptions = {
-    title: 'My Profile',
+    title: 'Edit Profile',
     header: null,
   };
 
@@ -119,6 +125,11 @@ export default class MerchantProfile extends Component {
     return formValid;
   }
 
+  goBack() {
+    const { goBack } = this.props.navigation;
+    goBack();
+  }
+
   getUserId() {
     let uId = 0;
     const userPrefs = realm.objects('UserPreference');
@@ -184,9 +195,31 @@ export default class MerchantProfile extends Component {
   }
 
   render() {
+    const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
+    const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
+    const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
     const { navigate } = this.props.navigation;
     return (
-      <View>
+      <View style={{ flex: 1, backgroundColor: palette.DASHBOARD_GRAY }}>
+        <View
+          style={{ backgroundColor: palette.HEADER_BLUE,
+            alignSelf: 'stretch',
+            height: HEIGHT,
+            flexDirection: 'row',
+            justifyContent: 'space-between' }}
+        >
+          <HeaderBackButton tintColor={palette.WHITE} onPress={() => this.goBack()} />
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={common.headerTitle}>
+              Edit Profile
+            </Text>
+          </View>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.updateProfile()} >
+              <Text style={common.headerLeftButton}>Update</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <ScrollView>
         <View>
           <Text style={{ marginLeft: 20, textAlign: 'left', marginTop: 30, fontSize: 20 }}>Account </Text>
@@ -273,14 +306,6 @@ export default class MerchantProfile extends Component {
             />
           </View>
         </View>
-
-          <View style={{ marginTop: 20, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
-            <Button
-              style={{ width: 800 }}
-              onPress={() => this.updateProfile()}
-              title="Update profile"
-            />
-          </View>
         </ScrollView>
       </View>
     );

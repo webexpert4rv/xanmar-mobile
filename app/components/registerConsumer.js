@@ -1,28 +1,35 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { AppRegistry,
-        Button,
         View,
-        Text, TextInput } from 'react-native';
+        Text,
+        TextInput,
+        TouchableOpacity } from 'react-native';
 import renderIf from 'render-if';
 import format from 'string-format';
-import { formStyles } from '../style/style';
+import { formStyles, onboardingStyles, common } from '../style/style';
 import realm from './realm';
 import palette from '../style/palette';
 import constants from '../constants/c';
 
-export default class registerConsumer extends Component {
-  static navigationOptions = {
-    title: 'Register Consumer',
-    headerStyle: {
-      backgroundColor: palette.PRIMARY_COLOR,
-    },
-    headerTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerBackTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerTintColor: palette.WHITE,
+export default class RegisterConsumer extends Component {
+  static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    return {
+      headerStyle: common.header,
+      headerTitleStyle: {
+        color: palette.WHITE,
+      },
+      headerBackTitleStyle: {
+        color: palette.WHITE,
+      },
+      headerTintColor: palette.WHITE,
+      headerRight: (
+        <View>
+          <TouchableOpacity onPress={() => params.handleNext()}>
+            <Text style={onboardingStyles.headerButton}>Next</Text>
+          </TouchableOpacity>
+        </View>),
+    };
   };
 
   constructor(props) {
@@ -38,6 +45,10 @@ export default class registerConsumer extends Component {
       showPwdError: false,
       showConfirmPwdError: false,
     };
+  }
+
+  componentDidMount() {
+    this.props.navigation.setParams({ handleNext: this.registerUser.bind(this) });
   }
 
   validateForm() {
@@ -126,76 +137,111 @@ export default class registerConsumer extends Component {
           this.setState({
             userId: uId,
           });
-          navigate('RegisterVehicle');
+          navigate('RegisterVehicle',
+            {
+              userId: uId,
+              onBoarding: true,
+            }
+          );
         })
         .done();
     }
   }
 
   render() {
-    const { navigate } = this.props.navigation;
     return (
-      <View>
+      <View style={onboardingStyles.mainContainer}>
         <View>
-          <Text style={{ marginLeft: 20, textAlign: 'left', marginTop: 30, fontSize: 20 }}>Account Information</Text>
+          <Text style={onboardingStyles.title}>Create an Account</Text>
         </View>
         <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
           {renderIf(this.state.showNameError)(
-            <Text style={formStyles.error}>Field required</Text>
+            <Text style={formStyles.error}>Field required</Text>,
           )}
-          <TextInput
-            style={{ height: 60, width: 300 }}
-            placeholder="name"
-            onChangeText={text => this.setState({ name: text })}
-          />
+          <View style={{ flexDirection: 'row', height: 50 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+              <Text style={onboardingStyles.label}>Name:</Text>
+            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              onChangeText={text => this.setState({ name: text })}
+            />
+          </View>
+          <View style={onboardingStyles.line} />
           {renderIf(this.state.showEmailError)(
-            <Text style={formStyles.error}>{this.state.emailError}</Text>
+            <Text style={formStyles.error}>{this.state.emailError}</Text>,
           )}
-          <TextInput
-            style={{ height: 60, width: 300 }}
-            placeholder="email"
-            onChangeText={text => this.setState({ email: text })}
-          />
+          <View style={{ flexDirection: 'row', height: 50 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+              <Text style={onboardingStyles.label}>Email:</Text>
+            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              onChangeText={text => this.setState({ email: text })}
+            />
+          </View>
+          <View style={onboardingStyles.line} />
           {renderIf(this.state.showPhoneError)(
-            <Text style={formStyles.error}>Field required (must be 10 digits)</Text>
+            <Text style={formStyles.error}>Field required (must be 10 digits)</Text>,
           )}
-          <TextInput
-            style={{ height: 60, width: 300 }}
-            keyboardType="phone-pad"
-            placeholder="contact number"
-            maxLength={10}
-            onChangeText={text => this.setState({ phone: text })}
-          />
+          <View style={{ flexDirection: 'row', height: 50 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+              <Text style={onboardingStyles.label}>Phone:</Text>
+            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+              keyboardType="phone-pad"
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              maxLength={10}
+              onChangeText={text => this.setState({ phone: text })}
+            />
+          </View>
+          <View style={onboardingStyles.line} />
           {renderIf(this.state.pwdMismatchError || this.state.showPwdError)(
-            <Text style={formStyles.error}>{this.state.pwdError}</Text>
+            <Text style={formStyles.error}>{this.state.pwdError}</Text>,
           )}
-          <TextInput
-            style={{ height: 60, width: 300 }}
-            placeholder="password"
-            secureTextEntry={true}
-            onChangeText={text => this.setState({ pwd: text })}
-          />
+          <View style={{ flexDirection: 'row', height: 50 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
+              <Text style={onboardingStyles.label}>Password:</Text>
+            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              secureTextEntry
+              onChangeText={text => this.setState({ pwd: text })}
+            />
+          </View>
+          <View style={onboardingStyles.line} />
           {renderIf(this.state.showConfirmPwdError)(
-            <Text style={formStyles.error}>This field required.</Text>
+            <Text style={formStyles.error}>This field required.</Text>,
           )}
-          <TextInput
-            style={{ height: 60, width: 300 }}
-            secureTextEntry={true}
-            placeholder="confirm password"
-            onChangeText={text => this.setState({ confirmPwd: text })}
-          />
-        </View>
-        <View style={{ marginTop: 50, marginBottom: 10, height: 50, flexDirection: 'column', alignItems: 'center' }}>
-          <Button
-            style={{ width: 800 }}
-            color={palette.PRIMARY_COLOR_DARK}
-            onPress={() => this.registerUser()}
-            title="Create Account"
-          />
+          <View style={{ flexDirection: 'row', height: 50 }}>
+            <View style={{ width: 200, marginTop: 10, flex: 0.6 }}>
+              <Text style={onboardingStyles.label}>Re-enter Password:</Text>
+            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.4 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              secureTextEntry
+              onChangeText={text => this.setState({ confirmPwd: text })}
+            />
+          </View>
+          <View style={onboardingStyles.line} />
         </View>
       </View>
     );
   }
 }
 
-AppRegistry.registerComponent('registerConsumer', () => registerConsumer);
+RegisterConsumer.propTypes = {
+  navigation: PropTypes.object.isRequired,
+};
+
+AppRegistry.registerComponent('RegisterConsumer', () => RegisterConsumer);

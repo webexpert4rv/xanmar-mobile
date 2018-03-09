@@ -84,8 +84,6 @@ export default class splash extends Component {
         }
       } else {
         const sc = realm.objects('ServiceCategory');
-        console.log("Size is hat.....");
-        console.log(sc.length);
         if (sc.length === 0) {
           this.downloadAutoServices();
         }

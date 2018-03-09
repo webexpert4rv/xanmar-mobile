@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Platform } from 'react-native';
 import Icon from  'react-native-vector-icons/MaterialIcons';
 
 class CheckBox extends Component {
@@ -10,7 +11,12 @@ class CheckBox extends Component {
   }
 
   render() {
-    let iconName = this.state.data.checked ? 'check-box' : 'check-box-outline-blank';
+    let iconName;
+    if (Platform.OS === 'ios') {
+      iconName = this.state.data.checked ? 'check-circle' : 'radio-button-unchecked';
+    } else {
+      iconName = this.state.data.checked ? 'check-box' : 'check-box-outline-blank';
+    }
     let color = this.props.color || '#000';
 
     return (

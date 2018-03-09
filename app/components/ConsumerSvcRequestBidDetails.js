@@ -1,50 +1,72 @@
 import React, { Component } from 'react';
-import { DeviceEventEmitter, AppRegistry, Button, View, StyleSheet, Text } from 'react-native';
+import { DeviceEventEmitter, AppRegistry, Button, View, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { HeaderBackButton } from 'react-navigation';
 import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation'
+import renderIf from 'render-if';
+import df from 'dateformat';
+import Modal from 'react-native-modal'
 import format from 'string-format';
+import Stars from 'react-native-stars'
 import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
-import { bidStyles } from '../style/style';
+import { bidStyles, common, inbox, formStyles } from '../style/style';
+import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
 
 export default class ConsumerSvcRequestBidDetails extends Component {
   static navigationOptions = {
-    title: 'Bid Details',
-    headerStyle: {
-      backgroundColor: palette.PRIMARY_COLOR,
-    },
-    headerTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerBackTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerTintColor: palette.WHITE,
+    header: null,
   };
 
   constructor(props) {
     super(props);
     this.addService = this.addService.bind(this);
+    this.onMessageSendClick = this.onMessageSendClick.bind(this);
     const { state } = this.props.navigation
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2,
-      sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
-    });
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.state = {
       dataSource: ds,
       dict: {},
       bid: state.params.bid,
       srid: state.params.srid,
+      services: state.params.services,
+      messages: [],
+      showMessagePopup: false,
     };
   }
 
   componentDidMount() {
-    // const { state } = this.props.navigation
-    // console.log(JSON.stringify(this.state.job));
-    this.loadRequest(this.state.bid.bid_detail);
+    this.loadMessages();
+    events.getSvcRequestMessageEvents().subscribe((value) => {
+      this.loadMessages();
+    });
+  }
+
+  loadMessages(){
+    let msgs = [];
+
+    fetch(format('{}/api/svcreq/messages/{}', constants.BASSE_URL, this.state.srid), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
+      },
+    })
+      .then(response => response.json())
+      .then((responseData) => {
+        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.setState({
+          dataSource: ds.cloneWithRows(responseData.messages),
+          isLoading: false,
+          messages: responseData.messages,
+        });
+      }).catch((error) => {
+        console.log(error);
+      })
+      .done();
   }
 
   loadRequest(svcs) {
@@ -89,6 +111,24 @@ export default class ConsumerSvcRequestBidDetails extends Component {
      return uId;
    }
 
+   getUserName() {
+     let name = 0;
+     const cp = realm.objects('ConsumerProfile');
+     if (cp.length > 0) {
+       name = cp[0].name;
+     }
+     return name;
+   }
+
+   goBack() {
+     const { goBack } = this.props.navigation;
+     goBack();
+   }
+
+   declineBid() {
+     //TODO:  call API to declicne bid
+     this.goBack();
+   }
    acceptBid() {
      const { goBack } = this.props.navigation;
      const bid = {
@@ -108,32 +148,42 @@ export default class ConsumerSvcRequestBidDetails extends Component {
        .then((responseData) => {
          //DeviceEventEmitter.emit('onBidAccepted', {});
          events.sendMerchantJobAcceptedEvent(true);
-         goBack();
+         const resetAction = NavigationActions.reset({
+           index: 0,
+           actions: [
+             NavigationActions.navigate({ routeName: 'consumerTab' }),
+           ],
+         });
+         this.props.navigation.dispatch(resetAction);
        }).catch((error) => {
          console.log(error);
        })
        .done();
    }
 
-  renderRow(rowData, sectionID, rowID, highlightRow){
+   renderRow(rowData, sectionID, rowID, highlightRow){
+     return (
 
-    var bid = rowData.bid;
-    return(
 
-      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
-        <View>
-        <Text style={styles.name}>
-          {rowData.name}
-        </Text>
-        </View>
-        <View style={{ marginRight: 10, flexDirection: 'column', alignItems: 'flex-end' }}>
-        <Text style={styles.name}>
-          ${bid.toFixed(2)}
-        </Text>
-        </View>
-      </View>
-    );
-  }
+       <View style={{ flexDirection: 'row' }} minHeight={75} >
+         <View style={{ flex: 0.8 }}>
+           <View style={{ marginLeft: 30, marginBottom: 2 }} >
+             <Text style={{    fontSize: 15, fontWeight: 'bold',}}>
+               {rowData.msg_from}
+             </Text>
+             <Text style={{ marginTop: 5, color: palette.GRAY, color: palette.BLACK, marginBottom: 10 }} ellipsizeMode='tail' numberOfLines={4}>
+               {rowData.message}
+             </Text>
+           </View>
+         </View>
+         <View style={{ flex: 0.2 }}>
+           <Text>
+             { df(rowData.message_date, 'm/d/yy') }
+           </Text>
+         </View>
+       </View>
+     );
+   }
 
   renderSectionHeader(sectionData, category) {
     return (
@@ -143,7 +193,59 @@ export default class ConsumerSvcRequestBidDetails extends Component {
     )
   }
 
+  gotoMerchantReviews() {
+    const { navigate } = this.props.navigation;
+    navigate('MerchantReviews',
+      {
+        bid: this.state.bid,
+      }
+    );
+  }
+
+  onMessageSendClick(msg) {
+    this.setState({ showMessagePopup: false });
+
+    const newMsgRequest = {
+      service_request_id: this.state.srid,
+      sender_id: this.getUserId(),
+      sender_type: "consumer",
+      create_date: new Date(),
+      message: msg,
+    };
+
+    const message = {
+        msg_from: this.getUserName(),
+        message: msg,
+        message_date:newMsgRequest.create_date,
+    };
+
+    this.state.messages.unshift(message);
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    this.setState({ dataSource: ds.cloneWithRows(this.state.messages) })
+
+    fetch(format('{}/api/svcreq/message', constants.BASSE_URL), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
+      },
+      body: JSON.stringify(newMsgRequest),
+    })
+      .then(response => response.json())
+      .then((responseData) => {
+
+      }).catch((error) => {
+        console.log(error);
+      })
+      .done();
+  }
+
   render() {
+    var total = this.state.bid.bid_total;
+    const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
+    const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
+    const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
+
     if (this.state.bid.accepted) {
       return (
         <View style={bidStyles.customerInfo}>
@@ -175,27 +277,97 @@ export default class ConsumerSvcRequestBidDetails extends Component {
       );
     } else {
       return (
-        <View style={styles.listContainer}>
-          <View style={styles.infoSection}>
-            <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
-            {this.state.bid.business_name}</Text>
+        <View style={{flex: 1, backgroundColor: palette.WHITE}}>
+
+        <View
+          style={{
+            backgroundColor: palette.HEADER_BLUE,
+            alignSelf: 'stretch',
+            height: HEIGHT,
+            flexDirection: 'row',
+            justifyContent: 'space-between' }}
+        >
+          <HeaderBackButton tintColor={palette.WHITE} onPress={() => this.goBack()} />
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={common.headerTitle}>
+              Service Request
+            </Text>
           </View>
-          <View style={styles.listSection}>
-            <ListView
-              dataSource={this.state.dataSource}
-              renderRow={this.renderRow.bind(this)}
-              renderSectionHeader={this.renderSectionHeader}
-              style={{ marginTop: 10 }}
-            />
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity style={{ marginRight: 10 }} onPress={() => this.setState({ showMessagePopup: true })}>
+              <Text style={common.headerTitle}>Reply</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{flex: 1, backgroundColor: palette.WHITE}}>
+          <TouchableOpacity onPress={() => this.gotoMerchantReviews()} style={{ marginTop:10, flex: .20, flexDirection: 'row' }} >
+            <View style={{ flex: 0.8 }}>
+              <View style={{ marginLeft: 30, marginBottom: 2 }} >
+                <Text style={styles.title}>
+                  {this.state.bid.business_name}
+                </Text>
+                <View style={{ flexDirection: 'row', marginTop: 5 }} >
+                  <Stars
+                    value={parseFloat(this.state.bid.rating)}
+                    spacing={8}
+                    count={5}
+                    starSize={15}
+                    fullStar= {require('../img/starFilled.png')}
+                    emptyStar= {require('../img/starEmpty.png')}/>
+                    <Text style={{ marginLeft:10, color: palette.GRAY }}>
+                      ({this.state.bid.review_count}) Reviews
+                    </Text>
+                </View>
+                <View style={{ flexDirection: 'row' }} >
+                   <View >
+                     <Text style={{ marginTop: 5, color: palette.GRAY, color: palette.BLACK }} ellipsizeMode='tail' numberOfLines={3}>
+                       Mechanic comment would go here when captured.
+                     </Text>
+                   </View>
+                </View>
+              </View>
             </View>
-            <View style={{ marginBottom: 15, marginLeft: 8, marginRight: 8, flex: .05, flexDirection: 'row', justifyContent: 'center' }} >
-              <View style={{ width: 200}}>
+            <View style={{ flex: 0.2 }}>
+              <Text style={styles.title}>
+                ${total.toFixed(2)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+            <View style={{ flex: 0.70 }}>
+              <ListView
+                style={{ marginTop: 5 }}
+                dataSource={this.state.dataSource}
+                renderRow={this.renderRow.bind(this)}
+                enableEmptySections={true}
+                renderSeparator={this.renderSeparator}
+              />
+            </View>
+
+          <View style={{ flex: .05, flexDirection: 'row', marginBottom: 8 }} >
+              <View style={{ width: 200, height: 200}}>
+                <Button
+                  onPress={() => this.declineBid()}
+                  color={palette.DECLINE_RED}
+                  title="Decline Bid"
+                />
+              </View>
+              <View style={{ width: 200, height: 200}}>
                 <Button
                   onPress={() => this.acceptBid()}
-                  title="Accept Bid"
+                  color={palette.HIRE_BLUE}
+                  title="Hire"
                 />
               </View>
             </View>
+          </View>
+          <Modal
+            isVisible={this.state.showMessagePopup}
+            onBackButtonPress={() => {this.setState({ showMessagePopup: false });}}
+            onBackdropPress={() => {this.setState({ showMessagePopup: false });}}>
+            <MessagePopup onSendClick={this.onMessageSendClick} />
+          </Modal>
+
         </View>
       );
     }

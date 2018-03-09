@@ -4,8 +4,19 @@ export const svcRequestBroadcast = new Rx.Subject();
 export const merchantJobsBroadcast = new Rx.Subject();
 export const svcRequestBidsBroadcast = new Rx.Subject();
 export const merchantJobAcceptedBroadcast = new Rx.Subject();
-
 export const merchantJobChangeBroadcast = new Rx.Subject();
+export const svcRequestMessageBroadcast = new Rx.Subject();
+export const merchantAccountChangeBroadcast = new Rx.Subject();
+
+
+export const getSvcRequestMessageEvents = () => {
+  return svcRequestMessageBroadcast;
+};
+
+export const sendSvcRequestMessageEvent = (change) => {
+  svcRequestMessageBroadcast.next(change);
+};
+
 export const getMerchantJobChangeEvents = () => {
   return merchantJobChangeBroadcast;
 };
@@ -46,3 +57,11 @@ export const getMerchantJobAcceptedEvents = () => {
 export const sendMerchantJobAcceptedEvent = (bid) => {
   merchantJobAcceptedBroadcast.next(bid);
 }
+
+export const getMerchantAccountChangeEvents = () => {
+  return merchantAccountChangeBroadcast;
+};
+
+export const sendMerchantAccountChangeEvent = (change) => {
+  merchantAccountChangeBroadcast.next(change);
+};

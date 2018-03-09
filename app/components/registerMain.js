@@ -1,46 +1,53 @@
-import React, { Component } from 'react';
-import { AppRegistry, Button, View, Text } from 'react-native';
+import React, { Component, PropTypes } from 'react';
+import { AppRegistry, Image, View, Text, TouchableOpacity } from 'react-native';
+import { onboardingStyles, common } from '../style/style';
 import palette from '../style/palette';
 
-export default class registerMain extends Component {
-  static navigationOptions = {
-    title: 'Registration Main',
-    headerStyle: {
-      backgroundColor: palette.PRIMARY_COLOR,
-    },
-    headerTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerBackTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerTintColor: palette.WHITE,
+const userIcon = require('../img/onboarding/user.png');
+const mechanicIcon = require('../img/onboarding/mechanic.png');
+
+export default class RegisterMain extends Component {
+  static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    return {
+      headerStyle: common.header,
+      headerTitleStyle: {
+        color: palette.WHITE,
+      },
+      headerBackTitleStyle: {
+        color: palette.WHITE,
+      },
+      headerTintColor: palette.WHITE,
+    };
   };
 
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View>
+      <View style={onboardingStyles.mainContainer}>
         <View>
-          <Text style={{ textAlign: 'center', marginTop: 30, fontSize: 20 }}>Register as one of the following </Text>
+          <Text style={{ textAlign: 'center',  marginTop: 5,fontSize: 25,color: palette.WHITE }}>Let&apos;s Get Started </Text>
         </View>
-        <View style={{ height: 200, flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around' }}>
-          <Button
-            style={{ width: 800 }}
-            color={palette.PRIMARY_COLOR}
-            onPress={() => navigate('consumerRegister')}
-            title="Register as Consumer"
-          />
-          <Button
-            style={{ width: 800 }}
-            color={palette.PRIMARY_COLOR_DARK}
-            onPress={() => navigate('merchantRegister')}
-            title="Register as Mechanic"
-          />
+        <View>
+          <Text style={onboardingStyles.subTitle}>To get started, tell us who you are </Text>
+        </View>
+        <View style={onboardingStyles.imageCenter}>
+          <TouchableOpacity onPress={() => navigate('consumerRegister')}>
+            <Image source={userIcon} />
+          </TouchableOpacity>
+        </View>
+        <View style={onboardingStyles.imageCenter}>
+          <TouchableOpacity onPress={() => navigate('MerchantRegisterBusiness')}>
+            <Image source={mechanicIcon} />
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
 }
 
-AppRegistry.registerComponent('registerMain', () => registerMain);
+RegisterMain.propTypes = {
+  navigation: PropTypes.object.isRequired,
+};
+
+AppRegistry.registerComponent('RegisterMain', () => RegisterMain);

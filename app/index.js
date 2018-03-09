@@ -1,24 +1,40 @@
 import { StackNavigator, TabNavigator } from 'react-navigation';
+import { StyleSheet } from 'react-native';
 import splash from './components/Splash';
+
+import intro from './components/Intro';
+import login from './components/Login';
 import registerMain from './components/registerMain';
-import registerConsumer from './components/registerConsumer';
-import registerMerchant from './components/registerMerchant';
-import registerServicesOffered from './components/RegisterServices';
+import registerConsumer from './components/RegisterConsumer';
+import registerMerchantBusiness from './components/RegisterMerchantBusiness';
+import registerMerchantContactInfo from './components/RegisterMerchantContactInfo';
+import registerServicesOffered from './components/RegisterMerchantServices';
 import registerVehicle from './components/RegisterVehicle';
 import services from './components/services';
 
+import profile from './components/Profile';
 import vehicles from './components/ConsumerVehicles';
 import consumerSvcHistory from './components/ConsumerSvcHistory';
 import consumerProfile from './components/ConsumerProfile';
 import consumerRequestSvc from './components/ConsumerRequestService';
+import consumerRequestSvcZip from './components/ConsumerRequestZip';
+import consumerRequestSvcDate from './components/ConsumerRequestDate';
+import consumerRequestSvcComment from './components/ConsumerRequestComment';
+import consumerRequestSvcPhoto from './components/ConsumerRequestPhoto';
 import consumerSvcRequestDetail from './components/ConsumerSvcRequestDetail';
 import consumerSvcRequestBids from './components/ConsumerSvcRequestBids';
 import consumerSvcRequestBidDetails from './components/ConsumerSvcRequestBidDetails';
+import consumerSvcRequestSummary from './components/ConsumerSvcRequestSummary';
 
 import merchantJobs from './components/MerchantJobs';
 import merchantJobDetail from './components/MerchantJobDetail';
+import merchantActiveBid from './components/MerchantActiveBid';
+import merchantBids from './components/MerchantBids';
 import merchantSvcs from './components/MerchantServices';
 import merchantProfile from './components/MerchantProfile';
+import merchantReviews from './components/MerchantReviews';
+import merchantMap from './components/MerchantMap';
+import merchantPymt from './components/MerchantPayment';
 import palette from './style/palette';
 
 //  just dumb, hack for issue
@@ -35,22 +51,31 @@ import palette from './style/palette';
 //   },
 // );
 
+// console.log(JSON.stringify(this.state.job));
+
 const consumerNavigator = TabNavigator(
   {
     SvcHistory: { screen: consumerSvcHistory },
     Vehicles: { screen: vehicles },
-    Profile: { screen: consumerProfile },
+    Profile: { screen: profile },
   },
   { tabBarOptions: {
-    activeTintColor: palette.WHITE,
-    inactiveTintColor: palette.WHITE,
+    activeTintColor: palette.TAB_ACTIVE_COLOR,
+    inactiveTintColor: palette.TAB_INACTIVE_COLOR,
     labelStyle: {
-      fontSize: 15,
+      fontSize: 13,
     },
     style: {
-      backgroundColor: palette.PRIMARY_COLOR, // Main color
+      backgroundColor: palette.WHITE, // Main color
+      borderTopColor: palette.GRAY,
+      borderTopWidth: StyleSheet.hairlineWidth,
     },
+    indicatorStyle: {
+      backgroundColor: 'transparent',
+    },
+    showIcon: true,
   },
+    tabBarPosition: 'bottom',
   },
 );
 
@@ -58,58 +83,89 @@ const consumerNavigatorMain = StackNavigator({
   consumerTab: { screen: consumerNavigator },
   RegisterVehicle: { screen: registerVehicle },
   RequestService: { screen: consumerRequestSvc },
+  RequestServiceZip: { screen: consumerRequestSvcZip },
+  RequestServiceDate: { screen: consumerRequestSvcDate },
+  RequestServiceComment: { screen: consumerRequestSvcComment },
+  RequestServicePhoto: { screen: consumerRequestSvcPhoto },
   ConsumerSvcRequestDetail: { screen: consumerSvcRequestDetail },
   ConsumerSvcRequestBids: { screen: consumerSvcRequestBids },
   ConsumerSvcRequestBidDetails: { screen: consumerSvcRequestBidDetails },
-}, {
-  headerMode: 'screen',
-},
+  ConsumerSvcRequestSummary: { screen: consumerSvcRequestSummary },
+  ConsumerProfile: { screen: consumerProfile },
+  MerchantReviews: { screen: merchantReviews },
+  MerchantMap: { screen: merchantMap },
+  Login: { screen: login },
+  }, {
+    headerMode: 'screen',
+  },
 );
 
 const merchantNavigator = TabNavigator({
   Jobs: { screen: merchantJobs },
-  Services: { screen: merchantSvcs },
-  Profile: { screen: merchantProfile },
+  Bids: { screen: merchantBids },
+  Profile: { screen: profile },
 },
   { tabBarOptions: {
-    activeTintColor: palette.WHITE,
-    inactiveTintColor: palette.WHITE,
+    activeTintColor: palette.TAB_ACTIVE_COLOR,
+    inactiveTintColor: palette.TAB_INACTIVE_COLOR,
     labelStyle: {
-      fontSize: 15,
+      fontSize: 13,
     },
     style: {
-      backgroundColor: palette.PRIMARY_COLOR_DARK, // Main color
+      backgroundColor: palette.WHITE, // Main color
+      borderTopColor: palette.GRAY,
+      borderTopWidth: StyleSheet.hairlineWidth,
     },
+    indicatorStyle: {
+      backgroundColor: 'transparent',
+    },
+    showIcon: true,
   },
+    tabBarPosition: 'bottom',
   },
 );
 
 const merchantNavigatorMain = StackNavigator({
   merchantTab: { screen: merchantNavigator },
+  Services: { screen: merchantSvcs },
   JobDetails: { screen: merchantJobDetail },
+  ActiveBid: { screen: merchantActiveBid },
+  MerchantProfile: { screen: merchantProfile },
+  MerchantPymt: { screen: merchantPymt },
+  Login: { screen: login },
 }, {
   headerMode: 'screen',
 },
 );
 
 const onBoardingNavigator = StackNavigator({
+  Intro: { screen: intro },
+  Login: { screen: login },
   RegisterMain: { screen: registerMain },
   consumerRegister: { screen: registerConsumer },
-  merchantRegister: { screen: registerMerchant },
+  MerchantRegisterBusiness: { screen: registerMerchantBusiness },
+  MerchantRegisterContactInfo: { screen: registerMerchantContactInfo },
   RegisterServicesOffered: { screen: registerServicesOffered },
+  MerchantPymt: { screen: merchantPymt },
   consumerTab: { screen: consumerNavigator },
-  merchantNav: { screen: merchantNavigator },
+  merchantTab: { screen: merchantNavigator },
   RegisterVehicle: { screen: registerVehicle },
   svcs: { screen: services },
   merchantSvcs: { screen: merchantSvcs },
   RequestService: { screen: consumerRequestSvc },
+  RequestServiceZip: { screen: consumerRequestSvcZip },
+  RequestServiceDate: { screen: consumerRequestSvcDate },
+  RequestServiceComment: { screen: consumerRequestSvcComment },
+  RequestServicePhoto: { screen: consumerRequestSvcPhoto },
   JobDetails: { screen: merchantJobDetail },
+  ActiveBid: { screen: merchantActiveBid },
   ConsumerSvcRequestDetail: { screen: consumerSvcRequestDetail },
   ConsumerSvcRequestBids: { screen: consumerSvcRequestBids },
   ConsumerSvcRequestBidDetails: { screen: consumerSvcRequestBidDetails },
+  ConsumerSvcRequestSummary: { screen: consumerSvcRequestSummary },
 },
   {
-    initialRouteName: 'RegisterMain',
+    initialRouteName: 'Intro',
     headerMode: 'screen',
   },
 );
@@ -119,6 +175,7 @@ const AppNavigator = StackNavigator({
   OnBoardingNavigator: { screen: onBoardingNavigator },
   merchantNavigatorMain: { screen: merchantNavigatorMain },
   consumerNavigatorMain: { screen: consumerNavigatorMain },
+    MerchantPymt: { screen: merchantPymt },
 },
   {
     initialRouteName: 'Splash',

@@ -6,12 +6,18 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation';
 import realm from './realm';
 import ServicePicker from './servicePicker';
 import palette from '../style/palette';
+import ExpandableList from 'react-native-expandable-section-list';
+import CheckBox from './CheckBox';
+import ServiceListItem from './ServiceListItem';
+import ServiceListSectionItem from './ServiceListSectionItem';
+import format from 'string-format';
 
 export default class MerchantService extends Component {
   static navigationOptions = {
@@ -22,15 +28,20 @@ export default class MerchantService extends Component {
   constructor(props) {
     super(props);
     this._onServicePickCompleted = this._onServicePickCompleted.bind(this);
+    this._onCompletedChange = this._onCompletedChange.bind(this);
+    this._onSectionClick = this._onSectionClick.bind(this);
+
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
     this.state = {
-      dataSource: ds,
+      // dataSource: ds,
       showServicePicker: false,
       servicesPicked: [],
       currentServices: [],
+      selectedServices: {},
+      openSections: [],
     };
   }
 
@@ -68,7 +79,7 @@ export default class MerchantService extends Component {
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
     this.setState({
-      dataSource: ds.cloneWithRowsAndSections(servicesCategoryMap),
+      //dataSource: ds.cloneWithRowsAndSections(servicesCategoryMap),
       currentServices: svcs,
     });
 
@@ -78,8 +89,8 @@ export default class MerchantService extends Component {
     // });
     realm.write(() => {
       svcs.forEach((s) => {
-        console.log('updating.....');
-        console.log(JSON.stringify(s.services));
+        //console.log('updating.....');
+        //console.log(JSON.stringify(s.services));
         const service = realm.create('MerchantServices', { category_id: s.category_id }, true);
         // s.services.forEach((ss) => {
         //   service.services.pop();
@@ -93,24 +104,85 @@ export default class MerchantService extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    let d;
-    if (rowData) {
-      if (rowData.checked) {
-        d = rowData.name;
-      } else {
-        d = 'not checked-'.concat(rowData.name);
-      }
-      // d = rowData;
-    } else {
-      d = 'No svc defined';
-    }
-    return (
-      <View>
-        <Text style={styles.name}>
-          {d}
-        </Text>
+    console.log('rowData');
+    console.log(JSON.stringify(rowData));
+
+    var header = (
+      <View style={styles.name}>
+        <Text>{rowData.name}</Text>
       </View>
     );
+
+      var subCat = "";
+      rowData.services.forEach((service) => {
+          subCat.concat('<Text>', service.name, '</Text>');
+
+      });
+    var content = (
+        {subCat}
+    );
+
+    return (
+          <Accordion
+            underlayColor="transparent"
+            header={header}
+            content={content}
+            easing="easeOutCubic"
+          />
+        );
+
+    // let d;
+    // if (rowData) {
+    //   if (rowData.checked) {
+    //     d = rowData.name;
+    //   } else {
+    //     d = 'not checked-'.concat(rowData.name);
+    //   }
+    //   // d = rowData;
+    // } else {
+    //   d = 'No svc defined';
+    // }
+    // return (
+    //   <View>
+    //     <Text style={styles.name}>
+    //       {d}
+    //     </Text>
+    //   </View>
+    // );
+  }
+
+  _onCompletedChange(item) {
+    //console.log(JSON.stringify(item));
+    if (item.checked) {
+      this.state.selectedServices[item.service_id] = item;
+    } else {
+      delete this.state.selectedServices[item.service_id];
+    }
+  }
+
+  _onSectionClick(item) {
+    // console.log(JSON.stringify(item));
+    // console.log(item.category_id);
+    //update database for all checked services
+    let allServicesChecked;
+    const cccc = realm.objects('MerchantServices');
+    let exactCat = cccc.filtered(format('category_id == {}', item.category_id));
+    //console.log(JSON.stringify(exactCat));
+    if (item.checked) {
+      allServicesChecked = true;
+    } else {
+      allServicesChecked = false;
+    }
+    exactCat[0].services.forEach((s) => {
+      realm.write(() => {
+        s.checked = allServicesChecked;
+      });
+
+    });
+    //item.checked = !item.checked;
+
+
+    this.fetchData();
   }
 
   renderSectionHeader(sectionData, category) {
@@ -133,36 +205,62 @@ export default class MerchantService extends Component {
     );
   }
 
+  _renderRow = (rowItem, rowId, sectionId) => (
+    <TouchableOpacity key={rowId} onPress={() => {}}>
+      <ServiceListItem key={rowId} data={rowItem} onCompletedChange={this._onCompletedChange} />
+    </TouchableOpacity>
+);
+
+_renderSection = (section, sectionId)  => {
+  return (
+    <ServiceListSectionItem key={sectionId} data={section} onCompletedChange={this._onSectionClick} />
+  );
+};
+
+
   fetchData() {
-    const svcs = realm.objects('MerchantServices');
-
-    let serviceChecked = false;
+    const sc = realm.objects('MerchantServices');
+    console.log("ms");
+    console.log(JSON.stringify(sc));
     const servicesCategoryMap = {};
-    svcs.forEach((service) => {
-      if (!servicesCategoryMap[service.name]) {
-        // Create an entry in the map for the category if it hasn't yet been created
-        servicesCategoryMap[service.name] = [];
-      }
+    let dd = [];
+    sc.forEach((service) => {
+      dd.push({ category: {category_id: service.category_id, name: service.name, checked: service.checked},
+                svc: service.services});
 
-      service.services.forEach((s) => {
-        if (s.checked) {
-          servicesCategoryMap[service.name].push(s);
-          serviceChecked = true;
-        }
-      });
-
-      if (!serviceChecked) {
-        delete servicesCategoryMap[service.name]
-      }
     });
-
+//console.log(JSON.stringify(servicesCategoryMap));
+    // const svcs = realm.objects('MerchantServices');
+    //
+    // let serviceChecked = false;
+    // const servicesCategoryMap = {};
+    // svcs.forEach((service) => {
+    //   if (!servicesCategoryMap[service.name]) {
+    //     // Create an entry in the map for the category if it hasn't yet been created
+    //     servicesCategoryMap[service.name] = [];
+    //   }
+    //
+    //   service.services.forEach((s) => {
+    //     if (s.checked) {
+    //       servicesCategoryMap[service.name].push(s);
+    //       serviceChecked = true;
+    //     }
+    //   });
+    //
+    //   if (!serviceChecked) {
+    //     delete servicesCategoryMap[service.name]
+    //   }
+    // });
+    //
+    //console.log("dd");
+    //console.log(JSON.stringify(dd));
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
     this.setState({
-      dataSource: ds.cloneWithRowsAndSections(servicesCategoryMap),
-      currentServices: svcs,
+      dataSource: dd,
+      currentServices: sc,
     });
   }
 
@@ -224,7 +322,7 @@ export default class MerchantService extends Component {
               <Button
                 style={{ width: 300 }}
                 color={palette.PRIMARY_COLOR}
-                onPress={() => this.setState({ showServicePicker: true })}
+                onPress={() => console.log(JSON.stringify(this.state.selectedServices))}
                 title="Add service"
               />
             </View>
@@ -248,11 +346,14 @@ export default class MerchantService extends Component {
           </View>
          </Modal>
           <View style={styles.listSection}>
-          <ListView
+
+          <ExpandableList
             dataSource={this.state.dataSource}
-            renderRow={this.renderRow}
-            renderSectionHeader={this.renderSectionHeader}
-            style={{ marginTop: 10 }}
+            headerKey="category"
+            memberKey="svc"
+            renderRow={this._renderRow}
+            renderSectionHeaderX={this._renderSection}
+            openOptions={this.state.openSections}
           />
           </View>
       </View>
@@ -264,6 +365,7 @@ export default class MerchantService extends Component {
 const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
+    backgroundColor: '#FFFFFF'
   },
   listSection: {
     flex: 0.80,

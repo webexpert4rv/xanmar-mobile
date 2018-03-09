@@ -8,6 +8,10 @@ UserPreference.schema = {
     userId: { type: 'int', default: 0 },
     role: { type: 'string', default: '' },
     deviceToken: { type: 'string', default: '' },
+    customerId: { type: 'string', default: '' },
+    subscriptionId: { type: 'string', default: '' },
+    plan: { type: 'string', default: '' },
+    status: { type: 'string', default: '' },
   },
 };
 
@@ -42,6 +46,18 @@ class Vehicle extends Realm.Object {}
 Vehicle.schema = {
   name: 'Vehicle',
   properties: {
+    vehicleId: { type: 'int', default: 0 },
+    make: 'string',
+    model: 'string',
+    year: 'string',
+  },
+};
+
+class CurrentVehicle extends Realm.Object {}
+CurrentVehicle.schema = {
+  name: 'CurrentVehicle',
+  properties: {
+    vehicleId: { type: 'int', default: 0 },
     make: 'string',
     model: 'string',
     year: 'string',
@@ -66,6 +82,7 @@ ServiceCategory.schema = {
   properties: {
     category_id: 'int',
     name: 'string',
+    checked: { type: 'bool', default: false },
     services: { type: 'list', objectType: 'Service' },
   },
 };
@@ -77,6 +94,7 @@ MerchantServices.schema = {
   properties: {
     category_id: 'int',
     name: 'string',
+    checked: { type: 'bool', default: false },
     services: { type: 'list', objectType: 'Service' },
   },
 };
@@ -85,6 +103,7 @@ class ServiceRequest extends Realm.Object {}
 ServiceRequest.schema = {
   name: 'ServiceRequest',
   properties: {
+    vehicle_id: 'int',
     service_id: 'int',
     user_id: 'int',
     service_date: 'date',
@@ -92,10 +111,13 @@ ServiceRequest.schema = {
     make: 'string',
     model: 'string',
     year: 'int',
+    comment: 'string',
+    status: 'string',
+    services: { type: 'list', objectType: 'Service' },
   },
 };
 
 export default new Realm({ schema:
-[UserPreference, Vehicle, Service,
+[UserPreference, Vehicle, CurrentVehicle, Service,
   ServiceCategory, ServiceRequest, MerchantServices,
   ConsumerProfile, ServiceProviderProfile] });

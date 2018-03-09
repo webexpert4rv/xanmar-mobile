@@ -2,6 +2,372 @@ import { Platform, StyleSheet } from 'react-native';
 
 import palette from './palette';
 
+export const subscriptions = StyleSheet.create({
+
+  unselected: {
+    width: 100,
+    height: 100,
+    backgroundColor: 'steelblue',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  selected: {
+    width: 100,
+    height: 100,
+    backgroundColor: palette.DARK_BLUE,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  bullet: {
+    marginTop: 3,
+    width: 10,
+    height: 10,
+    borderRadius: 100/2,
+    backgroundColor: palette.LIGHT_BLUE,
+  }
+
+});
+
+export const inbox = StyleSheet.create({
+  container: {
+    height: 125,
+    backgroundColor: palette.WHITE,
+  },
+  canceled: {
+    height: 125,
+    backgroundColor: palette.LIGHT_GRAY,
+  },
+  title: {
+    fontSize: 20,
+    color: palette.BLACK,
+    fontWeight: 'bold',
+  },
+  subTitle: {
+    fontSize: 15,
+    color: palette.INBOX_TEXT_COLOR,
+  },
+  submittedBid: {
+    width: 115,
+    marginLeft: 35,
+    padding: 2,
+    backgroundColor: palette.WHITE,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: palette.SUBMITTED_BID,
+  },
+  status: {
+    fontSize: 13,
+    color: palette.SUBMITTED_BID,
+    textAlign: 'center',
+  },
+  arrow: {
+    fontSize: 40,
+    color: palette.SUBMITTED_BID,
+    textAlign: 'center',
+  },
+});
+
+export const quote = StyleSheet.create({
+  container: {
+    height: 125,
+    marginTop: 10,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: palette.HEADER_BLUE,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    alignItems: 'center',
+  },
+  merchantMessage: {
+    height: 125,
+    marginLeft: 10,
+    marginRight: 10,
+    backgroundColor: palette.QUOTE_REPLY_COLOR,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  textInput: {
+    color: palette.WHITE,
+    marginTop: 15,
+    width: 125,
+    fontSize: 50,
+  },
+  replyContainer: {
+    fontSize: 20,
+    color: palette.BLACK,
+    fontWeight: 'bold',
+  },
+  subTitle: {
+    fontSize: 15,
+    color: palette.INBOX_TEXT_COLOR,
+  },
+  submittedBid: {
+    width: 115,
+    marginLeft: 35,
+    padding: 2,
+    backgroundColor: palette.WHITE,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: palette.SUBMITTED_BID,
+  },
+  status: {
+    fontSize: 13,
+    color: palette.SUBMITTED_BID,
+    textAlign: 'center',
+  },
+  arrow: {
+    fontSize: 40,
+    color: palette.SUBMITTED_BID,
+    textAlign: 'center',
+  },
+});
+
+export const reviewPopup = StyleSheet.create({
+
+  container: {
+    height: 450,
+    flexDirection: 'column',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 15,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+
+});
+
+export const dashboard = StyleSheet.create({
+
+  container: {
+    flex: 1,
+    height: 120,
+    backgroundColor: palette.DASHBOARD_GRAY,
+    marginLeft: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+
+  statusInProgress: {
+    fontSize: 13,
+    color: palette.STATUS_GREEN,
+  },
+  statusRequested: {
+    fontSize: 13,
+    color: palette.STATUS_ORANGE,
+  },
+  statusCompleted: {
+    fontSize: 13,
+    color: palette.STATUS_BLUE
+  },
+  line: {
+    alignSelf: 'stretch',
+    borderWidth: 1,
+    borderColor: palette.LIGHT_GRAY,
+    marginLeft: 0,
+    marginRight: 0,
+  },
+});
+
+export const serviceRequest = StyleSheet.create({
+
+  container: {
+    flex: 1,
+    height: 120,
+    backgroundColor: palette.WHITE,
+    marginLeft: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+
+  statusWaitingOnBids: {
+    fontSize: 15,
+    color: palette.STATUS_RED,
+  },
+  statusInProgress: {
+    fontSize: 13,
+    color: palette.STATUS_GREEN,
+  },
+  statusBidsAvailable: {
+    fontSize: 13,
+    color: palette.STATUS_ORANGE,
+  },
+  statusCompleted: {
+    fontSize: 13,
+    color: palette.STATUS_BLUE
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 27,
+    color: palette.WHITE,
+  },
+  subTitle: {
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 19,
+    color: palette.LIGHT_BLUE,
+  },
+  textInput: {
+    marginTop: 10,
+    height: 40,
+    color: palette.WHITE,
+    fontSize: 20,
+    textAlign: 'center',
+    paddingRight: 20,
+  },
+  line: {
+    alignSelf: 'stretch',
+    borderWidth: 1,
+    borderColor: palette.LIGHT_BLUE,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+});
+
+export const common = StyleSheet.create({
+  header: {
+    backgroundColor: palette.DARK_BLUE,
+    elevation: 0, //remove shadow on Android
+    shadowOpacity: 0, //remove shadow on iOS
+  },
+  headerButton: {
+    fontSize: 20,
+    color: palette.WHITE,
+    paddingRight: 20,
+  },
+  blueAddHeaderButton: {
+    fontSize: 35,
+    color: palette.LIGHT_BLUE,
+    paddingRight: 20,
+  },
+  imageCenter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  center: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  dashboardContainer: {
+    backgroundColor: palette.DASHBOARD_GRAY,
+    flex: 1,
+  },
+  consumerContainer: {
+    backgroundColor: palette.WHITE,
+    flex: 1,
+  },
+  consumerSvcRequestContainer: {
+    backgroundColor: palette.DARK_BLUE,
+    flex: 1,
+  },
+
+  merchantContainer: {
+    backgroundColor: palette.DARK_BLUE,
+    flex: 1,
+  },
+
+  thinGrayLine: {
+    width: 600,
+    borderWidth: 0.2,
+    borderColor: palette.GRAY,
+  },
+  headerTitle: {
+    fontSize: 20,
+    color: palette.WHITE,
+  },
+  headerLeftButton: {
+    fontSize: 20,
+    color: palette.WHITE,
+    paddingRight: 20,
+  },
+  annotationContainer: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    borderRadius: 15,
+  },
+  annotationFill: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'orange',
+    transform: [{ scale: 0.6 }],
+  },
+});
+
+export const onboardingStyles = StyleSheet.create({
+  mainContainer: {
+    backgroundColor: palette.DARK_BLUE,
+    flex: 1,
+  },
+  small: {
+    fontSize: 13,
+    color: palette.WHITE,
+  },
+  medium: {
+    fontSize: 20,
+    color: palette.WHITE,
+  },
+  large: {
+    fontSize: 25,
+    color: palette.WHITE,
+  },
+  title: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 25,
+    color: palette.WHITE,
+  },
+  subTitle: {
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 18,
+    color: palette.WHITE,
+  },
+  imageCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  textInput: {
+    color: palette.WHITE,
+    fontSize: 20,
+    textAlign: 'right',
+    paddingRight: 20,
+  },
+  label: {
+    color: palette.LIGHT_BLUE,
+    fontSize: 20,
+  },
+  line: {
+    width: 600,
+    borderWidth: 1,
+    borderColor: palette.LIGHT_BLUE,
+  },
+  headerButton: {
+    fontSize: 20,
+    color: palette.WHITE,
+    paddingRight: 20,
+  },
+
+});
+
 export const bidStyles = StyleSheet.create({
   statusAccepted: {
     fontSize: 13,

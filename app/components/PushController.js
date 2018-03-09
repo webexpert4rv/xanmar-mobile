@@ -33,13 +33,16 @@ export default class PushController extends Component {
       //   events.sendMerchantJobChangeEvent(true);
       // }
       if (notif.evt === 'merchantBid') {
-        console.log('Got merchant bid...');
         events.sendSvcRequestBidEvent(true);
         //this.props.onNotificationReceived(notif);
       }
       if (notif.evt === 'bidAccepted' || notif.evt === 'job' || notif.evt === 'jobClosed') {
         events.sendMerchantJobChangeEvent(true);
       }
+      if (notif.evt === 'newSvcReqMessage') {
+        events.sendSvcRequestMessageEvent(true);
+      }
+      // TRYIN TO SEE IF THIS WORKS to show notification in status bar even if app is in foreground!!!!
       if (notif.local_notification) {
         return;
       }

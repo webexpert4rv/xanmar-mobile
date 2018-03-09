@@ -1,58 +1,50 @@
-import React, { Component } from 'react';
-import {
+import React, { Component, PropTypes } from 'react';
+import { Alert,
   AppRegistry,
-  Button,
-  DeviceEventEmitter,
-  Modal,
-  StyleSheet,
   Text,
-  TextInput,
+  Platform,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import renderIf from 'render-if';
-import { formStyles } from '../style/style';
-import { NavigationActions } from 'react-navigation';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
+import { HeaderBackButton, NavigationActions } from 'react-navigation';
+import ExpandableList from 'react-native-expandable-section-list';
+import { common } from '../style/style';
 import constants from '../constants/c';
 import realm from './realm';
-import ServicePicker from './servicePicker';
-import DatePicker from 'react-native-datepicker'
 import palette from '../style/palette';
 import * as events from '../broadcast/events';
-
-const calIcon = require('../img/google_calendar.png');
+import ServiceListItem from './ServiceListItem';
+import ServiceListSectionItem from './ServiceListSectionItem';
 
 export default class ConsumerRequestService extends Component {
   static navigationOptions = {
-    title: 'Service Request',
-    headerStyle: {
-      backgroundColor: palette.PRIMARY_COLOR,
-    },
-    headerTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerBackTitleStyle: {
-      color: palette.WHITE,
-    },
-    headerTintColor: palette.WHITE,
+    header: null,
   };
 
   constructor(props) {
     super(props);
     this._onServicePickCompleted = this._onServicePickCompleted.bind(this);
+    this._onCompletedChange = this._onCompletedChange.bind(this);
+    this._onSectionClick = this._onSectionClick.bind(this);
+
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
     this.state = {
-      dataSource: ds,
+      dataSource: [],
       showServicePicker: false,
       servicesPicked: [],
       currentServices: [],
       showSvcDateError: false,
       showSvcListError: false,
       showSvcZipError: false,
+
+
+      selectedServices: {},
+      openSections: [0, 1, 2, 3, 4, 5, 6],
     };
   }
 
@@ -60,41 +52,41 @@ export default class ConsumerRequestService extends Component {
     this.fetchData();
   }
 
-  validateForm() {
-    let formValid = true;
-    // // email
-    // const re = /.+@.+/;
-    // const validEmail = re.test(this.state.email);
-    // if (validEmail) {
-    //   this.setState({ showEmailError: false });
-    // } else {
-    //   this.setState({ emailError: 'invalid email.', showEmailError: true });
-    //   formValid = false;
-    // }
-
-    //service date
-    if (this.state.date === undefined) {
-      this.setState({ showSvcDateError: true });
-      formValid = false;
+  gotoZip() {
+    if (this.validateForm()) {
+      const { navigate } = this.props.navigation;
+      navigate('RequestServiceZip', { svcsRequested: this.state.selectedServices });
     } else {
-      this.setState({ showSvcDateError: false });
+      Alert.alert(
+        'Error',
+        'You must select at least one services.',
+        [
+          { text: 'OK' },
+        ],
+        { cancelable: false }
+      );
     }
+  }
+
+  goBack() {
+    const { goBack } = this.props.navigation;
+    goBack();
+  }
+  validateForm() {
+    let formValid = false;
 
     //service list
-    console.log(this.state.dataSource.getRowCount());
-    if (this.state.dataSource.getRowCount() === 0) {
-      this.setState({ showSvcListError: true });
-      formValid = false;
-    } else {
-      this.setState({ showSvcListError: false });
-    }
-
-    // service zip
-    if (this.state.zip === undefined || this.state.zip.length < 5) {
-      this.setState({ showSvcZipError: true });
-      formValid = false;
-    } else {
-      this.setState({ showSvcZipError: false });
+    const sc = realm.objects('ServiceCategory');
+    for (var serviceCat of sc.values()) {
+      for (var svc of serviceCat.services.values()) {
+        if (svc.checked) {
+          formValid = true;
+          break;
+        }
+      }
+      if (formValid) {
+        break
+      }
     }
 
     return formValid;
@@ -131,53 +123,19 @@ export default class ConsumerRequestService extends Component {
     });
   }
 
-  renderRow(rowData, sectionID, rowID, highlightRow){
-    // console.log('row data');
-    // console.log(JSON.stringify(rowData));
-    let d;
-    if (rowData) {
-      if (rowData.checked) {
-        d = rowData.name;
-      } else {
-        d = 'not checked-'.concat(rowData.name);
-      }
-      // d = rowData;
-    } else {
-      d = 'No svc defined';
-    }
-    return(
-      <View>
-      <Text style={styles.name}>
-        {d}
-      </Text>
-      </View>
-    );
-  }
-
-  renderSectionHeader(sectionData, category) {
-    return (
-      <View style={{ backgroundColor: '#6495ed'}}>
-        <Text style={{ color: '#ffffff', marginLeft: 5, fontSize: 23 }}>{category}</Text>
-      </View>
-    )
-}
-
-  renderSeparator(sectionID, rowID, adjacentRowHighlighted){
-    return(
-      <View
-        key={`${sectionID}-${rowID}`}
-        style={{
-          height: adjacentRowHighlighted ? 4 : 1,
-          backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
-        }}
-      />
-    );
-  }
-
   fetchData() {
-    console.log('fetch data on request svc page');
     const sc = realm.objects('ServiceCategory');
+    const dd = [];
+    sc.forEach((service) => {
+      dd.push({ category: {
+        category_id: service.category_id,
+        name: service.name,
+        checked: service.checked },
+        svc: service.services });
+    });
+
     this.setState({
+      dataSource: dd,
       currentServices: sc,
     });
   }
@@ -287,129 +245,93 @@ export default class ConsumerRequestService extends Component {
     }
   }
 
+  _onCompletedChange(item) {
+    if (item.checked) {
+      this.state.selectedServices[item.service_id] = item;
+    } else {
+      delete this.state.selectedServices[item.service_id];
+    }
+  }
+
+  _onSectionClick(item) {
+    // update database for all checked services
+    let allServicesChecked;
+    const services = realm.objects('ServiceCategory');
+    const exactCat = services.filtered(format('category_id == {}', item.category_id));
+
+    if (item.checked) {
+      allServicesChecked = true;
+    } else {
+      allServicesChecked = false;
+    }
+
+    exactCat[0].services.forEach((s) => {
+      realm.write(() => {
+        s.checked = allServicesChecked;
+      });
+    });
+
+    this.fetchData();
+  }
+
+    _renderRow = (rowItem, rowId, sectionId) => (
+      <TouchableOpacity key={rowId} onPress={() => {}}>
+        <ServiceListItem key={rowId} data={rowItem} onCompletedChange={this._onCompletedChange} />
+      </TouchableOpacity>
+  );
+
+  _renderSection = (section, sectionId) => {
+    return (
+      <ServiceListSectionItem svcs="ServiceCategory" key={sectionId} data={section} onCompletedChange={this._onSectionClick} />
+    );
+  };
+
   render() {
     const { state } = this.props.navigation;
+    const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
+    const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
+    const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
     return (
-      <View style={styles.listContainer}>
-        <View style={styles.infoSection}>
-          <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
-          {state.params.vehicle.year} {state.params.vehicle.make} {state.params.vehicle.model}</Text>
-          {renderIf(this.state.showSvcDateError)(
-            <Text style={formStyles.error}>Field required</Text>
-          )}
-          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
-            <View>
-              <DatePicker
-                style={{width: 200, marginLeft: 10}}
-                date={this.state.date}
-                mode="date"
-                placeholder="service date"
-                format="MM/DD/YYYY"
-                confirmBtnText="Confirm"
-                cancelBtnText="Cancel"
-                iconSource={calIcon}
-                onDateChange={(date) => { this.setState({ date: date})}}
-              />
-            </View>
-            <View style={{ marginRight: 10, flexDirection: 'column', alignItems: 'flex-end' }}>
-              <Button
-                style={{ width: 300 }}
-                onPress={() => this.setState({ showServicePicker: true })}
-                title="Add service"
-              />
-            </View>
-          </View>
-        </View>
-        <View>
-          {renderIf(this.state.showSvcZipError)(
-            <Text style={formStyles.error}>Zip Field required (must be 5 digits)</Text>
-          )}
-          <TextInput
-            style={{ height: 60, width: 100 }}
-            keyboardType="numeric"
-            maxLength={5}
-            placeholder="service zip"
-            onChangeText={text => this.setState({ zip: text })}
-          />
-        </View>
-        <Modal
-           animationType={'slide'}
-           transparent={true}
-           visible={this.state.showServicePicker}
-           onRequestClose={() => this.setState({ showServicePicker: false })}
-           >
-          <View style={{ margin: 50, backgroundColor: '#ffffff', padding: 20 }}>
-            <ServicePicker currentServices={this.state.currentServices} onServicePickCompleted={this._onServicePickCompleted} />
-            <Button
-              style={{ width: 300 }}
-              onPress={() => this.setState({ showServicePicker: false })}
-              title="Done"
-            />
-          </View>
-         </Modal>
-          <View style={styles.listSection}>
-          {renderIf(this.state.showSvcListError)(
-            <Text style={formStyles.error}>Field required, must include at lease 1 sevice.</Text>
-          )}
-          <ListView
-            dataSource={this.state.dataSource}
-            renderRow={this.renderRow}
-            renderSectionHeader={this.renderSectionHeader}
-            style={{ marginTop: 10 }}
-          />
-          </View>
-          <View style={styles.butSection}>
-          <Button
-            style={{ width: 300 }}
-            onPress={() => this.submitRequest()}
-            title="Submit service request"
-          />
-          </View>
-      </View>
 
+      <View style={common.consumerContainer}>
+
+        <View
+          style={{ flex: 0.10,
+            backgroundColor: palette.HEADER_BLUE,
+            alignSelf: 'stretch',
+            height: HEIGHT,
+            flexDirection: 'row',
+            justifyContent: 'space-between' }}
+        >
+          <HeaderBackButton tintColor={palette.WHITE} onPress={() => this.goBack()} />
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={common.headerTitle}>
+              Select A new Service
+            </Text>
+          </View>
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => this.gotoZip()} >
+              <Text style={common.headerLeftButton}>Next</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ExpandableList
+          style={{ flex: 0.90 }}
+          dataSource={this.state.dataSource}
+          headerKey="category"
+          memberKey="svc"
+          renderRow={this._renderRow}
+          renderSectionHeaderX={this._renderSection}
+          openOptions={this.state.openSections}
+        />
+      </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  listContainer: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  listSection: {
-    flex: 0.65,
-  },
-  butSection: {
-    flex: 0.10,
-  },
-  infoSection: {
-    flex: 0.25,
-  },
-  name: {
-    fontSize: 20,
-    textAlign: 'left',
-    margin: 10,
-    color: '#6495ed',
-  },
-  desc: {
-    textAlign: 'left',
-    color: '#333333',
-    marginBottom: 5,
-    margin: 10
-  },
-  separator: {
-       height: 1,
-       backgroundColor: '#dddddd'
-   },
-   loading: {
-       flex: 1,
-       alignItems: 'center',
-       justifyContent: 'center'
-   },
-   row: {
-    paddingVertical: 20,
-    backgroundColor: '#C70039',
-  },
-});
+ConsumerRequestService.propTypes = {
+  navigation: PropTypes.object.isRequired,
+};
 
 AppRegistry.registerComponent('ConsumerRequestService', () => ConsumerRequestService);

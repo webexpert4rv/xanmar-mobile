@@ -1,53 +1,76 @@
-import React, { Component } from 'react';
-import { AppRegistry, Button, DeviceEventEmitter, Image, View, StyleSheet, Text, TouchableHighlight } from 'react-native';
+import React, { Component, Dimensions, PropTypes } from 'react';
+import { AppRegistry, Button,
+         Image, View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
+import { HeaderBackButton } from 'react-navigation';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
+import { common, serviceRequest } from '../style/style';
 import realm from './realm';
+import palette from '../style/palette';
 import constants from '../constants/c';
 import df from 'dateformat';
 import * as events from '../broadcast/events';
 
-const svcHistoryIcon = require('../img/svc_history_icon.png');
+const needServiceIcon = require('../img/need_service.png');
+const svcHistoryIcon = require('../img/tabbar/services_on.png');
 
 export default class ConsumerSvcHistory extends Component {
-  static navigationOptions = {
-    title: 'Service Request',
-    header: null,
-    tabBarIcon:({ tintColor }) => (
-      <Image
-        source={profileIcon}
-        style={{ width: 26, height: 26, tintColor: tintColor }}
-      />
-   ),
+  // static navigationOptions = ({ navigation }) => {
+  //   return {
+  //     header: null,
+  //     title: 'Services',
+  //   };
+  // };
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: 'Services',
+      header: null,
+      tabBarIcon: ({ tintColor }) => (
+        <Image
+          source={svcHistoryIcon}
+          style={{ width: 26, height: 26, tintColor }}
+        />
+      ),
+    };
   };
 
   constructor(props) {
     super(props);
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-    const v = realm.objects('ServiceRequest');
+    const srs = realm.objects('ServiceRequest');
+    let activeRequest = srs.filtered('status != "canceled"');
+    let sortedSvcRequests = activeRequest.sorted('service_date', true)
+    const currentVechicle = realm.objects('CurrentVehicle');
+
     this.state = {
-      dataSource: ds.cloneWithRows(v),
+      dataSource: ds.cloneWithRows(sortedSvcRequests),
+      currentVechicle: currentVechicle[0],
     };
-  }
 
-
-
-  loadSvcRequests() {
-    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-    const v = realm.objects('ServiceRequest');
-    this.state = {
-      dataSource: ds.cloneWithRows(v),
-    };
   }
 
   componentDidMount() {
+    //this.props.navigation.setParams({ handleNewSvcRequest: this.addServiceRequest.bind(this) });
     events.getSvcRequestEvents().subscribe((value) => {
-      console.log('got value from subject');
-      console.log(value);
-      this.loadSvcRequests();
+      this.fetchSvcRequestFromAPI();
     });
     events.getSvcRequestBidsEvents().subscribe((value) => {
-      this.loadSvcRequests();
+      this.fetchSvcRequestFromAPI();
+    });
+    this.fetchSvcRequestFromAPI();
+  }
+
+  addServiceRequest() {
+    this.props.navigation.navigate('RequestService', { vehicle: this.state.currentVechicle });
+    // this.props.navigation.navigate('RequestServicePhoto');
+  }
+
+  loadSvcRequests() {
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    const srs = realm.objects('ServiceRequest');
+    let sortedSvcRequests = srs.sorted('service_date', true)
+    this.setState({
+      dataSource: ds.cloneWithRows(sortedSvcRequests)
     });
   }
 
@@ -58,6 +81,32 @@ export default class ConsumerSvcHistory extends Component {
       uId = userPrefs[0].userId;
     }
     return uId;
+  }
+
+  fetchSvcRequestFromAPI(){
+    fetch(format('{}/api/user/svcreq/{}', constants.BASSE_URL, this.getUserId()),{
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
+      .then(response => response.json())
+      .then((responseData) => {
+        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+        this.setState({
+          dataSource: ds.cloneWithRows(responseData.serviceRequests),
+          isLoading: false,
+        });
+        //update status locally
+        responseData.serviceRequests.forEach((serviceRequest) => {
+          let svcRequest = realm.objects('ServiceRequest');
+          let sr = svcRequest.filtered(format('service_id == {}', serviceRequest.service_request_id));
+          realm.write(() => {
+            sr[0].status = serviceRequest.status;
+          });
+        });
+
+      })
+      .done();
   }
 
   fetchData() {
@@ -77,111 +126,163 @@ export default class ConsumerSvcHistory extends Component {
       .done();
   }
 
+  serviceRequestClick(sr) {
+    console.log(JSON.stringify(sr));
+    if (sr.status === 'new' || sr.status === 'bidding') {
+      this.props.navigation.navigate('ConsumerSvcRequestBids', {svcRequest: sr});
+    }
+    if (sr.status === 'in progress' || sr.status === 'completed') {
+      this.props.navigation.navigate('ConsumerSvcRequestSummary', {svcRequest: sr});
+    }
+  }
+
   renderRow(rowData, sectionID, rowID, highlightRow){
     const sd = df(rowData.service_date, 'dddd mmmm dS, yyyy');
-    //const buttonText = format('{} Bid(s)', rowData.service_bids.length);
+    var status;
+    var s;
+    var buttonText;
+    if (rowData.status === 'new') {
+      s = serviceRequest.statusWaitingOnBids;
+      status = 'WAITING ON BIDS';
+    }
+    if (rowData.status === 'bidding') {
+      s = serviceRequest.statusBidsAvailable;
+      status = 'BIDS ARE WAITING';
+    }
+    if (rowData.status === 'in progress') {
+      s = serviceRequest.statusInProgress;
+      status = 'IN PROGRESS';
+    }
+    if (rowData.status === 'completed') {
+      s = serviceRequest.statusCompleted;
+      status = 'COMPLETED';
+    }
+    // if (rowData.accepted) {
+    //   status = 'Accepted';
+    //   s = bidStyles.statusAccepted;
+    //   buttonText = "View merchant information";
+    // } else {
+    //   status = 'Open';
+    //   s = bidStyles.statusOpen;
+    //   buttonText = "View bid details";
+    // }
+
     return(
-      <View style={styles.container}>
-        <View style={styles.vehicle}>
-          <Text style={styles.title}>
-            {rowData.year} {rowData.make} {rowData.model}
-          </Text>
-          <Text>
-             Service Date: {sd}
-          </Text>
+      <TouchableOpacity onPress={() => { this.serviceRequestClick(rowData)}} >
+        <View style={serviceRequest.container}>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+            <Text style={{ marginRight: 10, marginTop: 8, fontSize: 15 }}>
+              { df(rowData.service_date, 'm/d/yy') }
+            </Text>
+          </View>
+          <View style={{ marginLeft: 8, marginBottom: 8 }}>
+            <Text style={s}>
+              {status}
+            </Text>
+          </View>
+          <View style={{ marginLeft: 8, marginBottom: 20 }}>
+            <Text style={{ fontSize: 15 }}>
+               { rowData.comment }
+            </Text>
+          </View>
         </View>
-        <View style={{ marginBottom: 8, marginLeft: 8, marginRight: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
-          <Button
-            onPress={() => { this.props.navigation.navigate('ConsumerSvcRequestBids', {srid: rowData.service_id })}}
-            title="See bids"
-          />
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 
-  renderSeparator(sectionID, rowID, adjacentRowHighlighted){
-    return(
-      <View
-        key={`${sectionID}-${rowID}`}
-        style={{
-          height: adjacentRowHighlighted ? 4 : 1,
-          backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
-        }}
-      />
-    );
-  }
-
-  rowPressed (svc) {
-    const { navigate } = this.props.navigation;
-    navigate('ff');
-  }
+  // renderSeparator(sectionID, rowID, adjacentRowHighlighted){
+  //   return(
+  //     <View
+  //       key={`${sectionID}-${rowID}`}
+  //       style={{
+  //         height: adjacentRowHighlighted ? 4 : 1,
+  //         backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
+  //       }}
+  //     />
+  //   );
+  // }
 
   render() {
-    const { navigate } = this.props.navigation;
+    const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
+    const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
+    const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
+
     if (this.state.dataSource.getRowCount() > 0) {
       return (
         <View>
+          <View
+            style={{ backgroundColor: palette.HEADER_BLUE,
+              alignSelf: 'stretch',
+              height: HEIGHT,
+              flexDirection: 'row',
+              justifyContent: 'space-between' }}
+          >
+            <View style={{ width: 50 }} />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={common.headerTitle}>
+                {this.state.currentVechicle.make} {this.state.currentVechicle.model}
+              </Text>
+            </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => this.addServiceRequest()} >
+                <Text style={common.blueAddHeaderButton}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <ListView
             style={{ marginTop: 10 }}
             dataSource={this.state.dataSource}
             renderRow={this.renderRow.bind(this)}
-            renderSeparator={this.renderSeparator}
           />
         </View>
       );
     } else {
       return (
-        <View>
-          <Text style={{ textAlign: 'center', marginTop: 30, fontSize: 20 }}>No service history </Text>
+        <View style={common.consumerContainer}>
+
+          <View
+            style={{ backgroundColor: palette.HEADER_BLUE,
+              alignSelf: 'stretch',
+              height: HEIGHT,
+              flexDirection: 'row',
+              justifyContent: 'space-between' }}
+          >
+            <View style={{ width: 50 }} />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={common.headerTitle}>
+                Services
+              </Text>
+            </View>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => this.addServiceRequest()} >
+                <Text style={common.blueAddHeaderButton}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={common.thinGrayLine} />
+          <View style={common.center}>
+            <Image style={{ marginTop: 70 }} source={needServiceIcon} />
+          </View>
+          <View style={common.center}>
+            <Text style={{ color: palette.BLACK, fontSize: 25, marginTop: 35 }}>
+              Need a Service?
+            </Text>
+          </View>
+          <View style={common.center}>
+            <Text style={{ color: palette.GRAY, fontSize: 20, marginTop: 10 }}>
+              Tap on the plus sign to add a new service
+            </Text>
+          </View>
         </View>
       );
     }
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    height: 100,
-    backgroundColor: '#F5FCFF',
-    marginLeft: 8,
-    marginRight: 8,
-  },
-  vehicle: {
-    padding: 10,
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  footnote: {
-    fontSize: 12,
-    fontStyle: 'italic'
-  },
-  name: {
-    fontSize: 20,
-    textAlign: 'left',
-    margin: 10,
-  },
-  desc: {
-    textAlign: 'left',
-    color: '#333333',
-    marginBottom: 5,
-    margin: 10,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#dddddd',
-  },
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  row: {
-    paddingVertical: 20,
-  },
-});
+ConsumerSvcHistory.propTypes = {
+  navigation: PropTypes.object.isRequired,
+};
 
 AppRegistry.registerComponent('ConsumerSvcHistory', () => ConsumerSvcHistory);
