@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import {
   AppRegistry,
+  KeyboardAvoidingView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -117,7 +118,7 @@ export default class RegisterMerchantBusiness extends Component {
         </View>
 
 
-        <View style={{ flex: 0.90 }}>
+        <KeyboardAvoidingView behavior='padding' style={{ flex: 0.90 }}>
         <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: palette.MERCHANT_HEADER_COLOR, height: 50 }}>
           <Text style={common.headerTitle}>
             Tell us about your business
@@ -202,7 +203,7 @@ export default class RegisterMerchantBusiness extends Component {
             </View>
             <View style={onboardingStyles.line} />
           </View>
-        </View>
+        </KeyboardAvoidingView>
 
       </View>
 

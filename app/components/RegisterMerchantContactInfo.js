@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  Alert,
   AppRegistry,
+  KeyboardAvoidingView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -63,31 +65,44 @@ export default class RegisterMerchantContactInfo extends Component {
       })
         .then(response => response.json())
         .then((responseData) => {
-
+          console.log('response data....');
+          console.log(responseData);
           const uId = responseData.service_provider_id;
-          realm.write(() => {
-            realm.create('UserPreference',
-              { onboarded: true,
-                userId: uId,
-                role: 'merchant',
-              });
-
-              realm.create('ServiceProviderProfile',
-                { contact_name: this.state.contactName,
-                  email: this.state.email,
-                  pwd: this.state.pwd,
-                  phone: this.state.phone,
-                  business_name: this.state.bizName,
-                  address: this.state.address,
-                  city: this.state.city,
-                  state: this.state.st,
-                  zip: this.state.zip,
+          if (uId === 0) {
+            Alert.alert(
+              'Registration Error',
+              'An account already exists with that email address.',
+              [
+                {text: 'OK'},
+              ],
+              { cancelable: false }
+            );
+          } else {
+            realm.write(() => {
+              realm.create('UserPreference',
+                { onboarded: true,
+                  userId: uId,
+                  role: 'merchant',
                 });
-          });
-          this.setState({
-            userId: uId,
-          });
-          this.gotoServices(uId);
+
+                realm.create('ServiceProviderProfile',
+                  { contact_name: this.state.contactName,
+                    email: this.state.email,
+                    pwd: this.state.pwd,
+                    phone: this.state.phone,
+                    business_name: this.state.bizName,
+                    address: this.state.address,
+                    city: this.state.city,
+                    state: this.state.st,
+                    zip: this.state.zip,
+                  });
+            });
+            this.setState({
+              userId: uId,
+            });
+            this.gotoServices(uId);
+          }
+
         })
         .done();
     }
@@ -263,7 +278,7 @@ export default class RegisterMerchantContactInfo extends Component {
       <View style={common.merchantContainer}>
 
         <View
-          style={{ flex: 0.10,
+          style={{ flex: 0.15,
             backgroundColor: palette.MERCHANT_HEADER_COLOR,
             alignSelf: 'stretch',
             height: HEIGHT,
@@ -279,7 +294,7 @@ export default class RegisterMerchantContactInfo extends Component {
         </View>
 
 
-        <View style={{ flex: 0.90 }}>
+        <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={250} style={{ flex: 0.90 }}>
           <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: palette.MERCHANT_HEADER_COLOR, height: 50 }}>
             <Text style={common.headerTitle}>
               Enter your contact information
@@ -290,7 +305,7 @@ export default class RegisterMerchantContactInfo extends Component {
               <Text style={formStyles.error}>Field required</Text>
             )}
             <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.5 }}>
+              <View style={{ width: 100, marginTop: 5, flex: 0.5 }}>
                 <Text style={onboardingStyles.label}>Name:</Text>
               </View>
               <TextInput
@@ -312,6 +327,8 @@ export default class RegisterMerchantContactInfo extends Component {
                 style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
                 underlineColorAndroid="rgba(0,0,0,0)"
                 autoCorrect={false}
+                keyboardType='email-address'
+                autoCapitalize='none'
                 onChangeText={text => this.setState({ email: text })}
               />
             </View>
@@ -320,11 +337,11 @@ export default class RegisterMerchantContactInfo extends Component {
               <Text style={formStyles.error}>Field required (must be 10 digits)</Text>
             )}
             <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+              <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
                 <Text style={onboardingStyles.label}>Phone:</Text>
               </View>
               <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+                style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
                 underlineColorAndroid="rgba(0,0,0,0)"
                 autoCorrect={false}
                 keyboardType="phone-pad"
@@ -337,11 +354,11 @@ export default class RegisterMerchantContactInfo extends Component {
               <Text style={formStyles.error}>{this.state.pwdError}</Text>
             )}
             <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
+              <View style={{ width: 100, marginTop: 10, flex: 0.4 }}>
                 <Text style={onboardingStyles.label}>Password:</Text>
               </View>
               <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
+                style={[onboardingStyles.textInput, { height: 50, flex: 0.6 }]}
                 underlineColorAndroid="rgba(0,0,0,0)"
                 autoCorrect={false}
                 secureTextEntry
@@ -353,11 +370,11 @@ export default class RegisterMerchantContactInfo extends Component {
               <Text style={formStyles.error}>This field required.</Text>
             )}
             <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.4 }}>
+              <View style={{ width: 100, marginTop: 10, flex: 0.5 }}>
                 <Text style={onboardingStyles.label}>Re-Password:</Text>
               </View>
               <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.6 }]}
+                style={[onboardingStyles.textInput, { height: 50, flex: 0.5 }]}
                 underlineColorAndroid="rgba(0,0,0,0)"
                 autoCorrect={false}
                 secureTextEntry
@@ -369,8 +386,8 @@ export default class RegisterMerchantContactInfo extends Component {
           </View>
 
           <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, marginTop: 40 }}>
-            <Text style={{ fontSize: 18, color: palette.WHITE, marginRight: 5 }}>
-              By clicking Next, you agree to Xanmar
+            <Text style={{ fontSize: 18, color: palette.WHITE, marginRight: 5, marginLeft:5 }}>
+              By clicking Next, you agree to our
             </Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 20 }}>
@@ -384,7 +401,7 @@ export default class RegisterMerchantContactInfo extends Component {
               Privacy Policy
             </Text>
           </View>
-        </View>
+        </KeyboardAvoidingView>
 
       </View>
 

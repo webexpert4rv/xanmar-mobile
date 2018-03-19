@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { AppRegistry,
+        Alert,
+        KeyboardAvoidingView,
         View,
         Text,
         TextInput,
@@ -125,24 +127,35 @@ export default class RegisterConsumer extends Component {
         .then(response => response.json())
         .then((responseData) => {
           const uId = responseData.user_id;
-          realm.write(() => {
-            realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
-            realm.create('ConsumerProfile',
-              { name: this.state.name,
-                email: this.state.email,
-                pwd: this.state.pwd,
-                phone: this.state.phone,
-              });
-          });
-          this.setState({
-            userId: uId,
-          });
-          navigate('RegisterVehicle',
-            {
+          if (uId === 0) {
+            Alert.alert(
+              'Registration Error',
+              'An account already exists with that email address.',
+              [
+                {text: 'OK'},
+              ],
+              { cancelable: false }
+            );
+          } else {
+            realm.write(() => {
+              realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
+              realm.create('ConsumerProfile',
+                { name: this.state.name,
+                  email: this.state.email,
+                  pwd: this.state.pwd,
+                  phone: this.state.phone,
+                });
+            });
+            this.setState({
               userId: uId,
-              onBoarding: true,
-            }
-          );
+            });
+            navigate('RegisterVehicle',
+              {
+                userId: uId,
+                onBoarding: true,
+              }
+            );
+          }
         })
         .done();
     }
@@ -150,7 +163,7 @@ export default class RegisterConsumer extends Component {
 
   render() {
     return (
-      <View style={onboardingStyles.mainContainer}>
+      <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={-75} style={onboardingStyles.mainContainer}>
         <View>
           <Text style={onboardingStyles.title}>Create an Account</Text>
         </View>
@@ -159,12 +172,13 @@ export default class RegisterConsumer extends Component {
             <Text style={formStyles.error}>Field required</Text>,
           )}
           <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
               <Text style={onboardingStyles.label}>Name:</Text>
             </View>
             <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
               underlineColorAndroid="rgba(0,0,0,0)"
+              autoCapitalize='words'
               autoCorrect={false}
               onChangeText={text => this.setState({ name: text })}
             />
@@ -174,11 +188,13 @@ export default class RegisterConsumer extends Component {
             <Text style={formStyles.error}>{this.state.emailError}</Text>,
           )}
           <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
               <Text style={onboardingStyles.label}>Email:</Text>
             </View>
             <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
+              keyboardType='email-address'
+              autoCapitalize='none'
               underlineColorAndroid="rgba(0,0,0,0)"
               autoCorrect={false}
               onChangeText={text => this.setState({ email: text })}
@@ -189,11 +205,11 @@ export default class RegisterConsumer extends Component {
             <Text style={formStyles.error}>Field required (must be 10 digits)</Text>,
           )}
           <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
               <Text style={onboardingStyles.label}>Phone:</Text>
             </View>
             <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
+              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
               keyboardType="phone-pad"
               underlineColorAndroid="rgba(0,0,0,0)"
               autoCorrect={false}
@@ -223,7 +239,7 @@ export default class RegisterConsumer extends Component {
           )}
           <View style={{ flexDirection: 'row', height: 50 }}>
             <View style={{ width: 200, marginTop: 10, flex: 0.6 }}>
-              <Text style={onboardingStyles.label}>Re-enter Password:</Text>
+              <Text style={onboardingStyles.label}>Confirm Password:</Text>
             </View>
             <TextInput
               style={[onboardingStyles.textInput, { height: 50, flex: 0.4 }]}
@@ -235,7 +251,7 @@ export default class RegisterConsumer extends Component {
           </View>
           <View style={onboardingStyles.line} />
         </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
