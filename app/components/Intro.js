@@ -47,7 +47,7 @@ export default class Intro extends Component {
                 </View>
 
                 <View style = {{ flexDirection: 'column',justifyContent: 'center'}}>
-                  <View style={{ backgroundColor: palette.LIGHT_BLUE, flexDirection: 'row', paddingBottom:20 }}>
+                  <View style={{ backgroundColor: palette.INTRO_TOUR_BG, flexDirection: 'row', paddingBottom:20 }}>
                     <View style={{ flex: 1, flexDirection: 'row',justifyContent: 'center'}}>
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={tourMerchantServices} />
                     </View>
@@ -60,7 +60,7 @@ export default class Intro extends Component {
                 </View>
 
                 <View style = {{ flexDirection: 'column',justifyContent: 'center'}}>
-                  <View style={{ backgroundColor: palette.LIGHT_BLUE, flexDirection: 'row', paddingBottom:20 }}>
+                  <View style={{ backgroundColor: palette.INTRO_TOUR_BG, flexDirection: 'row', paddingBottom:20 }}>
                     <View style={{ flex: 1, flexDirection: 'row',justifyContent: 'center'}}>
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={tourComment} />
                     </View>
@@ -74,7 +74,7 @@ export default class Intro extends Component {
                 </View>
 
                 <View style = {{ flexDirection: 'column',justifyContent: 'center'}}>
-                  <View style={{ backgroundColor: palette.LIGHT_BLUE, flexDirection: 'row', paddingBottom:20 }}>
+                  <View style={{ backgroundColor: palette.INTRO_TOUR_BG, flexDirection: 'row', paddingBottom:20 }}>
                     <View style={{ flex: 1, flexDirection: 'row',justifyContent: 'center'}}>
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={serviceIntro} />
                     </View>
@@ -86,7 +86,7 @@ export default class Intro extends Component {
                 </View>
 
                 <View style = {{ flexDirection: 'column',justifyContent: 'center'}}>
-                  <View style={{ backgroundColor: palette.LIGHT_BLUE, flexDirection: 'row', paddingBottom:20 }}>
+                  <View style={{ backgroundColor: palette.INTRO_TOUR_BG, flexDirection: 'row', paddingBottom:20 }}>
                     <View style={{ flex: 1, flexDirection: 'row',justifyContent: 'center'}}>
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={serviceProviderIntro} />
                     </View>
@@ -98,7 +98,7 @@ export default class Intro extends Component {
                 </View>
 
                 <View style = {{ flexDirection: 'column',justifyContent: 'center'}}>
-                  <View style={{ backgroundColor: palette.LIGHT_BLUE, flexDirection: 'row', paddingBottom:20 }}>
+                  <View style={{ backgroundColor: palette.INTRO_TOUR_BG, flexDirection: 'row', paddingBottom:20 }}>
                     <View style={{ flex: 1, flexDirection: 'row',justifyContent: 'center'}}>
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={tourRating} />
                     </View>

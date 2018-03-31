@@ -1,3 +1,4 @@
+import React, { Component } from 'react';
 import { StackNavigator, TabNavigator } from 'react-navigation';
 import { StyleSheet } from 'react-native';
 import splash from './components/Splash';
@@ -55,8 +56,8 @@ import palette from './style/palette';
 
 const consumerNavigator = TabNavigator(
   {
-    SvcHistory: { screen: consumerSvcHistory },
     Vehicles: { screen: vehicles },
+    SvcHistory: { screen: consumerSvcHistory },
     Profile: { screen: profile },
   },
   { tabBarOptions: {
@@ -74,6 +75,7 @@ const consumerNavigator = TabNavigator(
       backgroundColor: 'transparent',
     },
     showIcon: true,
+    iconStyle: { height: 30, width: 80 },
   },
     tabBarPosition: 'bottom',
   },
@@ -183,4 +185,12 @@ const AppNavigator = StackNavigator({
   },
 );
 
-export default AppNavigator;
+export default class App extends React.Component {
+  render() {
+    return (
+      <AppNavigator />
+    );
+  }
+}
+
+//export default AppNavigator;

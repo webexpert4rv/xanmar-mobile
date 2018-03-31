@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { AppRegistry, Button, Image, Platform, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { AppRegistry, Button, Dimensions, Image, Platform, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation';
 import format from 'string-format';
@@ -74,6 +74,17 @@ export default class ConsumerVehicles extends Component {
       activeVehicle: currentVechicle[0].make.concat(" ", currentVechicle[0].model),
     });
   }
+
+  serviceRequestClick(sr) {
+    // if (sr.status === 'new' || sr.status === 'bidding') {
+    //   this.props.navigation.navigate('ConsumerSvcRequestBids',
+    //   {svcRequest: sr});
+    // }
+    // if (sr.status === 'in progress' || sr.status === 'completed') {
+    //   this.props.navigation.navigate('ConsumerSvcRequestSummary', {svcRequest: sr});
+    // }
+  }
+
 
   renderRow(rowData, sectionID, rowID, highlightRow){
     //this is stupid query because realm doesn't support filter on the contents of a to-many relationship
@@ -205,7 +216,8 @@ export default class ConsumerVehicles extends Component {
     const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
     const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
     const { navigate } = this.props.navigation;
-
+    const  {_width, height} = Dimensions.get('window');
+    const wordingWidth = _width - 100;
     let customerVehicles = [];
     for (i = 0; i < this.state.currentVechicles.length; i++) {
         customerVehicles.push({
@@ -215,7 +227,6 @@ export default class ConsumerVehicles extends Component {
     }
 
     return (
-
       <View style={common.dashboardContainer}>
         <PushController onNotificationReceived={this._onNotificationReceived} />
         <View
@@ -249,21 +260,37 @@ export default class ConsumerVehicles extends Component {
             </TouchableOpacity>
           </View>
         </View>
-
+        <Image style={{ width:_width, backgroundColor: palette.LIGHT_BLUE}} source={carImage} />
         {renderIf(this.state.dashboardAvailable)(
           <ListView
             style={{ marginTop: 10 }}
             dataSource={this.state.dataSource}
+            removeClippedSubviews={false}
             renderRow={this.renderRow.bind(this)}
           />
         )}
         {renderIf(!this.state.dashboardAvailable)(
           <View>
-            <View style={common.center}>
-              <Text style={{ color: palette.GRAY, fontSize: 18, marginTop: 10, marginLeft: 10, marginRight: 10 }}>
-                No history for this vehicle
+            <View style={{ flexDirection: 'column', width:wordingWidth, justifyContent: 'center', alignItems:'center'}}>
+              <Text style={{ color: palette.BLACK, fontSize: 20, marginTop: 10, marginLeft: 10, marginRight: 10 }}>
+                Welcome to Xanmar Auto!
+              </Text>
+              <View style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10, marginTop:10 }}>
+                <Text style={{ fontSize: 18, color: palette.GRAY, marginRight: 5 }}>
+                  To get started, tap on
+                </Text>
+                <Text style={{ fontSize: 18, color: palette.BLACK, marginRight: 5 }}>
+                  Services
+                </Text>
+                <Text style={{ fontSize: 18, color: palette.GRAY }}>
+                  tab to request
+                </Text>
+              </View>
+              <Text style={{ fontSize: 18, color: palette.GRAY }}>
+              a new service for your {this.state.activeVehicle}
               </Text>
             </View>
+
           </View>
         )}
       </View>

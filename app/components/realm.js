@@ -114,10 +114,36 @@ ServiceRequest.schema = {
     comment: 'string',
     status: 'string',
     services: { type: 'list', objectType: 'Service' },
+    unread_notifications: { type: 'list', objectType: 'Notifications' },
   },
 };
 
-export default new Realm({ schema:
-[UserPreference, Vehicle, CurrentVehicle, Service,
-  ServiceCategory, ServiceRequest, MerchantServices,
-  ConsumerProfile, ServiceProviderProfile] });
+class Notifications extends Realm.Object {}
+Notifications.schema = {
+  name: 'Notifications',
+  properties: {
+    notify_date: 'date',
+    notify_event: 'string',
+    acknowledged: { type: 'bool', default: false },
+    service_request_id: 'int',
+  },
+};
+
+export default new Realm({
+  schema: [UserPreference, Vehicle, CurrentVehicle, Service,
+            ServiceCategory, ServiceRequest, MerchantServices,
+            ConsumerProfile, ServiceProviderProfile, Notifications],
+  schemaVersion: 2,
+  migration: (oldRealm, newRealm) => {
+    // only apply this change if upgrading to schemaVersion 1
+    if (oldRealm.schemaVersion < 2) {
+      const oldObjects = oldRealm.objects('ServiceRequest');
+      const newObjects = newRealm.objects('ServiceRequest');
+
+      // loop through all objects and set the name property in the new schema
+      for (let i = 0; i < oldObjects.length; i++) {
+        newObjects[i].unread_notifications = [];
+      }
+    }
+  }
+ });

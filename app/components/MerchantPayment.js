@@ -77,7 +77,7 @@ export default class MerchantPayment extends Component {
       planSelected: plan,
       currentPlan: plan,
       subscriptionText: subscriptionWording,
-      registering: true,
+      registering: false,
     };
   }
 

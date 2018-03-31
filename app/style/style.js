@@ -196,14 +196,32 @@ export const serviceRequest = StyleSheet.create({
     fontSize: 15,
     color: palette.STATUS_RED,
   },
+  statusWaitingOnBidsUnread: {
+    fontSize: 15,
+    color: palette.STATUS_RED,
+    fontWeight: 'bold',
+  },
+
   statusInProgress: {
     fontSize: 13,
     color: palette.STATUS_GREEN,
   },
+  statusInProgressUnread: {
+    fontSize: 13,
+    color: palette.STATUS_GREEN,
+    fontWeight: 'bold',
+  },
+
   statusBidsAvailable: {
     fontSize: 13,
     color: palette.STATUS_ORANGE,
   },
+  statusBidsAvailableUnread: {
+    fontSize: 13,
+    color: palette.STATUS_ORANGE,
+    fontWeight: 'bold',
+  },
+
   statusCompleted: {
     fontSize: 13,
     color: palette.STATUS_BLUE

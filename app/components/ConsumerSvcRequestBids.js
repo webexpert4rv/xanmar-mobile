@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { DeviceEventEmitter, AppRegistry, Button, View, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { Dimensions, DeviceEventEmitter, AppRegistry, Button, View, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableHighlight } from 'react-native';
 import { HeaderBackButton, NavigationActions } from 'react-navigation';
 import { ListView } from 'realm/react-native';
 import renderIf from 'render-if';
@@ -26,7 +26,6 @@ export default class ConsumerSvcRequestBids extends Component {
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
 
-    console.log(JSON.stringify(state.params.svcRequest));
     this.state = {
       dataSource: ds.cloneWithRows(state.params.svcRequest.bids),
       dict: {},
@@ -34,9 +33,7 @@ export default class ConsumerSvcRequestBids extends Component {
       svcRequest: state.params.svcRequest,
     };
   }
-  // componentWillMount() {
-  //   DeviceEventEmitter.addListener('onBidAccepted', this.fetchData.bind(this));
-  // }
+
   componentDidMount() {
     //this.fetchData();
     events.getMerchantJobAcceptedEvents().subscribe((value) => {
@@ -141,7 +138,7 @@ export default class ConsumerSvcRequestBids extends Component {
                     value={parseFloat(rowData.rating)}
                     spacing={8}
                     count={5}
-                    starSize={15}
+                    starSize={25}
                     fullStar= {require('../img/starFilled.png')}
                     emptyStar= {require('../img/starEmpty.png')}/>
                     <Text style={{ marginLeft:10, color: palette.GRAY }}>
@@ -149,14 +146,9 @@ export default class ConsumerSvcRequestBids extends Component {
                     </Text>
                </View>
                <View style={{ flexDirection: 'row' }} >
-                <View >
+                <View style={{ width: 300  }} >
                   <Text style={{ marginTop: 5, color: palette.GRAY, color: palette.BLACK }}>
-                    Mechanic comment would go here when captured.
-                  </Text>
-                </View>
-                <View>
-                  <Text style={{ marginLeft: 40, marginTop:-15, fontSize: 40, color: palette.SUBMITTED_BID }}>
-                    &rsaquo;
+
                   </Text>
                 </View>
                </View>
@@ -164,8 +156,11 @@ export default class ConsumerSvcRequestBids extends Component {
              </View>
            </View>
            <View style={{ flex: 0.2 }}>
-             <Text style={styles.title}>
+             <Text style={[styles.title, { marginRight: 5}]}>
                ${total.toFixed(2)}
+             </Text>
+             <Text style={{ marginLeft: 55, marginTop:10, fontSize: 40, color: palette.SUBMITTED_BID }}>
+               &rsaquo;
              </Text>
            </View>
          </View>
@@ -235,10 +230,10 @@ export default class ConsumerSvcRequestBids extends Component {
         <TouchableOpacity style={{ backgroundColor: palette.HEADER_BLUE, height: 75 }}
                   activeOpacity={1}
                   onPress={() => { this.cancelRequest() }} >
-          <Text style={{ color: palette.WHITE, textAlign: 'left', marginLeft:20, height: 33, marginBottom: 5 }}>
+          <Text style={{ color: palette.WHITE, textAlign: 'left', fontSize: 15, marginLeft:20, height: 33, marginBottom: 5 }}>
           {this.state.svcRequest.comment}
           </Text>
-          <Text style={{ color: palette.LIGHT_BLUE, textAlign: 'right', fontSize: 10, marginRight: 20 }}>CANCEL THIS REQUEST</Text>
+          <Text style={{ color: palette.LIGHT_BLUE, textAlign: 'right', fontSize: 15, marginRight: 20 }}>CANCEL THIS REQUEST</Text>
         </TouchableOpacity>
         {renderIf(this.state.dataSource.getRowCount() > 0)(
           <ListView
@@ -271,7 +266,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   footnote: {

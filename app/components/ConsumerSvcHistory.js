@@ -1,5 +1,5 @@
 import React, { Component, Dimensions, PropTypes } from 'react';
-import { AppRegistry, Button,
+import { AppRegistry, Button, InteractionManager,
          Image, View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
 import { HeaderBackButton } from 'react-navigation';
 import { ListView } from 'realm/react-native';
@@ -10,27 +10,44 @@ import palette from '../style/palette';
 import constants from '../constants/c';
 import df from 'dateformat';
 import * as events from '../broadcast/events';
+import IconBadge from 'react-native-icon-badge';
 
 const needServiceIcon = require('../img/need_service.png');
 const svcHistoryIcon = require('../img/tabbar/services_on.png');
 
 export default class ConsumerSvcHistory extends Component {
-  // static navigationOptions = ({ navigation }) => {
-  //   return {
-  //     header: null,
-  //     title: 'Services',
-  //   };
-  // };
   static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    const unread = params.badgeCount;
     return {
       title: 'Services',
       header: null,
-      tabBarIcon: ({ tintColor }) => (
-        <Image
-          source={svcHistoryIcon}
-          style={{ width: 26, height: 26, tintColor }}
-        />
-      ),
+      tabBarIcon: ({ tintColor }) =>   params.badgeCount > 0 ? (
+          <IconBadge
+            MainElement={<Image
+              source={svcHistoryIcon}
+              style={{ width: 26, height: 26, tintColor }}
+            />}
+            BadgeElement={<Text style={{ color: 'white' }}>{unread}</Text>}
+            IconBadgeStyle={
+              {position:'absolute',
+                top:-1,
+                right:-15,
+                minWidth:20,
+                height:20,
+                borderRadius:15,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#FF0000'}
+            }
+            Hidden={unread === 0}
+          />
+        ) : (
+          <Image
+                source={svcHistoryIcon}
+                style={{ width: 26, height: 26, tintColor }}
+              />
+        ),
     };
   };
 
@@ -46,11 +63,9 @@ export default class ConsumerSvcHistory extends Component {
       dataSource: ds.cloneWithRows(sortedSvcRequests),
       currentVechicle: currentVechicle[0],
     };
-
   }
 
   componentDidMount() {
-    //this.props.navigation.setParams({ handleNewSvcRequest: this.addServiceRequest.bind(this) });
     events.getSvcRequestEvents().subscribe((value) => {
       this.fetchSvcRequestFromAPI();
     });
@@ -60,6 +75,35 @@ export default class ConsumerSvcHistory extends Component {
     this.fetchSvcRequestFromAPI();
   }
 
+  tabClicked(srid) {
+    let allNotifications = realm.objects('Notifications');
+    let readNotification = allNotifications.filtered(format('service_request_id == {}', srid));
+    realm.write(() => {
+      readNotification.forEach(n => {
+        n.acknowledged = true;
+      });
+    });
+
+    let unreadNotifications = allNotifications.filtered(format('acknowledged == {}', false));
+    this.props.navigation.setParams({ badgeCount: unreadNotifications.length});
+
+    //call api to let server know that notificatons for this service request has been seen.
+    fetch(format('{}/api/user/svcreq/notification', constants.BASSE_URL), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
+      },
+      body: JSON.stringify({
+        service_request_id: srid,
+        user_id: this.getUserId(),
+      }),
+    })
+    .then(response => response.json())
+    .then((responseData) => {
+    })
+    .done();
+  }
   addServiceRequest() {
     this.props.navigation.navigate('RequestService', { vehicle: this.state.currentVechicle });
     // this.props.navigation.navigate('RequestServicePhoto');
@@ -68,7 +112,9 @@ export default class ConsumerSvcHistory extends Component {
   loadSvcRequests() {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     const srs = realm.objects('ServiceRequest');
-    let sortedSvcRequests = srs.sorted('service_date', true)
+    let activeRequest = srs.filtered('status != "canceled"');
+    let sortedSvcRequests = activeRequest.sorted('service_date', true)
+
     this.setState({
       dataSource: ds.cloneWithRows(sortedSvcRequests)
     });
@@ -96,14 +142,27 @@ export default class ConsumerSvcHistory extends Component {
           dataSource: ds.cloneWithRows(responseData.serviceRequests),
           isLoading: false,
         });
-        //update status locally
+
+        //update status locally and any unread notifications
+        let unreadCount = 0;
         responseData.serviceRequests.forEach((serviceRequest) => {
           let svcRequest = realm.objects('ServiceRequest');
           let sr = svcRequest.filtered(format('service_id == {}', serviceRequest.service_request_id));
           realm.write(() => {
             sr[0].status = serviceRequest.status;
+            serviceRequest.unread_notifications.forEach((notification) => {
+              unreadCount++;
+              realm.create('Notifications',
+                {
+                  service_request_id: serviceRequest.service_request_id,
+                  notify_date: new Date(notification.notify_date),
+                  notify_event: notification.notify_event,
+                });
+            });
           });
         });
+
+        this.props.navigation.setParams({ badgeCount: unreadCount});
 
       })
       .done();
@@ -127,13 +186,22 @@ export default class ConsumerSvcHistory extends Component {
   }
 
   serviceRequestClick(sr) {
-    console.log(JSON.stringify(sr));
-    if (sr.status === 'new' || sr.status === 'bidding') {
-      this.props.navigation.navigate('ConsumerSvcRequestBids', {svcRequest: sr});
-    }
-    if (sr.status === 'in progress' || sr.status === 'completed') {
-      this.props.navigation.navigate('ConsumerSvcRequestSummary', {svcRequest: sr});
-    }
+    this.tabClicked(sr.service_request_id);
+
+    //refresh servie request list.
+    this.loadSvcRequests();
+
+    //this is so dumb, but only way it works, otherwiese, keeps old state of badgeCount around
+    //when the user goes back.
+    setTimeout( () => {
+      if (sr.status === 'new' || sr.status === 'bidding') {
+        this.props.navigation.navigate('ConsumerSvcRequestBids',
+        {svcRequest: sr});
+      }
+      if (sr.status === 'in progress' || sr.status === 'completed') {
+        this.props.navigation.navigate('ConsumerSvcRequestSummary', {svcRequest: sr});
+      }
+   },100);
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
@@ -146,7 +214,11 @@ export default class ConsumerSvcHistory extends Component {
       status = 'WAITING ON BIDS';
     }
     if (rowData.status === 'bidding') {
-      s = serviceRequest.statusBidsAvailable;
+      if (rowData.unread_notifications.length > 0) {
+        s = serviceRequest.statusBidsAvailableUnread;
+      } else {
+        s = serviceRequest.statusBidsAvailable;
+      }
       status = 'BIDS ARE WAITING';
     }
     if (rowData.status === 'in progress') {
@@ -157,15 +229,6 @@ export default class ConsumerSvcHistory extends Component {
       s = serviceRequest.statusCompleted;
       status = 'COMPLETED';
     }
-    // if (rowData.accepted) {
-    //   status = 'Accepted';
-    //   s = bidStyles.statusAccepted;
-    //   buttonText = "View merchant information";
-    // } else {
-    //   status = 'Open';
-    //   s = bidStyles.statusOpen;
-    //   buttonText = "View bid details";
-    // }
 
     return(
       <TouchableOpacity onPress={() => { this.serviceRequestClick(rowData)}} >
@@ -189,18 +252,6 @@ export default class ConsumerSvcHistory extends Component {
       </TouchableOpacity>
     );
   }
-
-  // renderSeparator(sectionID, rowID, adjacentRowHighlighted){
-  //   return(
-  //     <View
-  //       key={`${sectionID}-${rowID}`}
-  //       style={{
-  //         height: adjacentRowHighlighted ? 4 : 1,
-  //         backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
-  //       }}
-  //     />
-  //   );
-  // }
 
   render() {
     const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
@@ -232,6 +283,7 @@ export default class ConsumerSvcHistory extends Component {
 
           <ListView
             style={{ marginTop: 10 }}
+            removeClippedSubviews={false}
             dataSource={this.state.dataSource}
             renderRow={this.renderRow.bind(this)}
           />
