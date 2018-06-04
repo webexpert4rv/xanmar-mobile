@@ -6,6 +6,7 @@ import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class ConsumerSvcRequestDetail extends Component {
   static navigationOptions = {
@@ -87,17 +88,8 @@ export default class ConsumerSvcRequestDetail extends Component {
 
      let svcs = [];
      const data = this.state.dict;
-    //  for (var key of data) {
-    //    svcs.push({ service_id: key, bid: data[key] })
-    //  }
-
-    //  data.map((obj) => {
-    //     svcs.push({ service_id: obj.key, bid: obj.value });
-    //     return nil;
-    //  });
 
      for (let value of Object.keys(data)) {
-        // console.log(value);
        svcs.push({ service_id: value, bid: data[value] });
       }
 
@@ -118,15 +110,17 @@ export default class ConsumerSvcRequestDetail extends Component {
        },
        body: JSON.stringify(bid),
      })
-       .then(response => response.json())
+       .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
        .then((responseData) => {
-        //  const uId = responseData.user_id;
-        //  realm.write(() => {
-        //    realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
-        //  });
+
          goBack();
-       })
-       .done();
+       }).catch(error => NetworkUtils.showNetworkError('Unable to post bid'));
    }
 
   renderRow(rowData, sectionID, rowID, highlightRow){

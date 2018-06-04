@@ -17,7 +17,7 @@ import Mapbox from '@mapbox/react-native-mapbox-gl';
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
 
-Mapbox.setAccessToken('pk.eyJ1IjoiNXhsIiwiYSI6ImNqOXdia2xjZDF1aGIydnBvc3oyaDduemcifQ.RtHbVUIOb-M02BVPDecV6Q');
+Mapbox.setAccessToken(constants.MAP_BOX_TOKEN);
 
 export default class MerchantMap extends Component {
   static navigationOptions = {

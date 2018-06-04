@@ -14,6 +14,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import ServicePicker from './servicePicker';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class RegisterServices extends Component {
   static navigationOptions = {
@@ -189,7 +190,13 @@ export default class RegisterServices extends Component {
       },
       body: JSON.stringify(mySvcs),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
         realm.write(() => {
           svcs.forEach((s) => {
@@ -205,8 +212,7 @@ export default class RegisterServices extends Component {
         this.props.navigation.dispatch(resetAction);
       }).catch((error) => {
         console.log(error);
-      })
-      .done();
+      }).catch(error => {});;
   }
 
   render() {

@@ -14,6 +14,7 @@ import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const profileIcon = require('../img/tabbar/profile_on.png');
 
@@ -160,7 +161,7 @@ export default class MerchantProfile extends Component {
       'Info',
       'Profile information has been updated.',
         [
-          { text: 'OK' },
+          { text: 'OK', onPress: () => this.goBack() },
         ],
       { cancelable: false }
     );
@@ -187,10 +188,15 @@ export default class MerchantProfile extends Component {
         }
       }),
     })
-      .then(response => response.json())
-      .then((responseData) => {
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
       })
-      .done();
+      .then((responseData) => {
+      }).catch(error => NetworkUtils.showNetworkError("Unable to update profile"));
     }
   }
 

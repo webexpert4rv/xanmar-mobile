@@ -11,7 +11,7 @@ const tourComment = require('../img/tour/tourComment.png');
 const tourMerchantBid = require('../img/tour/tourMerchantBid.png');
 const tourRating = require('../img/tour/tourRating.png');
 const tourWelcome = require('../img/tour/logo.png');
-const tourMerchantServices = require('../img/tour/tourMerchantServices.png');
+const tourConsumerServices = require('../img/tour/tourConsumerServices.png');
 
 
 export default class Intro extends Component {
@@ -37,8 +37,8 @@ export default class Intro extends Component {
                   </View>
                   <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10, color: '#c5c5c5', fontSize:15, textAlign: 'center' }}>
-                    This app builds unrivaled partnerships between people and auto service providers by providing a faster,
-                    more convenient and affordable way to shop for auto services.</Text>
+                    This App Connects People With Auto Care Needs To Top Rated Auto Services Providers.
+                    Resulting in a Faster, More Convenient and Affordable Way to Shop For Auto Services.</Text>
                   </View>
                   <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10, color: '#c5c5c5', fontSize:15, textAlign: 'center' }}>
@@ -49,7 +49,7 @@ export default class Intro extends Component {
                 <View style = {{ flexDirection: 'column',justifyContent: 'center'}}>
                   <View style={{ backgroundColor: palette.INTRO_TOUR_BG, flexDirection: 'row', paddingBottom:20 }}>
                     <View style={{ flex: 1, flexDirection: 'row',justifyContent: 'center'}}>
-                        <Image style={{ marginTop:10, width: 220, height:400 }} source={tourMerchantServices} />
+                        <Image style={{ marginTop:10, width: 220, height:400 }} source={tourConsumerServices} />
                     </View>
                   </View>
                   <View style={{ flex: .3}}>

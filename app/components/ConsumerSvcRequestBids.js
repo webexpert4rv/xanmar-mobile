@@ -12,6 +12,7 @@ import palette from '../style/palette';
 import { bidStyles } from '../style/style';
 import * as events from '../broadcast/events';
 import { common, inbox, formStyles } from '../style/style';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class ConsumerSvcRequestBids extends Component {
   static navigationOptions = {
@@ -34,33 +35,9 @@ export default class ConsumerSvcRequestBids extends Component {
     };
   }
 
-  componentDidMount() {
-    //this.fetchData();
-    events.getMerchantJobAcceptedEvents().subscribe((value) => {
-      //this.fetchData();
-    });
-  }
-
   goBack() {
     const { goBack } = this.props.navigation;
     goBack();
-  }
-
-  fetchData() {
-    fetch(format('{}/api/user/bids/{}', constants.BASSE_URL, this.state.srid), {
-      headers: {
-        Authorization: constants.API_KEY,
-      },
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.setState({
-          dataSource: ds.cloneWithRows(responseData.bids),
-          isLoading: false,
-        });
-      })
-      .done();
   }
 
   getUserId() {
@@ -85,7 +62,13 @@ export default class ConsumerSvcRequestBids extends Component {
       },
       body: JSON.stringify(cancelReq),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
         // update status to complete
@@ -103,10 +86,7 @@ export default class ConsumerSvcRequestBids extends Component {
           ],
         });
         this.props.navigation.dispatch(resetAction);
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => NetworkUtils.showNetworkError('Unable to cancel request.'));
   }
 
    renderRow(rowData, sectionID, rowID, highlightRow){
@@ -266,7 +246,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   footnote: {

@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { AppRegistry,
+import { ActivityIndicator, AppRegistry,
         View,
         Picker,
         Text, TextInput,
@@ -11,6 +11,7 @@ import { formStyles, onboardingStyles, common } from '../style/style';
 import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class RegisterVehicle extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -24,12 +25,15 @@ export default class RegisterVehicle extends Component {
         color: palette.WHITE,
       },
       headerTintColor: palette.WHITE,
-      headerRight: (
+      headerRight: params.isRegistering ? (
+        <ActivityIndicator size="small" color={palette.LIGHT_BLUE} style={{ paddingRight: 20 }} />
+      ) : (
         <View>
           <TouchableOpacity onPress={() => params.handleDone()}>
-            <Text style={onboardingStyles.headerButton}>Done</Text>
+            <Text style={onboardingStyles.headerButton}>{params.rightHeaderText}</Text>
           </TouchableOpacity>
-        </View>),
+        </View>
+      ),
     };
   };
 
@@ -48,12 +52,16 @@ export default class RegisterVehicle extends Component {
       showYearError: false,
       showMakeError: false,
       showModelError: false,
+      loading: true,
     };
   }
 
   componentDidMount() {
     this.fetchVehicles();
-    this.props.navigation.setParams({ handleDone: this.registerVehicle.bind(this) });
+    this.props.navigation.setParams(
+      { handleDone: this.registerVehicle.bind(this),
+        isRegistering: false,
+        rightHeaderText: ''  });
   }
 
   fetchVehicles() {
@@ -62,14 +70,34 @@ export default class RegisterVehicle extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
-      .then((responseData) => {
-        this.setState({
-          isLoading: !this.state.isLoading,
-          vehicles: responseData.vehicles,
-        });
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
       })
-      .done();
+      .then((responseData) => {
+
+        //hack because first element yields error on android on select.
+        let v = [];
+        v = responseData.vehicles;
+        v.unshift({
+            "make": "- Select -",
+            "models": [
+                "",
+            ]
+        });
+
+        this.setState({
+          vehicles: v,
+          loading: false,
+        });
+        this.props.navigation.setParams(
+          { handleDone: this.registerVehicle.bind(this),
+            isRegistering: false,
+            rightHeaderText: 'Done'  });
+      }).catch(error => NetworkUtils.showNetworkError('Unable to get vehicles'));
   }
 
   goBack() {
@@ -107,6 +135,7 @@ export default class RegisterVehicle extends Component {
 
   registerVehicle() {
     if (this.validateForm()) {
+      this.props.navigation.setParams({ isRegistering: true });
       fetch(format('{}/api/user/vehicle', constants.BASSE_URL), {
         method: 'POST',
         headers: {
@@ -120,7 +149,13 @@ export default class RegisterVehicle extends Component {
           year: this.state.vehicleYear,
         }),
       })
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
         .then((responseData) => {
 
           realm.write(() => {
@@ -135,7 +170,7 @@ export default class RegisterVehicle extends Component {
               { vehicleId: responseData.vehicle_id, make: this.state.make, model: this.state.model, year: this.state.vehicleYear });
             });
 
-  {}        const resetAction = NavigationActions.reset({
+            const resetAction = NavigationActions.reset({
               index: 0,
               actions: [
                 NavigationActions.navigate({ routeName: 'consumerTab' }),
@@ -145,99 +180,112 @@ export default class RegisterVehicle extends Component {
           } else {
             this.goBack();
           }
-        })
-        .done();
+        }).catch(error => NetworkUtils.showNetworkError('Unable to register vehicle'));
     }
   }
 
+  logMe(itemValue, itemIndex) {
+    this.setState({ make: itemValue.make, models: itemValue.models })
+  }
   render() {
     return (
       <View style={onboardingStyles.mainContainer}>
-        <View>
-          <Text style={onboardingStyles.title}>Tell us about your vehicle</Text>
-        </View>
-        <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
-          {renderIf(this.state.showMakeError)(
-            <Text style={formStyles.error}>Field required.</Text>,
-          )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
-              <Text style={onboardingStyles.label}>Make:</Text>
+        {renderIf(this.state.loading)(
+          <View style={{ flex:1, alignItems:'center', justifyContent:'center' }}>
+            <ActivityIndicator size="large" color={palette.LIGHT_BLUE} />
+            <Text style={{ marginTop: 8, fontSize:20, color: palette.WHITE }}>Loading vechicles.</Text>
+          </View>
+        )}
+        {renderIf(!this.state.loading)(
+          <View>
+            <View>
+              <Text style={onboardingStyles.title}>Tell us about your vehicle</Text>
             </View>
-            <View style={{ width: 100, height: 50, flex: 0.8, borderWidth: 0 }}>
-              <TextInput
-                style={onboardingStyles.textInput}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                value={this.state.make}
-                onChangeText={text => this.setState({ make: text })}
-              />
-              <Picker
-                style={{ position: 'absolute', top: 0, width: 500, height: 500 }}
-                selectedValue={this.state.make}
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ make: itemValue.make, models: itemValue.models })}
-              >
-                {this.state.vehicles.map((l, i) => {
-                  return (
-                    <Picker.Item value={l} label={l.make} key={i} />
-                  );
-                })}
-              </Picker>
+            <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
+              {renderIf(this.state.showMakeError)(
+                <Text style={formStyles.error}>Field required.</Text>,
+              )}
+              <View style={{ flexDirection: 'row', height: 50 }}>
+                <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+                  <Text style={onboardingStyles.label}>Make:</Text>
+                </View>
+                <View style={{ width: 100, height: 50, flex: 0.8, borderWidth: 0 }}>
+                  <TextInput
+                    style={onboardingStyles.textInput}
+                    underlineColorAndroid="rgba(0,0,0,0)"
+                    autoCorrect={false}
+                    value={this.state.make}
+                    onChangeText={text => this.setState({ make: text })}
+                  />
+                  <Picker
+                    style={{ position: 'absolute', top: 0, width: 500, height: 500 }}
+                    selectedValue={this.state.make}
+                    onValueChange={(itemValue, itemIndex) =>
+                      this.logMe(itemValue, itemIndex)}
+                  >
+                    {this.state.vehicles.map((l, i) => {
+                      return (
+                        <Picker.Item value={l} label={l.make} key={i} />
+                      );
+                    })}
+                  </Picker>
+                </View>
+              </View>
+              <View style={onboardingStyles.line} />
+              {renderIf(this.state.showModelError)(
+                <Text style={formStyles.error}>Field required.</Text>,
+              )}
+              <View style={{ flexDirection: 'row', height: 50 }}>
+                <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+                  <Text style={onboardingStyles.label}>Model:</Text>
+                </View>
+                <View style={{ width: 100, height: 50, flex: 0.8, borderWidth: 0 }}>
+                  <TextInput
+                    style={onboardingStyles.textInput}
+                    underlineColorAndroid="rgba(0,0,0,0)"
+                    autoCorrect={false}
+                    value={this.state.model}
+                    onChangeText={text => this.setState({ model: text })}
+                  />
+                  <Picker
+                    style={{ position: 'absolute', top: 0, width: 1000, height: 1000 }}
+                    selectedValue={this.state.model}
+                    onValueChange={(itemValue, itemIndex) => this.setState({model: itemValue})}>
+                    {this.state.models.map((l, i) => {
+                      return (
+                        <Picker.Item value={l} label={l} key={i} />
+                      );
+                    })}
+                  </Picker>
+                </View>
+              </View>
+              <View style={onboardingStyles.line} />
+              {renderIf(this.state.showYearError)(
+                <Text style={formStyles.error}>{this.state.yearError}</Text>,
+              )}
+              <View style={{ flexDirection: 'row', height: 50 }}>
+                <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
+                  <Text style={onboardingStyles.label}>Year:</Text>
+                </View>
+                <View style={{ width: 100, height: 50, flex: 0.8 }}>
+                  <TextInput
+                    keyboardType="numeric"
+                    returnKeyType="done"
+                    maxLength={4}
+                    placeholder="Not Set"
+                    placeholderTextColor={palette.WHITE}
+                    style={onboardingStyles.textInput}
+                    underlineColorAndroid="rgba(0,0,0,0)"
+                    autoCorrect={false}
+                    onChangeText={text => this.setState({ vehicleYear: text })}
+                  />
+                </View>
+              </View>
+              <View style={onboardingStyles.line} />
             </View>
           </View>
-          <View style={onboardingStyles.line} />
-          {renderIf(this.state.showModelError)(
-            <Text style={formStyles.error}>Field required.</Text>,
-          )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
-              <Text style={onboardingStyles.label}>Model:</Text>
-            </View>
-            <View style={{ width: 100, height: 50, flex: 0.8, borderWidth: 0 }}>
-              <TextInput
-                style={onboardingStyles.textInput}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                value={this.state.model}
-                onChangeText={text => this.setState({ model: text })}
-              />
-              <Picker
-                style={{ position: 'absolute', top: 0, width: 1000, height: 1000 }}
-                selectedValue={this.state.model}
-                onValueChange={(itemValue, itemIndex) => this.setState({model: itemValue})}>
-                {this.state.models.map((l, i) => {
-                  return (
-                    <Picker.Item value={l} label={l} key={i} />
-                  );
-                })}
-              </Picker>
-            </View>
-          </View>
-          <View style={onboardingStyles.line} />
-          {renderIf(this.state.showYearError)(
-            <Text style={formStyles.error}>{this.state.yearError}</Text>,
-          )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
-              <Text style={onboardingStyles.label}>Year:</Text>
-            </View>
-            <View style={{ width: 100, height: 50, flex: 0.8 }}>
-              <TextInput
-                keyboardType="numeric"
-                returnKeyType="done"
-                maxLength={4}
-                placeholder="Not Set"
-                placeholderTextColor={palette.WHITE}
-                style={onboardingStyles.textInput}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                onChangeText={text => this.setState({ vehicleYear: text })}
-              />
-            </View>
-          </View>
-          <View style={onboardingStyles.line} />
-        </View>
+        )}
+
       </View>
     );
   }

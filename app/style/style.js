@@ -44,6 +44,15 @@ export const inbox = StyleSheet.create({
     color: palette.BLACK,
     fontWeight: 'bold',
   },
+  viewed: {
+    fontSize: 20,
+    color: palette.BLACK,
+  },
+  notViewed: {
+    fontSize: 20,
+    color: palette.BLACK,
+    fontWeight: 'bold',
+  },
   subTitle: {
     fontSize: 15,
     color: palette.INBOX_TEXT_COLOR,
@@ -127,7 +136,7 @@ export const quote = StyleSheet.create({
 export const reviewPopup = StyleSheet.create({
 
   container: {
-    height: 450,
+    height: 300,
     flexDirection: 'column',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     marginLeft: 15,
@@ -166,7 +175,11 @@ export const dashboard = StyleSheet.create({
   },
   statusCompleted: {
     fontSize: 13,
-    color: palette.STATUS_BLUE
+    color: palette.STATUS_BLUE,
+  },
+  statusCanceled: {
+    fontSize: 13,
+    color: palette.STATUS_RED,
   },
   line: {
     alignSelf: 'stretch',
@@ -239,7 +252,7 @@ export const serviceRequest = StyleSheet.create({
   },
   textInput: {
     marginTop: 10,
-    height: 40,
+    height: 50,
     color: palette.WHITE,
     fontSize: 20,
     textAlign: 'center',
@@ -366,8 +379,7 @@ export const onboardingStyles = StyleSheet.create({
   textInput: {
     color: palette.WHITE,
     fontSize: 20,
-    textAlign: 'right',
-    paddingRight: 20,
+    textAlign: 'left',
   },
   label: {
     color: palette.LIGHT_BLUE,

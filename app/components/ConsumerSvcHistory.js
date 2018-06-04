@@ -11,6 +11,9 @@ import constants from '../constants/c';
 import df from 'dateformat';
 import * as events from '../broadcast/events';
 import IconBadge from 'react-native-icon-badge';
+import Icon from  'react-native-vector-icons/MaterialIcons';
+import renderIf from 'render-if';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const needServiceIcon = require('../img/need_service.png');
 const svcHistoryIcon = require('../img/tabbar/services_on.png');
@@ -72,7 +75,23 @@ export default class ConsumerSvcHistory extends Component {
     events.getSvcRequestBidsEvents().subscribe((value) => {
       this.fetchSvcRequestFromAPI();
     });
+    events.getSvcRequestMessageEvents().subscribe((value) => {
+      this.fetchSvcRequestFromAPI();
+    });
+    this._sub = this.props.navigation.addListener('didFocus', this._updateData);
+  }
+
+  componentWillMount() {
+    this._updateData();
+  }
+
+
+  _updateData = () => {
     this.fetchSvcRequestFromAPI();
+  };
+
+  componentWillUnmount() {
+    this._sub.remove();
   }
 
   tabClicked(srid) {
@@ -99,10 +118,15 @@ export default class ConsumerSvcHistory extends Component {
         user_id: this.getUserId(),
       }),
     })
-    .then(response => response.json())
-    .then((responseData) => {
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw Error(response.statusText)
+      }
     })
-    .done();
+    .then((responseData) => {
+    }).catch(error => {});
   }
   addServiceRequest() {
     this.props.navigation.navigate('RequestService', { vehicle: this.state.currentVechicle });
@@ -130,66 +154,69 @@ export default class ConsumerSvcHistory extends Component {
   }
 
   fetchSvcRequestFromAPI(){
-    fetch(format('{}/api/user/svcreq/{}', constants.BASSE_URL, this.getUserId()),{
-      headers: {
-        Authorization: constants.API_KEY,
-      },
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.setState({
-          dataSource: ds.cloneWithRows(responseData.serviceRequests),
-          isLoading: false,
-        });
 
-        //update status locally and any unread notifications
-        let unreadCount = 0;
-        responseData.serviceRequests.forEach((serviceRequest) => {
-          let svcRequest = realm.objects('ServiceRequest');
-          let sr = svcRequest.filtered(format('service_id == {}', serviceRequest.service_request_id));
-          realm.write(() => {
-            sr[0].status = serviceRequest.status;
-            serviceRequest.unread_notifications.forEach((notification) => {
-              unreadCount++;
-              realm.create('Notifications',
-                {
-                  service_request_id: serviceRequest.service_request_id,
-                  notify_date: new Date(notification.notify_date),
-                  notify_event: notification.notify_event,
-                });
+    if (this.getUserId() > 0) {
+        fetch(format('{}/api/user/svcreq/{}', constants.BASSE_URL, this.getUserId()),{
+          headers: {
+            Authorization: constants.API_KEY,
+          },
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
+        .then((responseData) => {
+          const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+
+          let sortedServiceRequests = responseData.serviceRequests.sort((a,b) => {
+          if (new Date(a.service_date) < new Date(b.service_date)) {
+              return 1;
+            }
+            if (new Date(a.service_date) > new Date(a=b.service_date)) {
+              return -1;
+            }
+            // a must be equal to b
+            return 0;
+          });
+
+          this.setState({
+            dataSource: ds.cloneWithRows(sortedServiceRequests),
+            isLoading: false,
+          });
+
+          //update status locally and any unread notifications
+          let unreadCount = 0;
+          responseData.serviceRequests.forEach((serviceRequest) => {
+            let svcRequest = realm.objects('ServiceRequest');
+            let sr = svcRequest.filtered(format('service_request_id == {}', serviceRequest.service_request_id));
+            realm.write(() => {
+              sr[0].status = serviceRequest.status;
+              serviceRequest.unread_notifications.forEach((notification) => {
+                unreadCount++;
+                realm.create('Notifications',
+                  {
+                    service_request_id: serviceRequest.service_request_id,
+                    notify_date: new Date(notification.notify_date),
+                    notify_event: notification.notify_event,
+                  });
+              });
             });
           });
-        });
 
-        this.props.navigation.setParams({ badgeCount: unreadCount});
+          this.props.navigation.setParams({ badgeCount: unreadCount});
 
-      })
-      .done();
-  }
-
-  fetchData() {
-    fetch(format('{}/api/user/bids/{}', constants.BASSE_URL, this.getUserId()),{
-      headers: {
-        Authorization: constants.API_KEY,
-      },
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.setState({
-          dataSource: ds.cloneWithRows(responseData.bids),
-          isLoading: false,
-        });
-      })
-      .done();
+        }).catch(error => {});
+    }
   }
 
   serviceRequestClick(sr) {
     this.tabClicked(sr.service_request_id);
 
     //refresh servie request list.
-    this.loadSvcRequests();
+    //this.loadSvcRequests();
 
     //this is so dumb, but only way it works, otherwiese, keeps old state of badgeCount around
     //when the user goes back.
@@ -233,17 +260,28 @@ export default class ConsumerSvcHistory extends Component {
     return(
       <TouchableOpacity onPress={() => { this.serviceRequestClick(rowData)}} >
         <View style={serviceRequest.container}>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }} >
+          <View style={{flexDirection: 'row', justifyContent: 'flex-end' }} >
             <Text style={{ marginRight: 10, marginTop: 8, fontSize: 15 }}>
               { df(rowData.service_date, 'm/d/yy') }
             </Text>
           </View>
-          <View style={{ marginLeft: 8, marginBottom: 8 }}>
-            <Text style={s}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 5}}>
+            <Text style={[s, { marginLeft:8 }]}>
               {status}
             </Text>
-          </View>
-          <View style={{ marginLeft: 8, marginBottom: 20 }}>
+            {renderIf(rowData.unread_msg_count > 0)(
+              <Icon.Button
+                name='message'
+                backgroundColor='rgba(0,0,0,0)'
+                color={palette.LIGHT_BLUE}
+                underlayColor='rgba(0,0,0,0)'
+                size={20}
+                iconStyle={{marginTop: -8, marginRight: 3}}
+                activeOpacity={1}
+                borderRadius={5} />
+            )}
+            </View>
+          <View style={{ marginLeft: 8, marginBottom: 20, marginTop: 5 }}>
             <Text style={{ fontSize: 15 }}>
                { rowData.comment }
             </Text>

@@ -52,6 +52,14 @@
      </service>
 
      <meta-data
+         android:name="com.google.firebase.messaging.default_notification_icon"
+         android:resource="@mipmap/notification_icon"
+       />
+       <meta-data android:name="com.google.firebase.messaging.default_notification_color"
+         android:resource="@color/notificationColor"
+       />
+
+     <meta-data
           android:name="io.fabric.ApiKey"
           android:value="c4d9245db7d133a55537530793840cacd7dbd867"
       />

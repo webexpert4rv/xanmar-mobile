@@ -36,27 +36,50 @@ export default class ConsumerVehicles extends Component {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     const currentVechicles = realm.objects('Vehicle');
     const currentVechicle = realm.objects('CurrentVehicle');
-
-    let svcRequest = realm.objects('ServiceRequest');
-    let srs = svcRequest.filtered(format('vehicle_id == {}', currentVechicle[0].vehicleId));
-    let sortedSvcRequests = srs.sorted('service_date', true)
-
+    let sortedSvcRequests = [];
     let dashboardAvailable = false;
-    if (srs.length > 0) {
-      dashboardAvailable = true;
+    let activeVeh = '';
+    if (currentVechicle && currentVechicle.length > 0) {
+      let svcRequest = realm.objects('ServiceRequest');
+      let srs = svcRequest.filtered(format('vehicle_id == {}', currentVechicle[0].vehicleId));
+      sortedSvcRequests = srs.sorted('service_date', true)
+
+      if (srs.length > 0) {
+        dashboardAvailable = true;
+      }
+      activeVeh = currentVechicle[0].make.concat(" ", currentVechicle[0].model)
     }
+
     this.state = {
       dataSource: ds.cloneWithRows(sortedSvcRequests),
       dashboardAvailable: dashboardAvailable,
       currentVechicles: currentVechicles,
-      activeVehicle: currentVechicle[0].make.concat(" ", currentVechicle[0].model),
+      activeVehicle: activeVeh,
     };
+  }
 
+  componentWillMount() {
+    this._updateData();
+  }
+
+  componentDidMount(){
+    this._sub = this.props.navigation.addListener('didFocus', this._updateData);
+  }
+
+  _updateData = () => {
+    const currentVechicles = realm.objects('Vehicle');
+    this.setState({
+      currentVechicles: currentVechicles,
+    });
+  };
+
+  componentWillUnmount() {
+    this._sub.remove();
   }
 
   loadDashboardWithCurrentVehcile() {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-    const currentVechicles = realm.objects('Vehicle');
+    //const currentVechicles = realm.objects('Vehicle');
     const currentVechicle = realm.objects('CurrentVehicle');
 
     let svcRequest = realm.objects('ServiceRequest');
@@ -70,21 +93,10 @@ export default class ConsumerVehicles extends Component {
     this.setState({
       dataSource: ds.cloneWithRows(sortedSvcRequests),
       dashboardAvailable: dashboardAvailable,
-      currentVechicles: currentVechicles,
+      //currentVechicles: currentVechicles,
       activeVehicle: currentVechicle[0].make.concat(" ", currentVechicle[0].model),
     });
   }
-
-  serviceRequestClick(sr) {
-    // if (sr.status === 'new' || sr.status === 'bidding') {
-    //   this.props.navigation.navigate('ConsumerSvcRequestBids',
-    //   {svcRequest: sr});
-    // }
-    // if (sr.status === 'in progress' || sr.status === 'completed') {
-    //   this.props.navigation.navigate('ConsumerSvcRequestSummary', {svcRequest: sr});
-    // }
-  }
-
 
   renderRow(rowData, sectionID, rowID, highlightRow){
     //this is stupid query because realm doesn't support filter on the contents of a to-many relationship
@@ -124,31 +136,33 @@ export default class ConsumerVehicles extends Component {
       s = dashboard.statusCompleted;
       status = 'COMPLETED';
     }
+    if (rowData.status === 'canceled') {
+      s = dashboard.statusCanceled;
+      status = 'CANCELED';
+    }
 
     return(
-      <TouchableOpacity onPress={() => { this.serviceRequestClick(rowData)}} >
-        <View style={dashboard.container}>
-          <View style={{ marginLeft: 8, marginBottom: 4 }}>
-            <Text style={{ color: palette.GRAY, fontSize: 15 }}>
-              {category.toUpperCase()}
-            </Text>
-          </View>
-          <View style={{ marginLeft: 8, marginBottom: 7 }}>
-            <Text style={{ fontSize: 18, color: palette.BLACK }}>
-               { rowData.comment }
-            </Text>
-          </View>
-          <View style={{ marginLeft: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-start' }} >
-            <Text style={[s,{fontSize: 15}]}>
-              {status}
-            </Text>
-            <Text style={{ marginLeft: 10, fontSize: 15 }}>
-              { df(rowData.service_date, 'm/d/yy') }
-            </Text>
-          </View>
-          <View style={dashboard.line} />
+      <View style={dashboard.container}>
+        <View style={{ marginLeft: 8, marginBottom: 4 }}>
+          <Text style={{ color: palette.GRAY, fontSize: 15 }}>
+            {category.toUpperCase()}
+          </Text>
         </View>
-      </TouchableOpacity>
+        <View style={{ marginLeft: 8, marginBottom: 7 }}>
+          <Text style={{ fontSize: 18, color: palette.BLACK }}>
+             { rowData.comment }
+          </Text>
+        </View>
+        <View style={{ marginLeft: 8, flex: 1, flexDirection: 'row', justifyContent: 'flex-start' }} >
+          <Text style={[s,{fontSize: 15}]}>
+            {status}
+          </Text>
+          <Text style={{ marginLeft: 10, fontSize: 15 }}>
+            { df(rowData.service_date, 'm/d/yy') }
+          </Text>
+        </View>
+        <View style={dashboard.line} />
+      </View>
     );
   }
 
@@ -239,7 +253,7 @@ export default class ConsumerVehicles extends Component {
           <View style={{ width: 50 }} />
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Dropdown containerStyle={{ width: 200, backgroundColor: palette.HEADER_BLUE }}
-              pickerStyle={{ height: 200, marginTop:50 }}
+              pickerStyle={{ height: 300, marginTop:65 }}
               inputContainerStyle={{ borderBottomColor: 'transparent' }}
               value={this.state.activeVehicle}
               label=""

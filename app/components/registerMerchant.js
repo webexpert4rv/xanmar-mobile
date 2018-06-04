@@ -10,6 +10,7 @@ import { formStyles } from '../style/style';
 import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class registerMerchant extends Component {
   static navigationOptions = {
@@ -162,7 +163,13 @@ export default class registerMerchant extends Component {
           }
         }),
       })
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
         .then((responseData) => {
           const uId = responseData.service_provider_id;
           if (uId === 0) {
@@ -194,15 +201,23 @@ export default class registerMerchant extends Component {
             });
             navigate('RegisterServicesOffered', { businessName: this.state.name, businessId: uId });
           }
-        })
-        .done();
+        }).catch(error => NetworkUtils.showNetworkError('Unable to register'));
     }
   }
 
   render() {
     const { navigate } = this.props.navigation;
+
+    const keyBoardProps = {
+      keyboardVerticalOffset: 5,
+    };
+    if (Platform.OS === 'ios') {
+      keyBoardProps.behavior = 'padding';
+    }
+
+
     return (
-      <View>
+      <KeyboardAvoidingView {...keyBoardProps}>
         <ScrollView>
           <View>
             <Text style={{ marginLeft: 20, textAlign: 'left', marginTop: 30, fontSize: 20 }}>Account </Text>
@@ -317,7 +332,7 @@ export default class registerMerchant extends Component {
             />
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }

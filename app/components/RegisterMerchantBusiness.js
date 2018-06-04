@@ -12,6 +12,7 @@ import renderIf from 'render-if';
 import { HeaderBackButton } from 'react-navigation';
 import { formStyles, onboardingStyles, common } from '../style/style';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class RegisterMerchantBusiness extends Component {
   static navigationOptions = {
@@ -124,83 +125,68 @@ export default class RegisterMerchantBusiness extends Component {
             Tell us about your business
           </Text>
         </View>
-          <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
+          <View style={{ flexDirection: 'column', marginTop: 20, marginLeft: 20 }}>
             {renderIf(this.state.showBizNameError)(
               <Text style={formStyles.error}>Field required</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.5 }}>
-                <Text style={onboardingStyles.label}>Business Name:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.5 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                onChangeText={text => this.setState({ name: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50}]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              placeholder="Business Name"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ name: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showAddressError)(
               <Text style={formStyles.error}>Field required</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-                <Text style={onboardingStyles.label}>Address:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                onChangeText={text => this.setState({ address: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              placeholder="Address"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ address: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showCityError)(
               <Text style={formStyles.error}>Field required</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
-                <Text style={onboardingStyles.label}>City:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                onChangeText={text => this.setState({ city: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              placeholder="City"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ city: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showStateError)(
               <Text style={formStyles.error}>Field required</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-                <Text style={onboardingStyles.label}>State:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                onChangeText={text => this.setState({ st: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              placeholder="ST"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ st: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showZipError)(
               <Text style={formStyles.error}>Field required (must be 5 digits)</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 200, marginTop: 10, flex: 0.2 }}>
-                <Text style={onboardingStyles.label}>Zip:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                keyboardType="numeric"
-                maxLength={5}
-                onChangeText={text => this.setState({ zip: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              keyboardType="numeric"
+              maxLength={5}
+              placeholder="Zip"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ zip: text })}
+            />
             <View style={onboardingStyles.line} />
           </View>
         </KeyboardAvoidingView>

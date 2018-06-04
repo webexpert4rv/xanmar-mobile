@@ -104,7 +104,7 @@ ServiceRequest.schema = {
   name: 'ServiceRequest',
   properties: {
     vehicle_id: 'int',
-    service_id: 'int',
+    service_request_id: 'int',
     user_id: 'int',
     service_date: 'date',
     service_zip: 'string',

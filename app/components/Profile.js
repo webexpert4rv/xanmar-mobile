@@ -11,6 +11,8 @@ import realm from './realm';
 import palette from '../style/palette';
 import constants from '../constants/c';
 import * as accountEvents from '../broadcast/events';
+import Communications from 'react-native-communications';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const profileIcon = require('../img/tabbar/profile_on.png');
 
@@ -30,6 +32,22 @@ export default class Profile extends Component {
 
   constructor(props) {
     super(props);
+  }
+
+  componentWillMount() {
+    this._updateData();
+  }
+
+  componentDidMount(){
+    accountEvents.getMerchantAccountChangeEvents().subscribe((value) => {
+        this.setState({
+          accountActive: value,
+        });
+    });
+    this._sub = this.props.navigation.addListener('didFocus', this._updateData);
+  }
+
+  _updateData = () => {
     const userType = this.determinUserType();
     const profileInfo = this.getNameAndEmail(userType);
 
@@ -47,21 +65,17 @@ export default class Profile extends Component {
       }
     }
 
-    this.state = {
+    this.setState({
       userType: userType,
       name: profileInfo.name,
       email: profileInfo.email,
       phone: profileInfo.phone,
       accountActive: statusState,
-    };
-  }
-
-  componentDidMount(){
-    accountEvents.getMerchantAccountChangeEvents().subscribe((value) => {
-        this.setState({
-          accountActive: value,
-        });
     });
+  };
+
+  componentWillUnmount() {
+    this._sub.remove();
   }
 
   determinUserType() {
@@ -153,56 +167,8 @@ export default class Profile extends Component {
 
   subscriptionClick() {
     if (this.state.userType === constants.MERCHANT_TYPE) {
-      // if (this.state.accountActive) {
-      //   this.confirmCancelSubscription();
-      // } else {
-      //   //pass props to just go back if comging from
-      //   this.props.navigation.navigate('MerchantPymt', { fromProfile: true });
-      // }
       this.props.navigation.navigate('MerchantPymt', { fromProfile: true });
     }
-  }
-
-  cancelSubscription() {
-    fetch(format('{}/api/provider/subscription/{}/{}', constants.BASSE_URL, this.getUserId()), {
-      method: 'DELETE',
-      headers: {
-        Authorization: constants.API_KEY,
-      },
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-
-        const userPrefs = realm.objects('UserPreference');
-        if (userPrefs.length > 0) {
-          realm.write(() => {
-            userPrefs[0].status = 'canceled';
-          });
-        }
-
-        // console.log(JSON.stringify(responseData));
-        Alert.alert(
-          'Cancel Subscription',
-          'Subscription canceled succesfully',
-          [
-            {text: 'Ok', onPress: () => this.setState({ accountActive: false })},
-          ],
-          { cancelable: false }
-        );
-      })
-      .done();
-
-  }
-  confirmCancelSubscription() {
-    Alert.alert(
-      'Cancel Subscription',
-      'Are you sure you want to cancel your subscription, you will no longer be able to receive services request in your area.',
-      [
-        {text: 'Yes, I want to cancel', onPress: () => this.cancelSubscription()},
-        {text: 'No'},
-      ],
-      { cancelable: false }
-    );
   }
 
   render() {
@@ -283,6 +249,13 @@ export default class Profile extends Component {
           <TouchableOpacity style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}} onPress={() => this.logout()} >
             <View style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}>
                 <Text style={{ marginLeft: 15, fontSize:17 }}>Logout</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={dashboard.line} />
+          <TouchableOpacity style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}
+          onPress={() => Communications.email(['support@xanmar.com'],null,null,'Feedback or help','')}>
+            <View style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}>
+                <Text style={{ marginLeft: 15, fontSize:17 }}>Contact us for feedback or need help?</Text>
             </View>
           </TouchableOpacity>
         </View>

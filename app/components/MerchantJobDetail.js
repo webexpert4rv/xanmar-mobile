@@ -13,6 +13,7 @@ import constants from '../constants/c';
 import palette from '../style/palette';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -32,13 +33,17 @@ export default class MerchantJobDetail extends Component {
     });
     // console.log("job");
     // console.log(JSON.stringify(state.params.job));
+    let q = '';
+    if (state.params.job.bid_total != 0) {
+      q = state.params.job.bid_total;
+    }
     this.state = {
       dataSource: ds,
       dict: {},
       job: state.params.job,
       messages: [],
       showMessagePopup: false,
-      quote: state.params.job.bid_total,
+      quote: q,
     };
   }
 
@@ -80,7 +85,13 @@ export default class MerchantJobDetail extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
         this.setState({
@@ -94,8 +105,7 @@ export default class MerchantJobDetail extends Component {
             userPrefs[0].plan = responseData.plan;
           });
         }
-      })
-      .done();
+      }).catch(error => {});
   }
 
   loadRequest(svcs) {
@@ -178,11 +188,16 @@ export default class MerchantJobDetail extends Component {
           },
           body: JSON.stringify(bid),
         })
-         .then(response => response.json())
+        .then(response => {
+           if (response.ok) {
+             return response.json()
+           } else {
+             throw Error(response.statusText)
+           }
+         })
          .then((responseData) => {
            goBack();
-         })
-         .done();
+         }).catch(error => NetworkUtils.showNetworkError('Unable to submit bid'));
       } else {
         Alert.alert(
         'Error',
@@ -255,26 +270,39 @@ export default class MerchantJobDetail extends Component {
       },
       body: JSON.stringify(newMsgRequest),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
       }).catch((error) => {
         console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   loadMessages() {
     let msgs = [];
     console.log("loading messages");
-    fetch(format('{}/api/svcreq/messages/{}', constants.BASSE_URL, this.state.job.service_request_id), {
+    fetch(format('{}/api/provider/svcreq/messages/{}/{}',
+    constants.BASSE_URL, this.state.job.service_request_id,
+    this.getUserId()), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.setState({
@@ -285,8 +313,7 @@ export default class MerchantJobDetail extends Component {
         console.log("")
       }).catch((error) => {
         console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
@@ -297,7 +324,7 @@ export default class MerchantJobDetail extends Component {
             <Text style={{    fontSize: 15, fontWeight: 'bold', color: palette.BLACK }}>
               {rowData.msg_from}
             </Text>
-            <Text style={{ marginTop: 5, color: palette.GRAY, marginBottom: 10 }} ellipsizeMode='tail' numberOfLines={4}>
+            <Text style={{ fontSize: 15, marginTop: 5, color: palette.GRAY, marginBottom: 10 }} ellipsizeMode='tail' numberOfLines={4}>
               {rowData.message}
             </Text>
           </View>
@@ -375,7 +402,7 @@ export default class MerchantJobDetail extends Component {
                   </View>
                 </View>
                 <View style={{ flex: 0.3, flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity onPress={() => Communications.phonecall(this.state.job.customer_info.email, true)} style={{ marginRight: 10 }}>
+                  <TouchableOpacity onPress={() => Communications.email([this.state.job.customer_info.email],null,null,'Xanmar Service request','')} style={{ marginRight: 10 }}>
                     <Image source={emailIcon} />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => Communications.phonecall(this.state.job.customer_info.phone, true)}>
@@ -403,16 +430,10 @@ export default class MerchantJobDetail extends Component {
               />
             )}
           </View>
-          <View style={{ flex: 0.07, backgroundColor: palette.GRAY, alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity onPress={() => Communications.phonecall(this.state.job.customer_info.phone, true)}>
-              <Text style={{ fontSize: 18, textAlign: 'center', color: palette.WHITE }}>
-                Mark as Complete
-              </Text>
-            </TouchableOpacity>
-          </View>
 
           <Modal
             isVisible={this.state.showMessagePopup}
+            avoidKeyboard={Platform.OS === 'ios' ? true : false}
             onBackButtonPress={() => {this.setState({ showMessagePopup: false });}}
             onBackdropPress={() => {this.setState({ showMessagePopup: false });}}>
             <MessagePopup onSendClick={this.onMessageSendClick} />
@@ -465,15 +486,7 @@ export default class MerchantJobDetail extends Component {
                </View>
              </View>
              <View style={quote.merchantMessage}>
-               <TextInput
-                 style={{ height: 140, marginLeft: 10,
-                          marginRight: 10, textAlignVertical: 'top'}}
-                 multiline={true}
-                 underlineColorAndroid="rgba(0,0,0,0)"
-                 autoCorrect={false}
-                 placeholder="Add a reply to this request."
-                 placeholderTextColor={palette.VERY_LIGHT_GRAY}
-               />
+
              </View>
 
              <View style={{ marginTop: 15 }}>

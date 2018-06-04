@@ -13,6 +13,7 @@ import {
 import format from 'string-format';
 import constants from '../constants/c';
 import ServiceItem from './ServiceItem';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class servicePicker extends Component {
 
@@ -46,14 +47,19 @@ export default class servicePicker extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(responseData.categories),
           isLoading: false,
         });
-      })
-      .done();
+      }).catch(error => {});
   }
     // *************
     //******************

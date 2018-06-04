@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   AppRegistry,
   KeyboardAvoidingView,
@@ -17,6 +18,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class RegisterMerchantContactInfo extends Component {
   static navigationOptions = {
@@ -38,11 +40,13 @@ export default class RegisterMerchantContactInfo extends Component {
       city: state.params.city,
       st: state.params.st,
       zip: state.params.zip,
+      registering: false,
     };
   }
 
   postMerchant() {
     if (this.validateForm()) {
+      this.setState({ registering: true });
       fetch(format('{}/api/provider', constants.BASSE_URL), {
         method: 'POST',
         headers: {
@@ -63,10 +67,14 @@ export default class RegisterMerchantContactInfo extends Component {
           },
         }),
       })
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
         .then((responseData) => {
-          console.log('response data....');
-          console.log(responseData);
           const uId = responseData.service_provider_id;
           if (uId === 0) {
             Alert.alert(
@@ -77,6 +85,7 @@ export default class RegisterMerchantContactInfo extends Component {
               ],
               { cancelable: false }
             );
+            this.setState({ registering: false });
           } else {
             realm.write(() => {
               realm.create('UserPreference',
@@ -103,13 +112,13 @@ export default class RegisterMerchantContactInfo extends Component {
             this.gotoServices(uId);
           }
 
-        })
-        .done();
+        }).catch(error => NetworkUtils.showNetworkError('Unable to update information'));
     }
   }
 
   gotoServices() {
     if (this.validateForm()) {
+      this.setState({ registering: false });
       const { navigate } = this.props.navigation;
       navigate('RegisterServicesOffered');
     }
@@ -175,104 +184,18 @@ export default class RegisterMerchantContactInfo extends Component {
     return formValid;
   }
 
-  submitRequest() {
-    if (this.validateForm()) {
-      const svcs = this.state.currentServices;
-      let serviceChecked = false;
-      const servicesCategoryMap = {};
-      svcs.forEach((service) => {
-        if (!servicesCategoryMap[service.name]) {
-          // Create an entry in the map for the category if it hasn't yet been created
-          servicesCategoryMap[service.name] = [];
-        }
-
-        service.services.forEach((s) => {
-          if (s.checked) {
-            servicesCategoryMap[service.name].push(s);
-            serviceChecked = true;
-          }
-        });
-
-        if (!serviceChecked) {
-          delete servicesCategoryMap[service.name];
-        }
-        serviceChecked = false;
-      });
-
-      const r = [];
-      Object.keys(servicesCategoryMap).forEach((key) => {
-        const sv = servicesCategoryMap[key];
-        sv.forEach((s) => {
-          r.push(s);
-        });
-      });
-
-      const { state } = this.props.navigation;
-      const svcRequest = {
-        user_id: this.getUserId(),
-        service_date: new Date(this.state.date),
-        service_zip: this.state.zip,
-        make: state.params.vehicle.make,
-        model: state.params.vehicle.model,
-        year: parseInt(state.params.vehicle.year, 10),
-        services: r,
-      };
-
-      fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: constants.API_KEY,
-        },
-        body: JSON.stringify(svcRequest),
-      })
-        .then(response => response.json())
-        .then((responseData) => {
-          svcRequest.service_id = responseData.service_request_id;
-
-          // save request locally
-          const rSvcRequest = {
-            service_id: svcRequest.service_id,
-            user_id: svcRequest.user_id,
-            service_date: svcRequest.service_date,
-            service_zip: svcRequest.service_zip,
-            make: svcRequest.make,
-            model: svcRequest.model,
-            year: svcRequest.year,
-          };
-          realm.write(() => {
-            realm.create('ServiceRequest', rSvcRequest);
-          });
-
-          // send service request events
-          events.sendSvcRequestEvent(rSvcRequest);
-
-          // reset services and categories
-          const localSvc = realm.objects('Service');
-          localSvc.forEach((s) => {
-            realm.write(() => {
-              s.checked = false;
-            });
-          });
-
-          const resetAction = NavigationActions.reset({
-            index: 0,
-            actions: [
-              NavigationActions.navigate({ routeName: 'consumerTab' }),
-            ],
-          });
-          this.props.navigation.dispatch(resetAction);
-        }).catch((error) => {
-          console.log(error);
-        })
-        .done();
-    }
-  }
-
   render() {
     const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
     const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
     const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
+
+    const keyBoardProps = {
+      keyboardVerticalOffset: 5,
+    };
+    if (Platform.OS === 'ios') {
+      keyBoardProps.behavior = 'padding';
+    }
+
     return (
 
       <View style={common.merchantContainer}>
@@ -287,122 +210,95 @@ export default class RegisterMerchantContactInfo extends Component {
         >
           <HeaderBackButton tintColor={palette.WHITE} onPress={() => this.goBack()} />
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => this.postMerchant()} >
-              <Text style={common.headerLeftButton}>Next</Text>
-            </TouchableOpacity>
+            {renderIf(this.state.registering)(
+              <ActivityIndicator size="small" color={palette.LIGHT_BLUE} style={{ paddingRight: 20 }} />
+            )}
+            {renderIf(!this.state.registering)(
+              <TouchableOpacity onPress={() => this.postMerchant()} >
+                <Text style={common.headerLeftButton}>Next</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
 
-        <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={250} style={{ flex: 0.90 }}>
+        <KeyboardAvoidingView {...keyBoardProps} style={{ flex: 0.90 }}>
           <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: palette.MERCHANT_HEADER_COLOR, height: 50 }}>
             <Text style={common.headerTitle}>
               Enter your contact information
             </Text>
           </View>
-          <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
+          <View style={{ flexDirection: 'column', marginTop: 20, marginLeft: 20 }}>
             {renderIf(this.state.showNameError)(
               <Text style={formStyles.error}>Field required</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 5, flex: 0.5 }}>
-                <Text style={onboardingStyles.label}>Name:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.5 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                onChangeText={text => this.setState({ contactName: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              placeholder="Name"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ contactName: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showEmailError)(
               <Text style={formStyles.error}>{this.state.emailError}</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
-                <Text style={onboardingStyles.label}>Email:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                keyboardType='email-address'
-                autoCapitalize='none'
-                onChangeText={text => this.setState({ email: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              keyboardType='email-address'
+              autoCapitalize='none'
+              placeholder="Email"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ email: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showPhoneError)(
               <Text style={formStyles.error}>Field required (must be 10 digits)</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-                <Text style={onboardingStyles.label}>Phone:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                keyboardType="phone-pad"
-                maxLength={10}
-                onChangeText={text => this.setState({ phone: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              keyboardType="phone-pad"
+              maxLength={10}
+              placeholder="Phone"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ phone: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.pwdMismatchError || this.state.showPwdError)(
               <Text style={formStyles.error}>{this.state.pwdError}</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.4 }}>
-                <Text style={onboardingStyles.label}>Password:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.6 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                secureTextEntry
-                onChangeText={text => this.setState({ pwd: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              secureTextEntry
+              placeholder="Password"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ pwd: text })}
+            />
             <View style={onboardingStyles.line} />
             {renderIf(this.state.showConfirmPwdError)(
               <Text style={formStyles.error}>This field required.</Text>
             )}
-            <View style={{ flexDirection: 'row', height: 50 }}>
-              <View style={{ width: 100, marginTop: 10, flex: 0.5 }}>
-                <Text style={onboardingStyles.label}>Re-Password:</Text>
-              </View>
-              <TextInput
-                style={[onboardingStyles.textInput, { height: 50, flex: 0.5 }]}
-                underlineColorAndroid="rgba(0,0,0,0)"
-                autoCorrect={false}
-                secureTextEntry
-                onChangeText={text => this.setState({ confirmPwd: text })}
-              />
-            </View>
+            <TextInput
+              style={[onboardingStyles.textInput, { height: 50 }]}
+              underlineColorAndroid="rgba(0,0,0,0)"
+              autoCorrect={false}
+              secureTextEntry
+              placeholder="Confirm password"
+              placeholderTextColor={palette.LIGHT_BLUE}
+              onChangeText={text => this.setState({ confirmPwd: text })}
+            />
             <View style={onboardingStyles.line} />
 
           </View>
 
-          <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, marginTop: 40 }}>
-            <Text style={{ fontSize: 18, color: palette.WHITE, marginRight: 5, marginLeft:5 }}>
-              By clicking Next, you agree to our
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 20 }}>
-            <Text style={{ fontSize: 18, color: palette.LIGHT_BLUE, marginRight: 5 }}>
-              Terms of Use
-            </Text>
-            <Text style={{ fontSize: 18, color: palette.WHITE, marginRight: 5 }}>
-              and
-            </Text>
-            <Text style={{ fontSize: 18, color: palette.LIGHT_BLUE }}>
-              Privacy Policy
-            </Text>
-          </View>
         </KeyboardAvoidingView>
-
       </View>
 
 

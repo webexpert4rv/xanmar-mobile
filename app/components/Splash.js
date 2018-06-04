@@ -4,6 +4,7 @@ import { NavigationActions } from 'react-navigation';
 import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const splashIcon = require('../img/splash_icon.png');
 
@@ -32,7 +33,13 @@ export default class splash extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
       .then((responseData) => {
         responseData.categories.forEach((category) => {
           const categoryServices = [];
@@ -47,8 +54,7 @@ export default class splash extends Component {
             });
           }
         });
-      })
-      .done();
+      }).catch(error => {});
   }
 
   init() {

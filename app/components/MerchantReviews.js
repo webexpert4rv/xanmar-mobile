@@ -13,6 +13,7 @@ import realm from './realm';
 import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -61,7 +62,13 @@ export default class MerchantReviews extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.setState({
@@ -70,8 +77,7 @@ export default class MerchantReviews extends Component {
           reviews: responseData.reviews,
           servicesOffered: responseData.servicesOffered,
         });
-      })
-      .done();
+      }).catch(error => {});
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
@@ -109,49 +115,6 @@ export default class MerchantReviews extends Component {
     )
   }
 
-
-  markComplete() {
-    this.setState({ showReviewPopup: false });
-
-    const reviewRequest = {
-      service_request_id: this.state.svcRequest.service_request_id,
-      service_provider_id: this.state.spi,
-      review_date: new Date(),
-      rating: this.state.rating,
-      review: this.state.comment,
-    };
-
-    fetch(format('{}/api/provider/review', constants.BASSE_URL), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: constants.API_KEY,
-      },
-      body: JSON.stringify(reviewRequest),
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-
-        // update status to complete
-        let svcRequest = realm.objects('ServiceRequest');
-        let sr = svcRequest.filtered(format('service_id == {}', reviewRequest.service_request_id));
-        realm.write(() => {
-          sr[0].status = 'completed';
-        });
-
-        const resetAction = NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'consumerTab' }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
-  }
-
   render() {
     const { state } = this.props.navigation;
     const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
@@ -181,7 +144,7 @@ export default class MerchantReviews extends Component {
            </View>
            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
              <TouchableOpacity style={{ marginRight: 10 }}>
-               <Text style={common.headerTitle}>Reply</Text>
+               <Text style={common.headerTitle}></Text>
              </TouchableOpacity>
            </View>
          </View>
@@ -219,7 +182,7 @@ export default class MerchantReviews extends Component {
          </View>
          <View style={{ marginLeft: 10, flexDirection: 'row', alignItems: 'center' }}>
            <View style={{ marginRight: 10 }}>
-             <TouchableOpacity onPress={() => Communications.phonecall(this.state.bid.email, true)}>
+             <TouchableOpacity onPress={() => Communications.email([this.state.bid.email],null,null,'Xanmar Service request','')}>
                <Image source={emailIcon} />
              </TouchableOpacity>
            </View>

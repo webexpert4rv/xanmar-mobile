@@ -16,6 +16,7 @@ import realm from './realm';
 import palette from '../style/palette';
 import ServiceListItem from './ServiceListItem';
 import ServiceListSectionItem from './ServiceListSectionItem';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class RegisterMerchantServices extends Component {
   static navigationOptions = {
@@ -80,28 +81,30 @@ export default class RegisterMerchantServices extends Component {
       },
       body: JSON.stringify(mySvcs),
     })
-      .then(response => response.json())
+    .then(response => {
+
+      if (response.ok) {
+        return response.json()
+      } else {
+        throw Error(response.statusText)
+      }
+    })
       .then((responseData) => {
-        realm.write(() => {
-          svcs.forEach((s) => {
-            realm.create('MerchantServices', s);
-          });
-        });
+
+        //const cccc = realm.objects('MerchantServices');
+
+        // realm.write(() => {
+        //   svcs.forEach((s) => {
+        //     realm.create('MerchantServices', s);
+        //   });
+        // });
 
         const { navigate } = this.props.navigation;
         navigate('MerchantPymt',{ fromProfile: false });
 
-        // const resetAction = NavigationActions.reset({
-        //   index: 0,
-        //   actions: [
-        //     NavigationActions.navigate({ routeName: 'merchantNav' }),
-        //   ],
-        // });
-        // this.props.navigation.dispatch(resetAction);
       }).catch((error) => {
         console.log(error);
-      })
-      .done();
+      }).catch(error => NetworkUtils.showNetworkError('Unable to submit services'));
   }
 
   finishSignUp() {
@@ -290,84 +293,6 @@ export default class RegisterMerchantServices extends Component {
           openOptions={this.state.openSections}
         />
       </View>
-
-      // <View style={styles.listContainer}>
-      //   <View style={styles.infoSection}>
-      //     <Text style={{ textAlign: 'left', marginLeft: 10, marginTop: 10, marginBottom: 10, fontSize: 20 }}>
-      //     {state.params.vehicle.year} {state.params.vehicle.make} {state.params.vehicle.model}</Text>
-      //     {renderIf(this.state.showSvcDateError)(
-      //       <Text style={formStyles.error}>Field required</Text>
-      //     )}
-      //     <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
-      //       <View>
-      //         <DatePicker
-      //           style={{width: 200, marginLeft: 10}}
-      //           date={this.state.date}
-      //           mode="date"
-      //           placeholder="service date"
-      //           format="MM/DD/YYYY"
-      //           confirmBtnText="Confirm"
-      //           cancelBtnText="Cancel"
-      //           iconSource={calIcon}
-      //           onDateChange={(date) => { this.setState({ date: date})}}
-      //         />
-      //       </View>
-      //       <View style={{ marginRight: 10, flexDirection: 'column', alignItems: 'flex-end' }}>
-      //         <Button
-      //           style={{ width: 300 }}
-      //           onPress={() => this.setState({ showServicePicker: true })}
-      //           title="Add service"
-      //         />
-      //       </View>
-      //     </View>
-      //   </View>
-      //   <View>
-      //     {renderIf(this.state.showSvcZipError)(
-      //       <Text style={formStyles.error}>Zip Field required (must be 5 digits)</Text>
-      //     )}
-      //     <TextInput
-      //       style={{ height: 60, width: 100 }}
-      //       keyboardType="numeric"
-      //       maxLength={5}
-      //       placeholder="service zip"
-      //       onChangeText={text => this.setState({ zip: text })}
-      //     />
-      //   </View>
-      //   <Modal
-      //      animationType={'slide'}
-      //      transparent={true}
-      //      visible={this.state.showServicePicker}
-      //      onRequestClose={() => this.setState({ showServicePicker: false })}
-      //      >
-      //     <View style={{ margin: 50, backgroundColor: '#ffffff', padding: 20 }}>
-      //       <ServicePicker currentServices={this.state.currentServices} onServicePickCompleted={this._onServicePickCompleted} />
-      //       <Button
-      //         style={{ width: 300 }}
-      //         onPress={() => this.setState({ showServicePicker: false })}
-      //         title="Done"
-      //       />
-      //     </View>
-      //    </Modal>
-      //     <View style={styles.listSection}>
-      //     {renderIf(this.state.showSvcListError)(
-      //       <Text style={formStyles.error}>Field required, must include at lease 1 sevice.</Text>
-      //     )}
-      //     <ListView
-      //       dataSource={this.state.dataSource}
-      //       renderRow={this.renderRow}
-      //       renderSectionHeader={this.renderSectionHeader}
-      //       style={{ marginTop: 10 }}
-      //     />
-      //     </View>
-      //     <View style={styles.butSection}>
-      //     <Button
-      //       style={{ width: 300 }}
-      //       onPress={() => this.submitRequest()}
-      //       title="Submit service request"
-      //     />
-      //     </View>
-      // </View>
-
     );
   }
 }

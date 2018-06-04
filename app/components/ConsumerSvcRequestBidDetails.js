@@ -15,6 +15,7 @@ import palette from '../style/palette';
 import { bidStyles, common, inbox, formStyles } from '../style/style';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class ConsumerSvcRequestBidDetails extends Component {
   static navigationOptions = {
@@ -55,7 +56,13 @@ export default class ConsumerSvcRequestBidDetails extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.setState({
@@ -63,10 +70,7 @@ export default class ConsumerSvcRequestBidDetails extends Component {
           isLoading: false,
           messages: responseData.messages,
         });
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   loadRequest(svcs) {
@@ -144,7 +148,13 @@ export default class ConsumerSvcRequestBidDetails extends Component {
        },
        body: JSON.stringify(bid),
      })
-       .then(response => response.json())
+       .then(response => {
+         if (response.ok) {
+           return response.json()
+         } else {
+           throw Error(response.statusText)
+         }
+       })
        .then((responseData) => {
          //DeviceEventEmitter.emit('onBidAccepted', {});
          events.sendMerchantJobAcceptedEvent(true);
@@ -155,10 +165,7 @@ export default class ConsumerSvcRequestBidDetails extends Component {
            ],
          });
          this.props.navigation.dispatch(resetAction);
-       }).catch((error) => {
-         console.log(error);
-       })
-       .done();
+       }).catch(error => NetworkUtils.showNetworkError('Unable to accept bid.'));
    }
 
    renderRow(rowData, sectionID, rowID, highlightRow){
@@ -231,13 +238,16 @@ export default class ConsumerSvcRequestBidDetails extends Component {
       },
       body: JSON.stringify(newMsgRequest),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   render() {
@@ -294,9 +304,7 @@ export default class ConsumerSvcRequestBidDetails extends Component {
             </Text>
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity style={{ marginRight: 10 }} onPress={() => this.setState({ showMessagePopup: true })}>
-              <Text style={common.headerTitle}>Reply</Text>
-            </TouchableOpacity>
+            <Text style={common.headerTitle}></Text>
           </View>
         </View>
         <View style={{flex: 1, backgroundColor: palette.WHITE}}>
@@ -314,14 +322,16 @@ export default class ConsumerSvcRequestBidDetails extends Component {
                     starSize={15}
                     fullStar= {require('../img/starFilled.png')}
                     emptyStar= {require('../img/starEmpty.png')}/>
-                    <Text style={{ marginLeft:10, color: palette.GRAY }}>
-                      ({this.state.bid.review_count}) Reviews
-                    </Text>
+                    <View style={{ marginLeft:10, borderBottomWidth: 1, borderColor: palette.GRAY }}>
+                      <Text style={{ color: palette.GRAY, paddingBottom: 3 }}>
+                        ({this.state.bid.review_count}) Reviews
+                      </Text>
+                    </View>
                 </View>
                 <View style={{ flexDirection: 'row' }} >
                    <View >
                      <Text style={{ marginTop: 5, color: palette.GRAY, color: palette.BLACK }} ellipsizeMode='tail' numberOfLines={3}>
-                       Mechanic comment would go here when captured.
+
                      </Text>
                    </View>
                 </View>
@@ -363,6 +373,7 @@ export default class ConsumerSvcRequestBidDetails extends Component {
           </View>
           <Modal
             isVisible={this.state.showMessagePopup}
+            avoidKeyboard={Platform.OS === 'ios' ? true : false}
             onBackButtonPress={() => {this.setState({ showMessagePopup: false });}}
             onBackdropPress={() => {this.setState({ showMessagePopup: false });}}>
             <MessagePopup onSendClick={this.onMessageSendClick} />

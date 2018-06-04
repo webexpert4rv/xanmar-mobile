@@ -15,6 +15,7 @@ import PushController from './PushController';
 import palette from '../style/palette';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -34,7 +35,6 @@ export default class ConsumerSvcRequestSummary extends Component {
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
-
     let company, address, city, st, zip, bidTotal, phone, email, spi, bid;
     for (var b of state.params.svcRequest.bids) {
       if (b.accepted) {
@@ -66,10 +66,12 @@ export default class ConsumerSvcRequestSummary extends Component {
       showReviewPopup: false,
       messages: [],
       showMessagePopup: false,
+      svcProviderRating: bid.rating,
+      svcProviderReviewCount: bid.review_count,
     };
 
   }
-
+//this.state.bid.rating  this.state.bid.review_count
   // getAcceptedBid() {
   //   for (var bid of this.state.svcRequest.bids) {
   //     if (bid.accepted) {
@@ -104,7 +106,13 @@ export default class ConsumerSvcRequestSummary extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.setState({
@@ -112,10 +120,7 @@ export default class ConsumerSvcRequestSummary extends Component {
           isLoading: false,
           messages: responseData.messages,
         });
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
@@ -128,7 +133,7 @@ export default class ConsumerSvcRequestSummary extends Component {
             <Text style={{    fontSize: 15, fontWeight: 'bold',}}>
               {rowData.msg_from}
             </Text>
-            <Text style={{ marginTop: 5, color: palette.GRAY, color: palette.BLACK, marginBottom: 10 }} ellipsizeMode='tail' numberOfLines={4}>
+            <Text style={{ fontSize: 15, marginTop: 5, color: palette.GRAY, color: palette.BLACK, marginBottom: 10 }} ellipsizeMode='tail' numberOfLines={4}>
               {rowData.message}
             </Text>
           </View>
@@ -151,7 +156,12 @@ export default class ConsumerSvcRequestSummary extends Component {
   }
 
   markComplete() {
-    this.setState({ showReviewPopup: false });
+    this.recalculateRating();
+
+    let svcR = this.state.svcRequest;
+    svcR.status = 'completed';
+
+    this.setState({ showReviewPopup: false, svcRequest: svcR });
 
     const reviewRequest = {
       service_request_id: this.state.svcRequest.service_request_id,
@@ -169,12 +179,18 @@ export default class ConsumerSvcRequestSummary extends Component {
       },
       body: JSON.stringify(reviewRequest),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
         // update status to complete
         let svcRequest = realm.objects('ServiceRequest');
-        let sr = svcRequest.filtered(format('service_id == {}', reviewRequest.service_request_id));
+        let sr = svcRequest.filtered(format('service_request_id == {}', reviewRequest.service_request_id));
         realm.write(() => {
           sr[0].status = 'completed';
         });
@@ -186,10 +202,7 @@ export default class ConsumerSvcRequestSummary extends Component {
           ],
         });
         this.props.navigation.dispatch(resetAction);
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => NetworkUtils.showNetworkError('Unable to submit review'));
   }
 
   onMessageSendClick(msg) {
@@ -221,13 +234,16 @@ export default class ConsumerSvcRequestSummary extends Component {
       },
       body: JSON.stringify(newMsgRequest),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   onMessageCancelClick() {
@@ -259,6 +275,20 @@ export default class ConsumerSvcRequestSummary extends Component {
         bid: this.state.bid,
       }
     );
+  }
+
+  recalculateRating() {
+
+    let oldAvg = this.state.svcProviderRating;
+    let oldItemsCount = this.state.svcProviderReviewCount;
+    let newItem = this.state.rating;
+    let newTotal = parseInt(this.state.svcProviderReviewCount, 10) + 1;
+    let newAvg = ((oldAvg * oldItemsCount) + newItem)/newTotal;
+    this.setState({
+      svcProviderRating: newAvg,
+      svcProviderReviewCount: newTotal,
+    });
+
   }
 
   render() {
@@ -306,7 +336,7 @@ export default class ConsumerSvcRequestSummary extends Component {
                </View>
                <View style={{ marginLeft: 35, flexDirection: 'row', marginTop: 5, marginBottom: 5 }} >
                  <Stars
-                    value={parseFloat(this.state.bid.rating)}
+                    value={parseFloat(this.state.svcProviderRating)}
                     backingColor={palette.HEADER_BLUE}
                     spacing={8}
                     count={5}
@@ -314,7 +344,7 @@ export default class ConsumerSvcRequestSummary extends Component {
                     fullStar= {require('../img/starFilled.png')}
                     emptyStar= {require('../img/starEmpty.png')}/>
                     <Text style={{ marginLeft:10, color: palette.GRAY }}>
-                      {this.state.bid.review_count} Reviews
+                      {this.state.svcProviderReviewCount} Reviews
                     </Text>
                </View>
                <View style={{ marginLeft: 35, marginRight: 30, marginBottom: 7 }} >
@@ -338,7 +368,7 @@ export default class ConsumerSvcRequestSummary extends Component {
                  </TouchableOpacity>
                </View>
                <View style={{ marginRight: 10 }}>
-                 <TouchableOpacity onPress={() => Communications.phonecall(this.state.email, true)}>
+                 <TouchableOpacity onPress={() => Communications.email([this.state.email],null,null,'Xanmar Service request','')}>
                    <Image source={emailIcon} />
                  </TouchableOpacity>
                </View>
@@ -405,9 +435,10 @@ export default class ConsumerSvcRequestSummary extends Component {
            </View>
          )}
          <Modal
-           isVisible={this.state.showReviewPopup}>
+           isVisible={this.state.showReviewPopup}
+           avoidKeyboard={Platform.OS === 'ios' ? true : false}>
           <View style={reviewPopup.container}>
-            <View style={{ flex: 0.20, backgroundColor: palette.MERCHANT_HEADER_COLOR,     borderTopLeftRadius: 10,
+            <View style={{ flex: 0.20, backgroundColor: palette.MERCHANT_HEADER_COLOR, borderTopLeftRadius: 10,
                 borderTopRightRadius: 10}}>
                 <View style={{ marginLeft: 35, marginBottom: 2, marginRight: 10 }} >
                   <Text style={{ marginTop: 10, color: palette.WHITE, fontWeight: 'bold', fontSize: 17 }}>
@@ -471,6 +502,7 @@ export default class ConsumerSvcRequestSummary extends Component {
 
          <Modal
            isVisible={this.state.showMessagePopup}
+           avoidKeyboard={Platform.OS === 'ios' ? true : false}
            onBackButtonPress={() => {this.setState({ showMessagePopup: false });}}
            onBackdropPress={() => {this.setState({ showMessagePopup: false });}}>
            <MessagePopup onSendClick={this.onMessageSendClick} />

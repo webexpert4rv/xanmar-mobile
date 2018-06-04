@@ -18,8 +18,9 @@ import CheckBox from './CheckBox';
 import ServiceListItem from './ServiceListItem';
 import ServiceListSectionItem from './ServiceListSectionItem';
 import format from 'string-format';
+import * as NetworkUtils from '../utils/networkUtils';
 
-export default class MerchantService extends Component {
+export default class MerchantServices extends Component {
   static navigationOptions = {
     title: 'Services',
     header: null,
@@ -229,31 +230,7 @@ _renderSection = (section, sectionId)  => {
                 svc: service.services});
 
     });
-//console.log(JSON.stringify(servicesCategoryMap));
-    // const svcs = realm.objects('MerchantServices');
-    //
-    // let serviceChecked = false;
-    // const servicesCategoryMap = {};
-    // svcs.forEach((service) => {
-    //   if (!servicesCategoryMap[service.name]) {
-    //     // Create an entry in the map for the category if it hasn't yet been created
-    //     servicesCategoryMap[service.name] = [];
-    //   }
-    //
-    //   service.services.forEach((s) => {
-    //     if (s.checked) {
-    //       servicesCategoryMap[service.name].push(s);
-    //       serviceChecked = true;
-    //     }
-    //   });
-    //
-    //   if (!serviceChecked) {
-    //     delete servicesCategoryMap[service.name]
-    //   }
-    // });
-    //
-    //console.log("dd");
-    //console.log(JSON.stringify(dd));
+
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,

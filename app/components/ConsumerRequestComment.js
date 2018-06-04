@@ -14,6 +14,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class ConsumerRequestComment extends Component {
   static navigationOptions = {
@@ -27,6 +28,7 @@ export default class ConsumerRequestComment extends Component {
       zip: state.params.zip,
       svcDate: state.params.svcDate,
       photo: state.params.photo,
+      comment: '',
     };
   }
 
@@ -98,12 +100,7 @@ export default class ConsumerRequestComment extends Component {
         name: 'testPhotoName.jpg'
       });
     }
-    // fetch(url, {
-    //   method: 'post',
-    //   body: data
-    // }).then(res => {
-    //   console.log(res)
-    // });
+
 
     fetch(format('{}/api/consumer/service/request', constants.BASSE_URL), {
       method: 'POST',
@@ -114,14 +111,20 @@ export default class ConsumerRequestComment extends Component {
       //body: JSON.stringify(svcRequest),
       body: data,
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
-        svcRequest.service_id = responseData.service_request_id;
+        svcRequest.service_request_id = responseData.service_request_id;
 
         // save request locally
         const rSvcRequest = {
           vehicle_id: svcRequest.vehicle_id,
-          service_id: svcRequest.service_id,
+          service_request_id: svcRequest.service_request_id,
           user_id: svcRequest.user_id,
           service_date: svcRequest.service_date,
           service_zip: svcRequest.service_zip,
@@ -157,10 +160,7 @@ export default class ConsumerRequestComment extends Component {
           ],
         });
         this.props.navigation.dispatch(resetAction);
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => NetworkUtils.showNetworkError('Unable to submit service request.'));
   }
 
   render() {
@@ -203,7 +203,7 @@ export default class ConsumerRequestComment extends Component {
         <View style={{ marginTop: 30 }}>
           <View style={common.center}>
             <TextInput
-              style={{ width: 300, height: 300, backgroundColor: palette.WHITE }}
+              style={{ fontSize:27, width: 300, height: 300, backgroundColor: palette.WHITE, padding:10 }}
               textAlignVertical={'top'}
               multiline
               numberOfLines={5}

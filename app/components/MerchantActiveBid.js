@@ -13,6 +13,7 @@ import constants from '../constants/c';
 import palette from '../style/palette';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -126,13 +127,18 @@ export default class MerchantActiveBid extends Component {
       },
       body: JSON.stringify(newMsgRequest),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
       }).catch((error) => {
         console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   loadMessages(){
@@ -145,7 +151,13 @@ export default class MerchantActiveBid extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         this.setState({
@@ -154,14 +166,11 @@ export default class MerchantActiveBid extends Component {
           messages: responseData.messages,
         });
         console.log("")
-      }).catch((error) => {
-        console.log(error);
-      })
-      .done();
+      }).catch(error => {});
   }
 
   gotoEditBid(bid) {
-
+    this.props.navigation.navigate('JobDetails', { job: this.state.job });
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
@@ -223,7 +232,7 @@ export default class MerchantActiveBid extends Component {
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => this.setState({ showMessagePopup: true })} >
-              <Text style={common.headerLeftButton}>Reply</Text>
+              <Text style={common.headerLeftButton}></Text>
             </TouchableOpacity>
           </View>
         </View>

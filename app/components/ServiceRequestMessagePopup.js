@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {TouchableHighlight, View, Text, TextInput, TouchableOpacity} from 'react-native';
+import {TouchableHighlight, View, Text, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity} from 'react-native';
 import { common, reviewPopup } from '../style/style';
 import palette from '../style/palette';
+import * as NetworkUtils from '../utils/networkUtils';
 
 class ServiceRequestMessagePopup extends Component {
   constructor(props) {
@@ -24,13 +25,21 @@ class ServiceRequestMessagePopup extends Component {
   }
 
   render() {
+
+    const keyBoardProps = {
+      keyboardVerticalOffset: 5,
+    };
+    if (Platform.OS === 'ios') {
+      keyBoardProps.behavior = 'padding';
+    }
+
     return (
+      <KeyboardAvoidingView {...keyBoardProps}>
       <View style={reviewPopup.container}>
         <View style={{ flex: 0.10, backgroundColor: palette.MERCHANT_HEADER_COLOR,  borderTopLeftRadius: 10,
             borderTopRightRadius: 10}}>
             <View style={{ marginLeft: 35, marginBottom: 2, marginRight: 10 }} >
               <Text style={{ textAlign: 'center', marginTop: 10, color: palette.WHITE, fontWeight: 'bold', fontSize: 17 }}>
-                Send a message
               </Text>
             </View>
         </View>
@@ -71,6 +80,7 @@ class ServiceRequestMessagePopup extends Component {
           </TouchableOpacity>
         </View>
       </View>
+      </KeyboardAvoidingView>
     )
   }
 }

@@ -1,7 +1,8 @@
 import React, { Component, PropTypes } from 'react';
-import { AppRegistry,
+import { ActivityIndicator, AppRegistry,
         Alert,
         KeyboardAvoidingView,
+        Platform,
         View,
         Text,
         TextInput,
@@ -12,6 +13,7 @@ import { formStyles, onboardingStyles, common } from '../style/style';
 import realm from './realm';
 import palette from '../style/palette';
 import constants from '../constants/c';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class RegisterConsumer extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -25,12 +27,15 @@ export default class RegisterConsumer extends Component {
         color: palette.WHITE,
       },
       headerTintColor: palette.WHITE,
-      headerRight: (
+      headerRight: params.isRegistering ? (
+        <ActivityIndicator size="small" color={palette.LIGHT_BLUE} style={{ paddingRight: 20 }} />
+      ) : (
         <View>
           <TouchableOpacity onPress={() => params.handleNext()}>
             <Text style={onboardingStyles.headerButton}>Next</Text>
           </TouchableOpacity>
-        </View>),
+        </View>
+      ),
     };
   };
 
@@ -46,11 +51,14 @@ export default class RegisterConsumer extends Component {
       showPhoneError: false,
       showPwdError: false,
       showConfirmPwdError: false,
+      isRegistering: false,
     };
   }
 
   componentDidMount() {
-    this.props.navigation.setParams({ handleNext: this.registerUser.bind(this) });
+    this.props.navigation.setParams(
+      { handleNext: this.registerUser.bind(this),
+        isRegistering: this.state.isRegistering });
   }
 
   validateForm() {
@@ -110,6 +118,7 @@ export default class RegisterConsumer extends Component {
 
   registerUser() {
     if (this.validateForm()) {
+      this.props.navigation.setParams({ isRegistering: true });
       const { navigate } = this.props.navigation;
       fetch(format('{}/api/user/registration', constants.BASSE_URL), {
         method: 'POST',
@@ -124,9 +133,16 @@ export default class RegisterConsumer extends Component {
           phone: this.state.phone,
         }),
       })
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
         .then((responseData) => {
           const uId = responseData.user_id;
+          this.props.navigation.setParams({ isRegistering: false });
           if (uId === 0) {
             Alert.alert(
               'Registration Error',
@@ -156,99 +172,91 @@ export default class RegisterConsumer extends Component {
               }
             );
           }
-        })
-        .done();
+        }).catch(error => NetworkUtils.showNetworkError('Unable to register.'));
     }
   }
 
   render() {
+
+    const keyBoardProps = {
+      keyboardVerticalOffset: 5,
+    };
+    if (Platform.OS === 'ios') {
+      keyBoardProps.behavior = 'padding';
+    }
+
     return (
-      <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={-75} style={onboardingStyles.mainContainer}>
+      <KeyboardAvoidingView {...keyBoardProps} style={onboardingStyles.mainContainer}>
         <View>
           <Text style={onboardingStyles.title}>Create an Account</Text>
         </View>
-        <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
+        <View style={{ flexDirection: 'column', marginTop: 20, marginLeft: 20 }}>
           {renderIf(this.state.showNameError)(
             <Text style={formStyles.error}>Field required</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-              <Text style={onboardingStyles.label}>Name:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCapitalize='words'
-              autoCorrect={false}
-              onChangeText={text => this.setState({ name: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCapitalize='words'
+            autoCorrect={false}
+            placeholder="Name"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ name: text })}
+          />
           <View style={onboardingStyles.line} />
           {renderIf(this.state.showEmailError)(
             <Text style={formStyles.error}>{this.state.emailError}</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-              <Text style={onboardingStyles.label}>Email:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-              keyboardType='email-address'
-              autoCapitalize='none'
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCorrect={false}
-              onChangeText={text => this.setState({ email: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            keyboardType='email-address'
+            autoCapitalize='none'
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCorrect={false}
+            placeholder="Email"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ email: text })}
+          />
           <View style={onboardingStyles.line} />
           {renderIf(this.state.showPhoneError)(
             <Text style={formStyles.error}>Field required (must be 10 digits)</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-              <Text style={onboardingStyles.label}>Phone:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-              keyboardType="phone-pad"
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCorrect={false}
-              maxLength={10}
-              onChangeText={text => this.setState({ phone: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            keyboardType="phone-pad"
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCorrect={false}
+            maxLength={10}
+            placeholder="Phone"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ phone: text })}
+          />
           <View style={onboardingStyles.line} />
           {renderIf(this.state.pwdMismatchError || this.state.showPwdError)(
             <Text style={formStyles.error}>{this.state.pwdError}</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-              <Text style={onboardingStyles.label}>Password:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCorrect={false}
-              secureTextEntry
-              onChangeText={text => this.setState({ pwd: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCorrect={false}
+            secureTextEntry
+            placeholder="Password"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ pwd: text })}
+          />
           <View style={onboardingStyles.line} />
           {renderIf(this.state.showConfirmPwdError)(
             <Text style={formStyles.error}>This field required.</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 200, marginTop: 10, flex: 0.6 }}>
-              <Text style={onboardingStyles.label}>Confirm Password:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.4 }]}
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCorrect={false}
-              secureTextEntry
-              onChangeText={text => this.setState({ confirmPwd: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCorrect={false}
+            secureTextEntry
+            placeholder="Confirm password"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ confirmPwd: text })}
+          />
           <View style={onboardingStyles.line} />
         </View>
       </KeyboardAvoidingView>

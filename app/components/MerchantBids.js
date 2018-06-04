@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { AppRegistry, Image, View, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Alert, AppRegistry, Image, View, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import { common, inbox } from '../style/style';
@@ -8,21 +8,47 @@ import constants from '../constants/c';
 import PushController from './PushController';
 import palette from '../style/palette';
 import * as jobEvents from '../broadcast/events';
+import IconBadge from 'react-native-icon-badge';
+import Icon from  'react-native-vector-icons/MaterialIcons';
+import renderIf from 'render-if';
+import * as NetworkUtils from '../utils/networkUtils';
 
 const bidsIcon = require('../img/tabbar/bids_on.png');
 
 export default class MerchantBids extends Component {
   static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+    const unread = params.badgeCount;
     return {
-      title: 'Bids',
-      header: null,
-      tabBarIcon: ({ tintColor }) => (
-        <Image
-          source={bidsIcon}
-          style={{ width: 26, height: 26, tintColor }}
-        />
-      ),
-    };
+          title: 'Bids',
+          header: null,
+          tabBarIcon: ({ tintColor }) =>   params.badgeCount > 0 ? (
+              <IconBadge
+                MainElement={<Image
+                  source={bidsIcon}
+                  style={{ width: 26, height: 26, tintColor }}
+                />}
+                BadgeElement={<Text style={{ color: 'white' }}>{unread}</Text>}
+                IconBadgeStyle={
+                  {position:'absolute',
+                    top:-1,
+                    right:-15,
+                    minWidth:20,
+                    height:20,
+                    borderRadius:15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#FF0000'}
+                }
+                Hidden={unread === 0}
+              />
+            ) : (
+              <Image
+                    source={bidsIcon}
+                    style={{ width: 26, height: 26, tintColor }}
+                  />
+            ),
+        };
   };
 
   constructor(props) {
@@ -34,11 +60,27 @@ export default class MerchantBids extends Component {
   }
 
   componentDidMount() {
-    this.fetchData();
     jobEvents.getMerchantJobChangeEvents().subscribe((value) => {
       this.fetchData();
     });
+    jobEvents.getSvcRequestMessageEvents().subscribe((value) => {
+      this.fetchData();
+    });
+    this._sub = this.props.navigation.addListener('didFocus', this._updateData);
   }
+
+  componentWillMount() {
+    this._updateData();
+  }
+
+  _updateData = () => {
+    this.fetchData();
+  };
+
+  componentWillUnmount() {
+    this._sub.remove();
+  }
+
 
   getUserId() {
     let uId = 0;
@@ -50,36 +92,99 @@ export default class MerchantBids extends Component {
   }
 
   fetchData() {
-    fetch(format('{}/api/provider/bids/{}', constants.BASSE_URL, this.getUserId()), {
-      headers: {
-        Authorization: constants.API_KEY,
-      },
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.setState({
-          dataSource: ds.cloneWithRows(responseData.jobs),
-          isLoading: false,
-        });
+    if (this.getUserId() > 0) {
+      fetch(format('{}/api/provider/bids/{}', constants.BASSE_URL, this.getUserId()), {
+        headers: {
+          Authorization: constants.API_KEY,
+        },
       })
-      .done();
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
+        .then((responseData) => {
+          const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+
+          let sortedJobs = responseData.jobs.sort((a,b) => {
+          if (new Date(a.service_date) < new Date(b.service_date)) {
+              return 1;
+            }
+            if (new Date(a.service_date) > new Date(a=b.service_date)) {
+              return -1;
+            }
+            // a must be equal to b
+            return 0;
+          });
+          let dataSource = ds.cloneWithRows(sortedJobs);
+
+          this.setState({
+            dataSource: ds.cloneWithRows(responseData.jobs),
+            isLoading: false,
+          });
+
+          //update status locally and any unread notifications
+          let unreadCount = 0;
+          responseData.jobs.forEach((serviceRequest) => {
+            serviceRequest.unread_notifications.forEach((notification) => {
+              unreadCount++;
+            });
+          });
+
+          this.props.navigation.setParams({ badgeCount: unreadCount});
+        }).catch(error => {});
+    }
   }
 
   gotoBidDetails(bid) {
-    console.log(bid.accepted);
-    if (!bid.accepted) {
-      this.props.navigation.navigate('JobDetails', { job: bid });
-    } else {
-      this.props.navigation.navigate('ActiveBid', { job: bid });
-    }
+
+    this.props.navigation.setParams({ badgeCount: 0});
+
+    //call api to let server know that notificatons for this service request has been seen.
+    fetch(format('{}/api/provider/svcreq/notification', constants.BASSE_URL), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: constants.API_KEY,
+      },
+      body: JSON.stringify({
+        service_request_id: bid.service_request_id,
+        service_provider_id: this.getUserId(),
+      }),
+    })
+    .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
+    .then((responseData) => {
+    })
+    .catch(error => {});
+
+    //this is so dumb, but only way it works, otherwiese, keeps old state of badgeCount around
+    //when the user goes back.
+    setTimeout( () => {
+      if (!bid.accepted) {
+        this.props.navigation.navigate('ActiveBid', { job: bid });
+      } else {
+        this.props.navigation.navigate('JobDetails', { job: bid });
+      }
+   },100);
+
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
     let status;
     let s;
     let buttonText;
-    const comment = 'Need to capture comment goes here';
+    let comment = '';
+    if (rowData.comment) {
+      comment = rowData.comment
+    }
     if (rowData.accepted) {
       status = 'ACCEPTED';
       s = styles.statusAccepted;
@@ -132,6 +237,17 @@ export default class MerchantBids extends Component {
                   </Text>
                 </View>
               </View>
+              {renderIf(rowData.unread_msg_count > 0)(
+                <Icon.Button
+                  name='message'
+                  backgroundColor='rgba(0,0,0,0)'
+                  color={palette.LIGHT_BLUE}
+                  underlayColor='rgba(0,0,0,0)'
+                  size={20}
+                  iconStyle={{marginTop: -8, marginRight: 3}}
+                  activeOpacity={1}
+                  borderRadius={5} />
+              )}
               <View style={{ flex: 0.1 }}>
                 <Text style={inbox.arrow}>
                   &rsaquo;
@@ -168,7 +284,7 @@ export default class MerchantBids extends Component {
         style={{
           height: adjacentRowHighlighted ? 4 : 1,
           backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
-          marginTop: 2.5,
+          marginBottom: 10
         }}
       />
     );
@@ -199,9 +315,11 @@ export default class MerchantBids extends Component {
             <View style={{ width: 50 }} />
           </View>
           <ListView
+            removeClippedSubviews={false}
             style={{ marginTop: 10 }}
             dataSource={this.state.dataSource}
             renderRow={this.renderRow.bind(this)}
+            renderSeparator={this.renderSeparator}
           />
         </View>
       );

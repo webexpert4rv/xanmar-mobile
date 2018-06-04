@@ -11,6 +11,8 @@ import { formStyles, onboardingStyles, common } from '../style/style';
 import realm from './realm';
 import palette from '../style/palette';
 import constants from '../constants/c';
+import Communications from 'react-native-communications';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class Login extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -38,6 +40,7 @@ export default class Login extends Component {
     this.state = {
       showEmailError: false,
       showPwdError: false,
+      email: '',
     };
   }
 
@@ -82,7 +85,13 @@ export default class Login extends Component {
           pwd: this.state.pwd,
         }),
       })
-        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
         .then((responseData) => {
 
           const uId = parseInt(responseData.profile.user_id);
@@ -149,7 +158,6 @@ export default class Login extends Component {
                       model: responseData.vehicles[0].model,
                       year: responseData.vehicles[0].year.toString()
                     });
-
                     //service Request
                   responseData.serviceRequests.forEach((svcRequest) => {
                     let s = []
@@ -158,11 +166,10 @@ export default class Login extends Component {
                         s.push(singleSvc);
                       });
                     });
-
                     // save request locally
                     const rSvcRequest = {
                       vehicle_id: svcRequest.vehicle_id,
-                      service_id: svcRequest.service_request_id,
+                      service_request_id: svcRequest.service_request_id,
                       user_id: svcRequest.user_id,
                       service_date: new Date(svcRequest.service_date),
                       service_zip: "00000",
@@ -173,14 +180,9 @@ export default class Login extends Component {
                       status: svcRequest.status,
                       services: s,
                     };
-
                     realm.create('ServiceRequest', rSvcRequest, true);
-
                   });
                 });
-
-
-
 
                 const resetAction = NavigationActions.reset({
                   index: 0,
@@ -201,47 +203,7 @@ export default class Login extends Component {
             { cancelable: false }
           )
           }
-
-          // navigate('RegisterVehicle');
-        })
-        .done();
-    }
-  }
-
-  registerUser() {
-    if (this.validateForm()) {
-      const { navigate } = this.props.navigation;
-      fetch(format('{}/api/user/registration', constants.BASSE_URL), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: constants.API_KEY,
-        },
-        body: JSON.stringify({
-          email: this.state.email,
-          pwd: this.state.pwd,
-          name: this.state.name,
-          phone: this.state.phone,
-        }),
-      })
-        .then(response => response.json())
-        .then((responseData) => {
-          const uId = responseData.user_id;
-          realm.write(() => {
-            realm.create('UserPreference', { onboarded: true, userId: uId, role: 'consumer' });
-            realm.create('ConsumerProfile',
-              { name: this.state.name,
-                email: this.state.email,
-                pwd: this.state.pwd,
-                phone: this.state.phone,
-              });
-          });
-          this.setState({
-            userId: uId,
-          });
-          navigate('RegisterVehicle');
-        })
-        .done();
+        }).catch(error => NetworkUtils.showNetworkError('Unable to login'));
     }
   }
 
@@ -251,44 +213,44 @@ export default class Login extends Component {
         <View>
           <Text style={onboardingStyles.title}>Log In</Text>
         </View>
-        <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginTop: 20, marginLeft: 20 }}>
+        <View style={{ flexDirection: 'column', marginTop: 20, marginLeft: 20 }}>
 
           {renderIf(this.state.showEmailError)(
             <Text style={formStyles.error}>{this.state.emailError}</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.2 }}>
-              <Text style={onboardingStyles.label}>Email:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.8 }]}
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCorrect={false}
-              onChangeText={text => this.setState({ email: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCorrect={false}
+            placeholder="Email"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ email: text })}
+          />
           <View style={onboardingStyles.line} />
           {renderIf(this.state.pwdMismatchError || this.state.showPwdError)(
             <Text style={formStyles.error}>{this.state.pwdError}</Text>,
           )}
-          <View style={{ flexDirection: 'row', height: 50 }}>
-            <View style={{ width: 100, marginTop: 10, flex: 0.3 }}>
-              <Text style={onboardingStyles.label}>Password:</Text>
-            </View>
-            <TextInput
-              style={[onboardingStyles.textInput, { height: 50, flex: 0.7 }]}
-              underlineColorAndroid="rgba(0,0,0,0)"
-              autoCorrect={false}
-              secureTextEntry
-              onChangeText={text => this.setState({ pwd: text })}
-            />
-          </View>
+          <TextInput
+            style={[onboardingStyles.textInput, { height: 50 }]}
+            underlineColorAndroid="rgba(0,0,0,0)"
+            autoCorrect={false}
+            secureTextEntry
+            placeholder="Password"
+            placeholderTextColor={palette.LIGHT_BLUE}
+            onChangeText={text => this.setState({ pwd: text })}
+          />
           <View style={onboardingStyles.line} />
         </View>
-
+        <TouchableOpacity onPress={() => Communications.email(['support@xanmar.com'],null,null,'Forgot password','My email address is ' + `${this.state.email}`)}>
+          <View style={{ marginTop: 20}}>
+            <Text style={[onboardingStyles.title, {color:palette.LIGHT_BLUE, fontSize: 15}]}>Forgot password</Text>
+          </View>
+        </TouchableOpacity>
         <View style={{ marginTop: 20}}>
           <Text style={onboardingStyles.title}>Thank you for returning</Text>
         </View>
+
+
       </View>
     );
   }

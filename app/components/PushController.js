@@ -5,6 +5,7 @@ import format from 'string-format';
 import constants from '../constants/c';
 import realm from './realm';
 import * as events from '../broadcast/events';
+import * as NetworkUtils from '../utils/networkUtils';
 
 export default class PushController extends Component {
   constructor(props) {
@@ -126,23 +127,31 @@ export default class PushController extends Component {
         r = 'merchant';
       }
     }
-    fetch(format('{}/api/user/token', constants.BASSE_URL), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: constants.API_KEY,
-      },
-      body: JSON.stringify({
-        user_id: this.getUserId(),
-        dt: token,
-        role: r
-      }),
-    })
-      .then(response => response.json())
-      .then((responseData) => {
-        // do i need to do anything here
+
+    if (this.getUserId() > 0) {
+      fetch(format('{}/api/user/token', constants.BASSE_URL), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: constants.API_KEY,
+        },
+        body: JSON.stringify({
+          user_id: this.getUserId(),
+          dt: token,
+          role: r
+        }),
       })
-      .done();
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw Error(response.statusText)
+          }
+        })
+        .then((responseData) => {
+          // do i need to do anything here
+        }).catch(error => {});
+    }
   }
   componentWillUnmount() {
     this.notificationListner.remove();

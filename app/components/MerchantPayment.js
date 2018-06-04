@@ -9,6 +9,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import * as events from '../broadcast/events';
 import renderIf from 'render-if';
+import * as NetworkUtils from '../utils/networkUtils';
 
 stripe.init({
   publishableKey: constants.STRIPE_KEY,
@@ -135,7 +136,13 @@ export default class MerchantPayment extends Component {
             plan: this.state.planSelected,
           }),
         })
-          .then(response => response.json())
+          .then(response => {
+            if (response.ok) {
+              return response.json()
+            } else {
+              throw Error(response.statusText)
+            }
+          })
           .then((responseData) => {
 
             const userPrefs = realm.objects('UserPreference');
@@ -160,8 +167,8 @@ export default class MerchantPayment extends Component {
               });
               this.props.navigation.dispatch(resetAction);
             }
-          })
-          .done();
+          }).catch(error => NetworkUtils.showNetworkError('Unable to finish setup'));
+
 
       })
       .catch(error => {
@@ -240,7 +247,13 @@ export default class MerchantPayment extends Component {
             plan: this.state.planSelected,
           }),
         })
-          .then(response => response.json())
+           .then(response => {
+              if (response.ok) {
+                return response.json()
+              } else {
+                throw Error(response.statusText)
+              }
+           })
           .then((responseData) => {
 
             const userPrefs = realm.objects('UserPreference');
@@ -265,8 +278,8 @@ export default class MerchantPayment extends Component {
               });
               this.props.navigation.dispatch(resetAction);
             }
-          })
-          .done();
+          }).catch(error => NetworkUtils.showNetworkError('Unable to process request'));
+
       } else {
         this.showCCForm();
       }
@@ -281,7 +294,13 @@ export default class MerchantPayment extends Component {
         Authorization: constants.API_KEY,
       },
     })
-      .then(response => response.json())
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
       .then((responseData) => {
 
         const userPrefs = realm.objects('UserPreference');
@@ -300,8 +319,7 @@ export default class MerchantPayment extends Component {
           ],
           { cancelable: false }
         );
-      })
-      .done();
+      }).catch(error => NetworkUtils.showNetworkError('Error canceling subcription, please contact us at support@xanmar.com'));
 
   }
   confirmCancelSubscription() {
@@ -373,6 +391,7 @@ export default class MerchantPayment extends Component {
                   <Text style={{color: palette.WHITE, fontWeight: 'bold'}}>PREMIER</Text>
                   <Text style={{color: palette.WHITE, marginTop: 2}}>Membership</Text>
                   <Text style={{color: palette.WHITE}}></Text>
+                  <Text style={{color: palette.WHITE, textDecorationLine: 'line-through'}}>$24.99/month</Text>
                   <Text style={{color: palette.WHITE}}>$9.99/month</Text>
                 </View>
               </TouchableOpacity>
