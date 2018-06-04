@@ -195,13 +195,6 @@ export default class ConsumerSvcRequestSummary extends Component {
           sr[0].status = 'completed';
         });
 
-        const resetAction = NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'consumerTab' }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);
       }).catch(error => NetworkUtils.showNetworkError('Unable to submit review'));
   }
 
@@ -425,8 +418,8 @@ export default class ConsumerSvcRequestSummary extends Component {
                </Text>
              </View>
          </View>
-         {renderIf(this.state.svcRequest.status != 'completed' )(
-           <View style={{ height: 47, backgroundColor: palette.LIGHT_BLUE, alignItems: 'center', justifyContent: 'center' }}>
+         {renderIf(this.state.svcRequest.status != 'completed')(
+           <View style={common.stickyBottomBlueButton}>
              <TouchableOpacity onPress={() => this.setState({ showReviewPopup: true })}>
                <Text style={{ fontSize: 18, textAlign: 'center', color: palette.WHITE }}>
                  Mark as Complete

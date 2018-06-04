@@ -339,6 +339,15 @@ export const common = StyleSheet.create({
     backgroundColor: 'orange',
     transform: [{ scale: 0.6 }],
   },
+  stickyBottomBlueButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: palette.LIGHT_BLUE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 0
+  },
 });
 
 export const onboardingStyles = StyleSheet.create({
