@@ -146,6 +146,11 @@ export default class Profile extends Component {
       realm.write(() => {
         realm.delete(serviceProviderProfile);
       });
+
+      let serviceRequestNonVisibility = realm.objects('ServiceRequestNonVisibility');
+      realm.write(() => {
+        realm.delete(serviceRequestNonVisibility);
+      });
     }
 
     const resetAction = NavigationActions.reset({

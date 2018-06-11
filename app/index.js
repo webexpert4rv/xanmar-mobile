@@ -125,6 +125,7 @@ const merchantNavigator = TabNavigator({
     iconStyle: { height: 30, width: 80 },
   },
     tabBarPosition: 'bottom',
+    swipeEnabled: false,
   },
 );
 

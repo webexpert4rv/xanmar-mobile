@@ -129,11 +129,20 @@ Notifications.schema = {
   },
 };
 
+class ServiceRequestNonVisibility extends Realm.Object {}
+ServiceRequestNonVisibility.schema = {
+  name: 'ServiceRequestNonVisibility',
+  properties: {
+    service_request_id: 'int',
+  },
+};
+
 export default new Realm({
   schema: [UserPreference, Vehicle, CurrentVehicle, Service,
             ServiceCategory, ServiceRequest, MerchantServices,
-            ConsumerProfile, ServiceProviderProfile, Notifications],
-  schemaVersion: 2,
+            ConsumerProfile, ServiceProviderProfile, Notifications,
+          ServiceRequestNonVisibility],
+  schemaVersion: 3,
   migration: (oldRealm, newRealm) => {
     // only apply this change if upgrading to schemaVersion 1
     if (oldRealm.schemaVersion < 2) {

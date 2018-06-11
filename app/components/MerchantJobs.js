@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { ActivityIndicator, Alert, AppRegistry, Image, View, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Alert, AppRegistry, Image, View, Platform, StyleSheet, Text, TouchableOpacity,TouchableWithoutFeedback } from 'react-native';
 import { ListView } from 'realm/react-native';
 import format from 'string-format';
 import df from 'dateformat';
@@ -11,6 +11,7 @@ import palette from '../style/palette';
 import * as jobEvents from '../broadcast/events';
 import renderIf from 'render-if';
 import * as NetworkUtils from '../utils/networkUtils';
+import Swipeout from 'react-native-swipeout';
 
 const svcHistoryIcon = require('../img/tabbar/services_on.png');
 
@@ -106,7 +107,18 @@ export default class MerchantJobs extends Component {
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-        let sortedJobs = responseData.jobs.sort((a,b) => {
+        let rawJobs = responseData.jobs;
+        let trimmedJobs = [];
+        for (var i = 0; i < rawJobs.length; i++) {
+          //loop through jobs and ad visibility to listView
+          let srvLookup = realm.objects('ServiceRequestNonVisibility');
+          let srv = srvLookup.filtered(format('service_request_id == {}', rawJobs[i].service_request_id));
+          if (srv.length === 0) {
+            trimmedJobs.push(rawJobs[i]);
+          }
+        }
+
+        let sortedJobs = trimmedJobs.sort((a,b) => {
         if (new Date(a.service_date) < new Date(b.service_date)) {
             return 1;
           }
@@ -116,6 +128,7 @@ export default class MerchantJobs extends Component {
           // a must be equal to b
           return 0;
         });
+
         let dataSource = ds.cloneWithRows(sortedJobs);
 
         this.setState({
@@ -123,18 +136,12 @@ export default class MerchantJobs extends Component {
           isLoading: false,
           jobs: sortedJobs,
         });
-      }).catch(error =>{
-        NetworkUtils.showNetworkError();
-        this.setState({
-          isLoading: false,
-        });
       });
   }
 
   removeCanceledSvcRequest(srid) {
     let newJobList = [];
     this.state.jobs.forEach((job) => {
-      console.log(JSON.stringify(job));
       if (job.service_request_id != srid) {
         newJobList.push(job);
       }
@@ -158,13 +165,10 @@ export default class MerchantJobs extends Component {
       })
       .then((responseData) => {
 
-        console.log(JSON.stringify(responseData));
-
       }).catch(error =>{});
   }
 
   gotoBidDetails(bid, rowId) {
-    console.log(bid.accepted);
     let newArray = this.state.jobs.slice();
     newArray[rowId] = {
       ...this.state.jobs[rowId],
@@ -195,7 +199,47 @@ export default class MerchantJobs extends Component {
     }
   }
 
+  hideSvcRequest(rowData) {
+    realm.write(() => {
+      realm.create('ServiceRequestNonVisibility', { service_request_id: rowData.service_request_id });
+    });
+
+    //reload list
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    let rawJobs = this.state.jobs;
+    let trimmedJobs = [];
+    for (var i = 0; i < rawJobs.length; i++) {
+      //loop through jobs and ad visibility to listView
+      let srvLookup = realm.objects('ServiceRequestNonVisibility');
+      let srv = srvLookup.filtered(format('service_request_id == {}', rawJobs[i].service_request_id));
+      if (srv.length === 0) {
+        trimmedJobs.push(rawJobs[i]);
+      }
+    }
+
+    let sortedJobs = trimmedJobs.sort((a,b) => {
+    if (new Date(a.service_date) < new Date(b.service_date)) {
+        return 1;
+      }
+      if (new Date(a.service_date) > new Date(a=b.service_date)) {
+        return -1;
+      }
+      // a must be equal to b
+      return 0;
+    });
+
+    let dataSource = ds.cloneWithRows(sortedJobs);
+
+    this.setState({
+      dataSource: dataSource,
+      isLoading: false,
+      jobs: sortedJobs,
+      sectionID : null,
+      rowID: null,
+    });
+  }
   renderRow(rowData, sectionID, rowID, highlightRow){
+
     let status;
     let s;
     let buttonText;
@@ -222,10 +266,32 @@ export default class MerchantJobs extends Component {
         buttonText = 'Bid on service request';
       }
     }
+    var self = this;
+    var swipeoutBtns = [
+      {
+        text: 'remove',
+        backgroundColor: palette.STATUS_RED,
+        onPress: function(){self.hideSvcRequest(rowData)},
+      }
+    ]
 
     if ((rowData.status === 'in progress' && rowData.accepted) || ((rowData.status ==='bidding' || rowData.status === 'new') && !rowData.accepted)) {
       return(
-        <TouchableOpacity activeOpacity={1} onPress={() => { this.gotoBidDetails(rowData, rowID); }} >
+        <Swipeout
+        close={!(this.state.sectionID === sectionID && this.state.rowID === rowID)}
+        right={swipeoutBtns}
+        left={swipeoutBtns}
+        rowID={rowID}
+        sectionID={sectionID}
+
+        onOpen={(sectionID, rowID) => {
+          this.setState({
+            sectionID,
+            rowID,
+          })
+        }}>
+
+        <TouchableWithoutFeedback activeOpacity={1} onPress={() => { this.gotoBidDetails(rowData, rowID); }} >
           <View style={inbox.container}>
             <View style={{ marginLeft: 10, flexDirection: 'row', marginBottom: 2 }} >
               {renderIf(!rowData.viewed)(
@@ -254,7 +320,7 @@ export default class MerchantJobs extends Component {
                 { rowData.services[0].category }
               </Text>
               <Text style={{ marginRight: 10, marginTop: 5 }}>
-                { df(rowData.service_date, 'm/d/yy') }
+                { df(rowData.create_date, 'm/d/yy') }
               </Text>
               </View>
 
@@ -284,7 +350,8 @@ export default class MerchantJobs extends Component {
               </View>
             </View>
           </View>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
+        </Swipeout>
       );
     } else {
 
