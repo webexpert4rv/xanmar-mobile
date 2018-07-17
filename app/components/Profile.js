@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { Alert, AppRegistry, Button, Image, Platform, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { Alert, AppRegistry, Button, Image, Linking, Platform, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation';
 import format from 'string-format';
@@ -176,6 +176,10 @@ export default class Profile extends Component {
     }
   }
 
+  gotoTandC() {
+    Linking.openURL('https://www.xanmarauto.com/terms.html')
+  }
+
   render() {
     const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
     const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : 0;
@@ -263,6 +267,23 @@ export default class Profile extends Component {
                 <Text style={{ marginLeft: 15, fontSize:17 }}>Contact us for feedback or need help?</Text>
             </View>
           </TouchableOpacity>
+          <View style={dashboard.line} />
+          <TouchableOpacity style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}
+          onPress={() => this.gotoTandC()}>
+            <View style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
+                  <View style={{ justifyContent: 'center'}}>
+                      <Text style={{ fontSize:17, marginLeft: 15 }}>Terms and Conditions</Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize:30, marginRight: 20, color: palette.GRAY }}>
+                      &rsaquo;
+                    </Text>
+                  </View>
+                </View>
+            </View>
+          </TouchableOpacity>
+          <View style={dashboard.line} />
         </View>
 
       </View>

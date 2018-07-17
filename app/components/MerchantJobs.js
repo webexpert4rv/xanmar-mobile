@@ -149,6 +149,7 @@ export default class MerchantJobs extends Component {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.setState({
       dataSource: ds.cloneWithRows(newJobList),
+      jobs: newJobList,
     });
     fetch(format('{}/api/provider/svcreq/{}/{}', constants.BASSE_URL, this.getUserId(), srid), {
       method: 'DELETE',

@@ -5,7 +5,7 @@ import splash from './components/Splash';
 
 import intro from './components/Intro';
 import login from './components/Login';
-import registerMain from './components/registerMain';
+import registerMain from './components/RegisterMain';
 import registerConsumer from './components/RegisterConsumer';
 import registerMerchantBusiness from './components/RegisterMerchantBusiness';
 import registerMerchantContactInfo from './components/RegisterMerchantContactInfo';

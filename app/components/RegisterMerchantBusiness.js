@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  AsyncStorage,
   AppRegistry,
   KeyboardAvoidingView,
   Text,
@@ -13,6 +14,8 @@ import { HeaderBackButton } from 'react-navigation';
 import { formStyles, onboardingStyles, common } from '../style/style';
 import palette from '../style/palette';
 import * as NetworkUtils from '../utils/networkUtils';
+import format from 'string-format';
+import constants from '../constants/c';
 
 export default class RegisterMerchantBusiness extends Component {
   static navigationOptions = {
@@ -22,13 +25,16 @@ export default class RegisterMerchantBusiness extends Component {
   constructor(props) {
     super(props);
     this.state = {
-
       showBizNameError: false,
       showAddressError: false,
       showCityError: false,
       showStateError: false,
       showZipError: false,
     };
+  }
+
+  componentWillMount() {
+    this.getMerchantCount();
   }
 
   gotoContact() {
@@ -92,6 +98,32 @@ export default class RegisterMerchantBusiness extends Component {
       this.setState({ showZipError: false });
     }
     return formValid;
+  }
+
+  getMerchantCount() {
+    fetch(format('{}/api/providers', constants.BASSE_URL), {
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
+      .then((responseData) => {
+        this.storeSvcProvideCount(responseData.svc_provider_count);
+      }).catch(error => { console.log(error)});
+  }
+
+  storeSvcProvideCount = (count) => {
+    try {
+      AsyncStorage.setItem(constants.SVC_PROVIDER_COUNT_KEY, count);
+    } catch (error) {
+      // Error saving data
+    }
   }
 
   render() {

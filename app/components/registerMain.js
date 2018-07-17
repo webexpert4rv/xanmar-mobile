@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { AppRegistry, Image, View, Text, TouchableOpacity } from 'react-native';
 import { onboardingStyles, common } from '../style/style';
 import palette from '../style/palette';
+import { AsyncStorage } from "react-native"
 
 const userIcon = require('../img/onboarding/user.png');
 const mechanicIcon = require('../img/onboarding/mechanic.png');

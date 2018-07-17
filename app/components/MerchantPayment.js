@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { ActivityIndicator, Alert, AppRegistry, Image, View, ScrollView, Text, TouchableOpacity, Platform } from 'react-native';
+import { AsyncStorage, ActivityIndicator, Alert, AppRegistry, Linking, Image, View, ScrollView, Text, TouchableOpacity, Platform } from 'react-native';
 import { HeaderBackButton, NavigationActions } from 'react-navigation';
 import format from 'string-format';
 import { onboardingStyles, common, subscriptions } from '../style/style';
@@ -34,11 +34,12 @@ export default class MerchantPayment extends Component {
     const { state } = this.props.navigation;
 
     const userPrefs = realm.objects('UserPreference');
+    this.getServiceProviderCount();
 
     // console.log(JSON.stringify(userPrefs));
     let status;
     let statusState = false;
-    let plan;
+    let plan = '';
     let subscription1Style = subscriptions.unselected;
     let subscription2Style = subscriptions.unselected;
     let subscription3Style = subscriptions.unselected;
@@ -52,7 +53,10 @@ export default class MerchantPayment extends Component {
       }
     }
 
-    if (plan === constants.SUBSCRIPTION_1) {
+    console.log('Plan --->');
+    console.log(plan);
+
+    if (plan === constants.SUBSCRIPTION_1 || plan === constants.SUBSCRIPTION_TRIAL_1) {
       subscription1Style = subscriptions.selected;
     } else if (plan === constants.SUBSCRIPTION_2) {
       subscription2Style = subscriptions.selected;
@@ -61,7 +65,7 @@ export default class MerchantPayment extends Component {
     }
 
     let subscriptionWording = 'Finish Signup'
-    if (state.params.fromProfile && plan === constants.SUBSCRIPTION_1) {
+    if (state.params.fromProfile && (plan === constants.SUBSCRIPTION_1 || plan === constants.SUBSCRIPTION_TRIAL_1)) {
       subscriptionWording = ''
     }
 
@@ -151,6 +155,7 @@ export default class MerchantPayment extends Component {
                 userPrefs[0].subscriptionId = responseData.subscription_id;
                 userPrefs[0].customerId = responseData.customer_id;
                 userPrefs[0].plan = this.state.planSelected;
+                userPrefs[0].status = 'active';
               });
             }
 
@@ -185,11 +190,20 @@ export default class MerchantPayment extends Component {
         wording = ''
       }
 
+      let plan1Subscription;
+      if (this.state.svcProviderCount > 100) {
+        plan1Subscription = constants.SUBSCRIPTION_1;
+      } else {
+        plan1Subscription = constants.SUBSCRIPTION_TRIAL_1;
+      }
+      console.log("plan subscription --->");
+      console.log(plan1Subscription);
+      
       this.setState({
         plan1Style: subscriptions.selected,
         plan2Style: subscriptions.unselected,
         plan3Style: subscriptions.unselected,
-        planSelected:constants.SUBSCRIPTION_1,
+        planSelected:plan1Subscription,
         subscriptionText: wording,
       });
     }
@@ -224,12 +238,21 @@ export default class MerchantPayment extends Component {
   }
 
   subscriptionClick() {
-    if (this.state.accountActive) {
+    if (this.state.planSelected === '') {
+      Alert.alert(
+        'Error',
+        'You must select a lan',
+        [
+          {text: 'Ok'},
+        ],
+        { cancelable: false }
+      );
+    } else if (this.state.accountActive) {
       this.confirmCancelSubscription();
-    } else if (this.state.fromProfile && this.state.planSelected === constants.SUBSCRIPTION_1) {
+    } else if (this.state.fromProfile && (this.state.planSelected === constants.SUBSCRIPTION_1 || this.state.planSelected === constants.SUBSCRIPTION_TRIAL_1)) {
       //do nothing
     } else {
-      if (this.state.planSelected === constants.SUBSCRIPTION_1) {
+      if (this.state.planSelected === constants.SUBSCRIPTION_1 || this.state.planSelected === constants.SUBSCRIPTION_TRIAL_1) {
         this.setState({
           registering: true,
         });
@@ -334,6 +357,26 @@ export default class MerchantPayment extends Component {
     );
   }
 
+  getServiceProviderCount = async () => {
+    try {
+      const value = await AsyncStorage.getItem(constants.SVC_PROVIDER_COUNT_KEY);
+      if (value !== null) {
+        //return value;
+
+        this.setState({
+          svcProviderCount: value,
+        });
+
+        console.log(value);
+      }
+     } catch (error) {
+       // Error retrieving data
+     }
+  }
+
+  gotoTandC() {
+    Linking.openURL('https://www.xanmarauto.com/terms.html')
+  }
 
   render() {
     const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
@@ -341,6 +384,9 @@ export default class MerchantPayment extends Component {
     const HEIGHT = APPBAR_HEIGHT + STATUSBAR_HEIGHT;
     const { navigate } = this.props.navigation;
     let subscriptionText = 'Add credit card information';
+    let freePlanType;
+    let freePlanTypeSubtitle;
+    
 
     return (
       <View style={common.dashboardContainer}>
@@ -378,12 +424,22 @@ export default class MerchantPayment extends Component {
 
               <TouchableOpacity style={this.state.plan1Style}
               onPress={() => this.planSelected(1)} >
-                <View style={this.state.plan1Style}>
-                  <Text style={{color: palette.WHITE, fontWeight: 'bold'}}>BASIC</Text>
-                  <Text style={{color: palette.WHITE, marginTop: 2 }}>5 bids/month</Text>
-                  <Text style={{color: palette.WHITE}}></Text>
-                  <Text style={{color: palette.WHITE}}>FREE</Text>
-                </View>
+                  {renderIf(this.state.svcProviderCount > 100)(
+                    <View style={this.state.plan1Style}>
+                      <Text style={{color: palette.WHITE, fontWeight: 'bold'}}>BASIC</Text>
+                      <Text style={{color: palette.WHITE, marginTop: 2 }}>5 bids/month</Text>
+                      <Text style={{color: palette.WHITE}}></Text>
+                      <Text style={{color: palette.WHITE}}>FREE</Text>
+                    </View>
+                  )}
+                  {renderIf(this.state.svcProviderCount < 100)(
+                    <View style={this.state.plan1Style}>
+                    <Text style={{color: palette.WHITE, fontWeight: 'bold'}}>PREMIER</Text>
+                    <Text style={{color: palette.WHITE, marginTop: 2 }}>Membership</Text>
+                    <Text style={{color: palette.WHITE}}>3 Month Trial</Text>
+                    <Text style={{color: palette.WHITE}}>FREE</Text>
+                  </View>
+                  )}
               </TouchableOpacity>
               <TouchableOpacity style={this.state.plan2Style}
                onPress={() => this.planSelected(2)} >
@@ -484,6 +540,12 @@ export default class MerchantPayment extends Component {
                 </View>
               </TouchableOpacity>
             </View>
+            <View style={{ justifyContent: 'flex-start', alignItems: 'center', marginTop:40 }}>
+              <TouchableOpacity onPress={() => this.gotoTandC()} >
+                <Text style={{ fontSize: 18, color: palette.DARK_BLUE }}>Terms and Conditions</Text>
+              </TouchableOpacity>
+            </View>
+
           </ScrollView>
         )}
 
