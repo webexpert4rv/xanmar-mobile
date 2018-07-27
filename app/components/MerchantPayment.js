@@ -241,7 +241,7 @@ export default class MerchantPayment extends Component {
     if (this.state.planSelected === '') {
       Alert.alert(
         'Error',
-        'You must select a lan',
+        'You must select a plan',
         [
           {text: 'Ok'},
         ],

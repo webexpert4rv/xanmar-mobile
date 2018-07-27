@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "postinstall": "rm ./node_modules/react-native/local-cli/core/__fixtures__/files/package.json",
     "test": "jest"
   },
   "dependencies": {
     "@mapbox/react-native-mapbox-gl": "^6.0.0",
+    "dateformat": "^3.0.3",
     "react": "16.0.0-alpha.12",
     "react-moment": "^0.2.2",
-    "react-native": "0.47.1",
+    "react-native": "0.54.0",
     "react-native-accordion": "^1.0.1",
     "react-native-card-view": "0.0.3",
     "react-native-communications": "^2.2.1",

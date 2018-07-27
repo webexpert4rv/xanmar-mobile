@@ -52,7 +52,7 @@ export default class Intro extends Component {
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={tourConsumerServices} />
                     </View>
                   </View>
-                  <View style={{ flex: .3}}>
+                  <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10, color: palette.WHITE, fontSize:17, textAlign: 'center' }}>
                       When app users need auto services they simply log in and select the service(s) needed.
                     </Text>
@@ -65,7 +65,7 @@ export default class Intro extends Component {
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={tourComment} />
                     </View>
                   </View>
-                  <View style={{ flex: .3}}>
+                  <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10,
                       color: palette.WHITE, fontSize:17, textAlign: 'center' }}>
                       Add additional information to help describe your service needs.
@@ -79,7 +79,7 @@ export default class Intro extends Component {
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={serviceIntro} />
                     </View>
                   </View>
-                  <View style={{ flex: .3}}>
+                  <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10, color: palette.WHITE, fontSize:17, textAlign: 'center' }}>
                     Schedule appointments on the exact day and time that&#39;s convenient for you.</Text>
                   </View>
@@ -91,7 +91,7 @@ export default class Intro extends Component {
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={serviceProviderIntro} />
                     </View>
                   </View>
-                  <View style={{ flex: .3}}>
+                  <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10, color: palette.WHITE, fontSize:17, textAlign: 'center' }}>
                     Choose service providers based on ratings, availability or BEST OFFER!</Text>
                   </View>
@@ -103,7 +103,7 @@ export default class Intro extends Component {
                         <Image style={{ marginTop:10, width: 220, height:400 }} source={tourRating} />
                     </View>
                   </View>
-                  <View style={{ flex: .3}}>
+                  <View>
                     <Text style={{ marginTop: 20, marginBottom:10, marginLeft: 10, marginRight: 10,
                       color: palette.WHITE, fontSize:17, textAlign: 'center' }}>
                       Once the job is complete you can rate your experience.

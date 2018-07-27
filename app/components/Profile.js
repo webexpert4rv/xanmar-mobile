@@ -5,7 +5,6 @@ import { NavigationActions } from 'react-navigation';
 import format from 'string-format';
 import renderIf from 'render-if';
 import { Dropdown } from 'react-native-material-dropdown';
-import df from 'dateformat';
 import { common, serviceRequest, dashboard } from '../style/style';
 import realm from './realm';
 import palette from '../style/palette';

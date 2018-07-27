@@ -73,19 +73,20 @@ export default class ConsumerSvcRequestBids extends Component {
 
         // update status to complete
         let svcRequest = realm.objects('ServiceRequest');
-        let sr = svcRequest.filtered(format('service_id == {}', this.state.srid));
+        let sr = svcRequest.filtered(format('service_request_id == {}', this.state.srid));
         realm.write(() => {
           sr[0].status = 'canceled';
         });
 
         //go back to home page but forece a reload.
-        const resetAction = NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'consumerTab' }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);
+        // const resetAction = NavigationActions.reset({
+        //   index: 0,
+        //   actions: [
+        //     NavigationActions.navigate({ routeName: 'consumerTab' }),
+        //   ],
+        // });
+        // this.props.navigation.dispatch(resetAction);
+        this.goBack();
       }).catch(error => NetworkUtils.showNetworkError('Unable to cancel request.'));
   }
 
