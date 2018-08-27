@@ -275,6 +275,12 @@ export default class MerchantJobs extends Component {
         onPress: function(){self.hideSvcRequest(rowData)},
       }
     ]
+    let category = "General Maintenance"
+    if (rowData.services[0]) {
+      if (rowData.services[0].category) {
+        category = rowData.services[0].category
+      }
+    }
 
     if ((rowData.status === 'in progress' && rowData.accepted) || ((rowData.status ==='bidding' || rowData.status === 'new') && !rowData.accepted)) {
       return(
@@ -318,7 +324,7 @@ export default class MerchantJobs extends Component {
               )}
               <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }} >
               <Text style={titleStyle}>
-                { rowData.services[0].category }
+                { category }
               </Text>
               <Text style={{ marginRight: 10, marginTop: 5 }}>
                 { df(rowData.create_date, 'm/d/yy') }
@@ -373,7 +379,7 @@ export default class MerchantJobs extends Component {
                 />
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }} >
                 <Text style={inbox.title}>
-                  { rowData.services[0].category }
+                  { category }
                 </Text>
                 <Text style={{ marginRight: 10, marginTop: 5 }}>
                   { df(rowData.service_date, 'm/d/yy') }

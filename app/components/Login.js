@@ -99,37 +99,62 @@ export default class Login extends Component {
             //save info to UserPreference table locally
             if (responseData.profile.user_type === constants.MERCHANT_TYPE) {
 
-              realm.write(() => {
-                realm.create('UserPreference', { onboarded: true,
-                  userId: responseData.profile.user_id,
-                  role: constants.MERCHANT_TYPE,
-                  subscriptionId: responseData.profile.sub_id,
-                  customerId: responseData.profile.cust_id,
-                  status: responseData.profile.status,
-                  plan: responseData.profile.plan });
+              if (responseData.profile.cust_id != null) {
+                realm.write(() => {
+                  realm.create('UserPreference', { onboarded: true,
+                    userId: responseData.profile.user_id,
+                    role: constants.MERCHANT_TYPE,
+                    subscriptionId: responseData.profile.sub_id,
+                    customerId: responseData.profile.cust_id,
+                    status: responseData.profile.status,
+                    plan: responseData.profile.plan });
 
-                realm.create('ServiceProviderProfile',
-                  { email: responseData.profile.email,
-                    business_name: responseData.profile.business_name,
-                    phone: responseData.profile.phone,
-                    contact_name: responseData.profile.contact_name,
-                    address: responseData.profile.address,
-                    city: responseData.profile.city,
-                    state: responseData.profile.state,
-                    zip: responseData.profile.zip,
-                  });
-              });
+                  realm.create('ServiceProviderProfile',
+                    { email: responseData.profile.email,
+                      business_name: responseData.profile.business_name,
+                      phone: responseData.profile.phone,
+                      contact_name: responseData.profile.contact_name,
+                      address: responseData.profile.address,
+                      city: responseData.profile.city,
+                      state: responseData.profile.state,
+                      zip: responseData.profile.zip,
+                    });
+                });
 
-              const resetAction = NavigationActions.reset({
-                index: 0,
-                actions: [
-                  NavigationActions.navigate({ routeName: 'merchantTab' }),
-                ],
-              });
-              this.props.navigation.dispatch(resetAction);
+                const resetAction = NavigationActions.reset({
+                  index: 0,
+                  actions: [
+                    NavigationActions.navigate({ routeName: 'merchantTab' }),
+                  ],
+                });
+                this.props.navigation.dispatch(resetAction);
+              } else {
+                realm.write(() => {
+                  realm.create('UserPreference', { onboarded: true,
+                    userId: responseData.profile.user_id,
+                    role: constants.MERCHANT_TYPE,
+                    subscriptionId: "",
+                    customerId: "",
+                    status: "inactive",
+                    plan: "" });
+
+                  realm.create('ServiceProviderProfile',
+                    { email: responseData.profile.email,
+                      business_name: responseData.profile.business_name,
+                      phone: responseData.profile.phone,
+                      contact_name: responseData.profile.contact_name,
+                      address: responseData.profile.address,
+                      city: responseData.profile.city,
+                      state: responseData.profile.state,
+                      zip: responseData.profile.zip,
+                    });
+                });
+                this.props.navigation.navigate('MerchantPymt', { fromProfile: false });
+              }
 
             } else {
               //consumer
+              var hasVehicle = false;
               realm.write(() => {
                 realm.create('UserPreference', { onboarded: true,
                   userId: responseData.profile.user_id,
@@ -152,12 +177,15 @@ export default class Login extends Component {
                       });
                   });
 
-                  realm.create('CurrentVehicle',
+                  if (responseData.vehicles.length > 0) {
+                    hasVehicle = true;
+                    realm.create('CurrentVehicle',
                     { vehicleId: responseData.vehicles[0].vehicle_id,
                       make: responseData.vehicles[0].make,
                       model: responseData.vehicles[0].model,
                       year: responseData.vehicles[0].year.toString()
                     });
+                  }
                     //service Request
                   responseData.serviceRequests.forEach((svcRequest) => {
                     let s = []
@@ -184,12 +212,21 @@ export default class Login extends Component {
                   });
                 });
 
-                const resetAction = NavigationActions.reset({
-                  index: 0,
-                  actions: [
-                    NavigationActions.navigate({ routeName: 'consumerTab' }),
-                  ],
-                });
+                var resetAction;
+                if (hasVehicle) {
+                    resetAction = NavigationActions.reset({
+                    index: 0,
+                    actions: [
+                      NavigationActions.navigate({ routeName: 'consumerTab' }),
+                    ],
+                  });
+                } else {
+                  resetAction = NavigationActions.navigate({
+                    routeName: 'RegisterVehicle',
+                    params: { onBoarding: false, userId: responseData.profile.user_id },
+                  });
+                }
+
                 this.props.navigation.dispatch(resetAction);
             }
 

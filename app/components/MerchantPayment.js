@@ -53,9 +53,6 @@ export default class MerchantPayment extends Component {
       }
     }
 
-    console.log('Plan --->');
-    console.log(plan);
-
     if (plan === constants.SUBSCRIPTION_1 || plan === constants.SUBSCRIPTION_TRIAL_1) {
       subscription1Style = subscriptions.selected;
     } else if (plan === constants.SUBSCRIPTION_2) {

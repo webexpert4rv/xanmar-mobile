@@ -266,11 +266,7 @@ export default class RegisterMerchantServices extends Component {
             flexDirection: 'row',
             justifyContent: 'space-between' }}
         >
-          <View style={{ marginLeft: 10, justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => this.goBack()} >
-              <Text style={common.headerLeftButton}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+          <HeaderBackButton tintColor={palette.WHITE} onPress={() => this.goBack()} />
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => this.finishSignUp()} >
               <Text style={common.headerLeftButton}>Next</Text>
