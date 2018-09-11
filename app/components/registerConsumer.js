@@ -52,6 +52,7 @@ export default class RegisterConsumer extends Component {
       showPwdError: false,
       showConfirmPwdError: false,
       isRegistering: false,
+      userId: 0,
     };
   }
 
@@ -116,10 +117,19 @@ export default class RegisterConsumer extends Component {
     return formValid;
   }
 
+  getUserId() {
+    let uId = 0;
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      uId = userPrefs[0].userId;
+    }
+    return uId;
+  }
+
   registerUser() {
-    if (this.validateForm()) {
+    const { navigate } = this.props.navigation;
+    if (this.validateForm() && this.state.userId == 0) {
       this.props.navigation.setParams({ isRegistering: true });
-      const { navigate } = this.props.navigation;
       fetch(format('{}/api/user/registration', constants.BASSE_URL), {
         method: 'POST',
         headers: {
@@ -173,6 +183,13 @@ export default class RegisterConsumer extends Component {
             );
           }
         }).catch(error => NetworkUtils.showNetworkError('Unable to register.'));
+    } else {
+      navigate('RegisterVehicle',
+      {
+        userId: this.state.userId,
+        onBoarding: true,
+      }
+    );
     }
   }
 

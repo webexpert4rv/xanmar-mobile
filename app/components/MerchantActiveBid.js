@@ -42,13 +42,6 @@ export default class MerchantActiveBid extends Component {
     };
   }
 
-  componentDidMount() {
-    this.loadMessages();
-    events.getSvcRequestMessageEvents().subscribe((value) => {
-      this.loadMessages();
-    });
-  }
-
   goBack() {
     const { goBack } = this.props.navigation;
     goBack();
@@ -138,34 +131,6 @@ export default class MerchantActiveBid extends Component {
 
       }).catch((error) => {
         console.log(error);
-      }).catch(error => {});
-  }
-
-  loadMessages(){
-    let msgs = [];
-    console.log("loading messages");
-    fetch(format('{}/api/svcreq/messages/{}', constants.BASSE_URL, this.state.job.service_request_id), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: constants.API_KEY,
-      },
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json()
-        } else {
-          throw Error(response.statusText)
-        }
-      })
-      .then((responseData) => {
-        const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-        this.setState({
-          dataSource: ds.cloneWithRows(responseData.messages),
-          isLoading: false,
-          messages: responseData.messages,
-        });
-        console.log("")
       }).catch(error => {});
   }
 
@@ -261,27 +226,7 @@ export default class MerchantActiveBid extends Component {
               </TouchableOpacity>
             </View>
         </View>
-
-          {renderIf(this.state.messages.length === 0)(
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ fontSize: 18 }}>
-                No messages available
-              </Text>
-              <Text style={{ fontSize: 18, textAlign: 'center', marginLeft: 10, marginRight: 10 }}>
-                You can message your service provider by clicking reply above.
-              </Text>
-            </View>
-          )}
-          {renderIf(this.state.messages.length > 0)(
-            <ListView
-              style={{ marginTop: 20 }}
-              dataSource={this.state.dataSource}
-              renderRow={this.renderRow.bind(this)}
-              renderSeparator={this.renderSeparator}
-            />
-          )}
-
-          <View style={{ marginLeft: 10, marginTop: 5 }}>
+          <View style={{ marginLeft: 10, marginTop: 20 }}>
               <Text style={{ fontSize: 18,
                   color: palette.BLACK,
                   fontWeight: 'bold', marginLeft: 10 }}>

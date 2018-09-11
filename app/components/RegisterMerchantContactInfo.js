@@ -41,11 +41,12 @@ export default class RegisterMerchantContactInfo extends Component {
       st: state.params.st,
       zip: state.params.zip,
       registering: false,
+      userId: 0,
     };
   }
 
   postMerchant() {
-    if (this.validateForm()) {
+    if (this.validateForm() && this.state.userId == 0) {
       this.setState({ registering: true });
       fetch(format('{}/api/provider', constants.BASSE_URL), {
         method: 'POST',
@@ -113,6 +114,8 @@ export default class RegisterMerchantContactInfo extends Component {
           }
 
         }).catch(error => NetworkUtils.showNetworkError('Unable to update information'));
+    } else {
+      this.gotoServices(this.state.userId);
     }
   }
 

@@ -1,11 +1,10 @@
 import React, { Component, PropTypes } from 'react';
-import { Alert, AppRegistry, Button, Image, Platform, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { Alert, AppRegistry, Button, Image, Linking, Platform, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { ListView } from 'realm/react-native';
 import { NavigationActions } from 'react-navigation';
 import format from 'string-format';
 import renderIf from 'render-if';
 import { Dropdown } from 'react-native-material-dropdown';
-import df from 'dateformat';
 import { common, serviceRequest, dashboard } from '../style/style';
 import realm from './realm';
 import palette from '../style/palette';
@@ -146,6 +145,11 @@ export default class Profile extends Component {
       realm.write(() => {
         realm.delete(serviceProviderProfile);
       });
+
+      let serviceRequestNonVisibility = realm.objects('ServiceRequestNonVisibility');
+      realm.write(() => {
+        realm.delete(serviceRequestNonVisibility);
+      });
     }
 
     const resetAction = NavigationActions.reset({
@@ -169,6 +173,10 @@ export default class Profile extends Component {
     if (this.state.userType === constants.MERCHANT_TYPE) {
       this.props.navigation.navigate('MerchantPymt', { fromProfile: true });
     }
+  }
+
+  gotoTandC() {
+    Linking.openURL('https://www.xanmarauto.com/terms.html')
   }
 
   render() {
@@ -258,6 +266,23 @@ export default class Profile extends Component {
                 <Text style={{ marginLeft: 15, fontSize:17 }}>Contact us for feedback or need help?</Text>
             </View>
           </TouchableOpacity>
+          <View style={dashboard.line} />
+          <TouchableOpacity style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}
+          onPress={() => this.gotoTandC()}>
+            <View style={{ height:50, alignSelf: 'stretch', justifyContent: 'center', backgroundColor:palette.WHITE}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }} >
+                  <View style={{ justifyContent: 'center'}}>
+                      <Text style={{ fontSize:17, marginLeft: 15 }}>Terms and Conditions</Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontSize:30, marginRight: 20, color: palette.GRAY }}>
+                      &rsaquo;
+                    </Text>
+                  </View>
+                </View>
+            </View>
+          </TouchableOpacity>
+          <View style={dashboard.line} />
         </View>
 
       </View>

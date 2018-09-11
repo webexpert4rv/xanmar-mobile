@@ -71,6 +71,7 @@ export default class ConsumerVehicles extends Component {
     this.setState({
       currentVechicles: currentVechicles,
     });
+    this.loadDashboardWithCurrentVehcile();
   };
 
   componentWillUnmount() {

@@ -81,6 +81,34 @@ export default class MerchantBids extends Component {
     this._sub.remove();
   }
 
+  removeCanceledSvcRequest(srid) {
+    let newJobList = [];
+    this.state.jobs.forEach((job) => {
+      if (job.service_request_id != srid) {
+        newJobList.push(job);
+      }
+    });
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    this.setState({
+      dataSource: ds.cloneWithRows(newJobList),
+    });
+    fetch(format('{}/api/provider/svcreq/{}/{}', constants.BASSE_URL, this.getUserId(), srid), {
+      method: 'DELETE',
+      headers: {
+        Authorization: constants.API_KEY,
+      },
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw Error(response.statusText)
+        }
+      })
+      .then((responseData) => {
+
+      }).catch(error =>{});
+  }
 
   getUserId() {
     let uId = 0;
@@ -123,6 +151,7 @@ export default class MerchantBids extends Component {
           this.setState({
             dataSource: ds.cloneWithRows(responseData.jobs),
             isLoading: false,
+            jobs: responseData.jobs
           });
 
           //update status locally and any unread notifications
@@ -168,7 +197,19 @@ export default class MerchantBids extends Component {
     //this is so dumb, but only way it works, otherwiese, keeps old state of badgeCount around
     //when the user goes back.
     setTimeout( () => {
-      if (!bid.accepted) {
+      if (bid.status === 'in progress' && !bid.accepted) {
+
+        Alert.alert(
+          'Service request awarded to another provider',
+          'Remove from list?',
+          [
+            {text: 'Yes', onPress: () => this.removeCanceledSvcRequest(bid.service_request_id)},
+            {text: 'No', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+          ],
+          { cancelable: false }
+        )
+
+      } else if (!bid.accepted) {
         this.props.navigation.navigate('ActiveBid', { job: bid });
       } else {
         this.props.navigation.navigate('JobDetails', { job: bid });
@@ -178,6 +219,7 @@ export default class MerchantBids extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
+    console.log(JSON.stringify(rowData))
     let status;
     let s;
     let buttonText;
@@ -197,6 +239,9 @@ export default class MerchantBids extends Component {
         status = 'SUBMITTED BID';
       } else {
         buttonText = 'Bid on service request';
+      }
+      if (rowData.status === 'in progress') {
+        status = 'BID NOT ACCEPTED';
       }
     }
 
