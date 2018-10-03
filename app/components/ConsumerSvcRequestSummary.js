@@ -71,20 +71,8 @@ export default class ConsumerSvcRequestSummary extends Component {
     };
 
   }
-//this.state.bid.rating  this.state.bid.review_count
-  // getAcceptedBid() {
-  //   for (var bid of this.state.svcRequest.bids) {
-  //     if (bid.accepted) {
-  //       this.setState({
-  //         company: bid.business_name,
-  //       });
-  //     }
-  //   }
-  // }
+
   componentDidMount() {
-    // const { state } = this.props.navigation
-    // console.log(JSON.stringify(this.state.job));
-    //this.loadRequest(this.state.job.services);
     this.loadMessages();
     events.getSvcRequestMessageEvents().subscribe((value) => {
       this.loadMessages();

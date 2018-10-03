@@ -19,14 +19,6 @@ class ServiceListSectionItem extends Component {
     }
   }
 
-  // componentWillReceiveProps(props) {
-  //   console.log('props....');
-  //   console.log(JSON.stringify(props.data));
-  //   this.setState({
-  //     item: props.data
-  //   });
-  // }
-
   _onCheckBoxPressed() {
     const i = this.state.item;
     const mSvc = realm.objects(this.state.serviceEntity);

@@ -80,34 +80,21 @@ export default class MerchantServices extends Component {
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
     this.setState({
-      //dataSource: ds.cloneWithRowsAndSections(servicesCategoryMap),
       currentServices: svcs,
     });
 
 
-    // realm.write(() => {
-    //   realm.delete(realm.objects('MerchantServices'));
-    // });
     realm.write(() => {
       svcs.forEach((s) => {
-        //console.log('updating.....');
-        //console.log(JSON.stringify(s.services));
         const service = realm.create('MerchantServices', { category_id: s.category_id }, true);
-        // s.services.forEach((ss) => {
-        //   service.services.pop();
-        // });
         s.services.forEach((ss) => {
           service.services.push(realm.create('Service', { service_id: ss.service_id, checked: ss.checked }, true));
         });
-        //realm.create('MerchantServices', { category_id: s.category_id, services: s.services }, true);
       });
     });
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    console.log('rowData');
-    console.log(JSON.stringify(rowData));
-
     var header = (
       <View style={styles.name}>
         <Text>{rowData.name}</Text>
@@ -131,29 +118,9 @@ export default class MerchantServices extends Component {
             easing="easeOutCubic"
           />
         );
-
-    // let d;
-    // if (rowData) {
-    //   if (rowData.checked) {
-    //     d = rowData.name;
-    //   } else {
-    //     d = 'not checked-'.concat(rowData.name);
-    //   }
-    //   // d = rowData;
-    // } else {
-    //   d = 'No svc defined';
-    // }
-    // return (
-    //   <View>
-    //     <Text style={styles.name}>
-    //       {d}
-    //     </Text>
-    //   </View>
-    // );
   }
 
   _onCompletedChange(item) {
-    //console.log(JSON.stringify(item));
     if (item.checked) {
       this.state.selectedServices[item.service_id] = item;
     } else {
@@ -162,13 +129,11 @@ export default class MerchantServices extends Component {
   }
 
   _onSectionClick(item) {
-    // console.log(JSON.stringify(item));
-    // console.log(item.category_id);
     //update database for all checked services
     let allServicesChecked;
     const cccc = realm.objects('MerchantServices');
     let exactCat = cccc.filtered(format('category_id == {}', item.category_id));
-    //console.log(JSON.stringify(exactCat));
+
     if (item.checked) {
       allServicesChecked = true;
     } else {
@@ -180,8 +145,6 @@ export default class MerchantServices extends Component {
       });
 
     });
-    //item.checked = !item.checked;
-
 
     this.fetchData();
   }
@@ -248,7 +211,7 @@ _renderSection = (section, sectionId)  => {
       serviceProviderId = userPrefs[0].userId;
     }
     const svcs = this.state.currentServices;
-    // console.log(JSON.stringify(svcs));
+
     let serviceChecked = false;
     const servicesCategoryMap = {};
     svcs.forEach((service) => {

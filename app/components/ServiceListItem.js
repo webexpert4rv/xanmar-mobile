@@ -25,7 +25,6 @@ class ServiceListItem extends Component {
   _onCheckBoxPressed() {
     realm.write(() => {
       const i = this.state.item;
-      //console.log(JSON.stringify(i));
       i.checked = !i.checked;
       this.setState({
         item: i,

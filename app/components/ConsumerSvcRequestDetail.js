@@ -46,8 +46,7 @@ export default class ConsumerSvcRequestDetail extends Component {
     let serviceChecked = false;
     const servicesCategoryMap = {};
     svcs.forEach((service) => {
-      // console.log('sssss');
-      // console.log(JSON.stringify(service));
+
       if (!servicesCategoryMap[service.category]) {
         // Create an entry in the map for the category if it hasn't yet been created
         servicesCategoryMap[service.category] = [];
@@ -71,8 +70,6 @@ export default class ConsumerSvcRequestDetail extends Component {
 
    addService(s, bid) {
      this.state.dict[s.service_id] = bid;
-    //  console.log('ggg');
-    //  console.log(this.state.dict);
    }
 
    getUserId() {
@@ -95,11 +92,8 @@ export default class ConsumerSvcRequestDetail extends Component {
 
      const bid = {
        service_request_id: this.state.job.service_request_id,
-       services: svcs };
-
-       console.log('POST BID');
-       console.log(JSON.stringify(bid));
-
+       services: svcs
+      };
 
      const { goBack } = this.props.navigation;
      fetch(format('{}/api/provider/bid/{}', constants.BASSE_URL, this.getUserId()), {

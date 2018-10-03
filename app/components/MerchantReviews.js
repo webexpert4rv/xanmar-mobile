@@ -49,13 +49,6 @@ export default class MerchantReviews extends Component {
     goBack();
   }
 
-  // loadReviews(){
-  //   let msgs = [];
-  //   this.setState({
-  //     reviews: msgs,
-  //   });
-  // }
-
   loadReviews() {
     fetch(format('{}/api/provider/reviews/{}', constants.BASSE_URL, this.state.bid.service_provider_id),{
       headers: {

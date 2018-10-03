@@ -80,7 +80,6 @@ export default class ConsumerVehicles extends Component {
 
   loadDashboardWithCurrentVehcile() {
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-    //const currentVechicles = realm.objects('Vehicle');
     const currentVechicle = realm.objects('CurrentVehicle');
 
     let svcRequest = realm.objects('ServiceRequest');
@@ -94,7 +93,6 @@ export default class ConsumerVehicles extends Component {
     this.setState({
       dataSource: ds.cloneWithRows(sortedSvcRequests),
       dashboardAvailable: dashboardAvailable,
-      //currentVechicles: currentVechicles,
       activeVehicle: currentVechicle[0].make.concat(" ", currentVechicle[0].model),
     });
   }

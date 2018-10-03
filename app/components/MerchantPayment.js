@@ -330,7 +330,6 @@ export default class MerchantPayment extends Component {
           });
         }
 
-        // console.log(JSON.stringify(responseData));
         Alert.alert(
           'Cancel Subscription',
           'Subscription canceled succesfully',

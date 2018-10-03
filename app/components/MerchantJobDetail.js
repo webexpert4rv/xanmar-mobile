@@ -31,8 +31,7 @@ export default class MerchantJobDetail extends Component {
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
     });
-    // console.log("job");
-    // console.log(JSON.stringify(state.params.job));
+
     let q = '';
     if (state.params.job.bid_total != 0) {
       q = state.params.job.bid_total;
@@ -112,8 +111,6 @@ export default class MerchantJobDetail extends Component {
     let serviceChecked = false;
     const servicesCategoryMap = {};
     svcs.forEach((service) => {
-      // console.log('sssss');
-      // console.log(JSON.stringify(service));
       if (!servicesCategoryMap[service.category]) {
         // Create an entry in the map for the category if it hasn't yet been created
         servicesCategoryMap[service.category] = [];
@@ -146,8 +143,6 @@ export default class MerchantJobDetail extends Component {
 
  accountActive() {
    const userPrefs = realm.objects('UserPreference');
-
-   // console.log(JSON.stringify(userPrefs));
    let status;
    let active = false;
 

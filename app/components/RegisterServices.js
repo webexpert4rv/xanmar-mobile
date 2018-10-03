@@ -82,8 +82,6 @@ export default class RegisterServices extends Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow){
-    // console.log('row data');
-    // console.log(JSON.stringify(rowData));
     let d;
     if (rowData) {
       if (rowData.checked) {
@@ -91,7 +89,6 @@ export default class RegisterServices extends Component {
       } else {
         d = 'not checked-'.concat(rowData.name);
       }
-      // d = rowData;
     } else {
       d = 'No svc defined';
     }
@@ -138,7 +135,6 @@ export default class RegisterServices extends Component {
       serviceProviderId = userPrefs[0].userId;
     }
     const svcs = this.state.currentServices;
-    // console.log(JSON.stringify(svcs));
     let serviceChecked = false;
     const servicesCategoryMap = {};
     svcs.forEach((service) => {
@@ -160,8 +156,6 @@ export default class RegisterServices extends Component {
       serviceChecked = false;
     });
 
-// console.log('rrrrrr');
-// console.log('servicesCategoryMap');
     const r = [];
     Object.keys(servicesCategoryMap).forEach((key) => {
       const sv = servicesCategoryMap[key];
@@ -170,17 +164,12 @@ export default class RegisterServices extends Component {
       });
     });
 
-    // console.log(JSON.stringify(r));
 
     const { navigate } = this.props.navigation;
     const mySvcs = {
       service_provider_id: serviceProviderId,
       services: r,
     };
-
-    // const backAction = NavigationActions.back();
-    // this.props.navigation.dispatch(backAction);
-
 
     fetch(format('{}/api/provider/services', constants.BASSE_URL), {
       method: 'POST',

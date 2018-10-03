@@ -28,11 +28,9 @@ class ServiceItem extends Component {
       this.setState({
         item: i,
       });
-      //svc = realm.create('Service', i, true);
+
     });
 
-    // console.log('onCheckBoxPressed')
-    // console.log(JSON.stringify(i));
     this.props.onCompletedChange(svc);
   }
 

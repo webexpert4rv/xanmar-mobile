@@ -77,8 +77,6 @@ export default class ConsumerSvcRequestBidDetails extends Component {
     let serviceChecked = false;
     const servicesCategoryMap = {};
     svcs.forEach((service) => {
-      // console.log('sssss');
-      // console.log(JSON.stringify(service));
       if (!servicesCategoryMap[service.category]) {
         // Create an entry in the map for the category if it hasn't yet been created
         servicesCategoryMap[service.category] = [];
@@ -156,7 +154,6 @@ export default class ConsumerSvcRequestBidDetails extends Component {
          }
        })
        .then((responseData) => {
-         //DeviceEventEmitter.emit('onBidAccepted', {});
          events.sendMerchantJobAcceptedEvent(true);
          const resetAction = NavigationActions.reset({
            index: 0,
