@@ -19,6 +19,7 @@ PODS:
     - FirebaseInstanceID (~> 2.0)
     - GoogleToolboxForMac/Logger (~> 2.1)
     - Protobuf (~> 3.1)
+  - Google-Mobile-Ads-SDK (7.34.0)
   - GoogleToolboxForMac/Defines (2.1.1)
   - GoogleToolboxForMac/Logger (2.1.1):
     - GoogleToolboxForMac/Defines (= 2.1.1)
@@ -29,6 +30,7 @@ PODS:
 
 DEPENDENCIES:
   - Firebase/Messaging
+  - Google-Mobile-Ads-SDK
   - Stripe (~> 11.2.0)
 
 SPEC REPOS:
@@ -38,6 +40,7 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseInstanceID
     - FirebaseMessaging
+    - Google-Mobile-Ads-SDK
     - GoogleToolboxForMac
     - Protobuf
     - Stripe
@@ -48,10 +51,11 @@ SPEC CHECKSUMS:
   FirebaseCore: 85ad466044c2f013cdb167f85d426d15b128114a
   FirebaseInstanceID: 9fbf536668f4d3f0880e7438456dabd1376e294b
   FirebaseMessaging: 227406c05b0dc9290702d2e9f18ab5528f0c2cf2
+  Google-Mobile-Ads-SDK: a1cbce28c0c78ca1fb0b6c4f213485f55527c99f
   GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
   Protobuf: d582fecf68201eac3d79ed61369ef45734394b9c
   Stripe: 898f83a95d72180c6eb4acd65b2ae6158fc6a8bd
 
-PODFILE CHECKSUM: c9634ba970dc66fa7ba1134567198f7593a57409
+PODFILE CHECKSUM: 95e26312a7e4e5b21cc81aa565fb068d651ab294
 
 COCOAPODS: 1.6.0.beta.1
