@@ -162,6 +162,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-admob')
     implementation project(':tipsi-stripe')
     implementation project(':react-native-image-picker')
     implementation project(':react-native-vector-icons')
