@@ -245,6 +245,7 @@ export default class Login extends Component {
   }
 
   render() {
+    const { navigate } = this.props.navigation;
     return (
       <View style={onboardingStyles.mainContainer}>
         <View>
@@ -278,7 +279,7 @@ export default class Login extends Component {
           />
           <View style={onboardingStyles.line} />
         </View>
-        <TouchableOpacity onPress={() => Communications.email(['support@xanmar.com'],null,null,'Forgot password','My email address is ' + `${this.state.email}`)}>
+        <TouchableOpacity onPress={() => navigate('ForgotPassword', {email: this.state.email})}>
           <View style={{ marginTop: 20}}>
             <Text style={[onboardingStyles.title, {color:palette.LIGHT_BLUE, fontSize: 15}]}>Forgot password</Text>
           </View>

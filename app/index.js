@@ -5,6 +5,7 @@ import splash from './components/Splash';
 
 import intro from './components/Intro';
 import login from './components/Login';
+import forgotPassword from './components/ForgotPassword';
 import registerMain from './components/RegisterMain';
 import registerConsumer from './components/RegisterConsumer';
 import registerMerchantBusiness from './components/RegisterMerchantBusiness';
@@ -145,6 +146,7 @@ const merchantNavigatorMain = StackNavigator({
 const onBoardingNavigator = StackNavigator({
   Intro: { screen: intro },
   Login: { screen: login },
+  ForgotPassword: { screen: forgotPassword },
   RegisterMain: { screen: registerMain },
   consumerRegister: { screen: registerConsumer },
   MerchantRegisterBusiness: { screen: registerMerchantBusiness },
