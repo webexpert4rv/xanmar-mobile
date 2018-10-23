@@ -68,7 +68,7 @@ export default class ForgotPassword extends Component {
   resetpwd() {
     if (this.validateForm()) {
       const { navigate } = this.props.navigation;
-      fetch(format('{}/api/user/resetpwd', constants.BASSE_URL), {
+      fetch(format('{}/api/user/restpwd', constants.BASSE_URL), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +86,6 @@ export default class ForgotPassword extends Component {
           }
         })
         .then((responseData) => {
-
           if (responseData.status == 200) {
             Alert.alert(
             'Success',
@@ -122,6 +121,7 @@ export default class ForgotPassword extends Component {
             <Text style={formStyles.error}>{this.state.emailError}</Text>,
           )}
           <TextInput
+            autoCapitalize='none'
             style={[onboardingStyles.textInput, { height: 50 }]}
             underlineColorAndroid="rgba(0,0,0,0)"
             autoCorrect={false}
