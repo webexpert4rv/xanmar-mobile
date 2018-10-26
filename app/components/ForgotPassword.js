@@ -68,15 +68,17 @@ export default class ForgotPassword extends Component {
   resetpwd() {
     if (this.validateForm()) {
       const { navigate } = this.props.navigation;
+      const obj = {
+          email: this.state.email.toLowerCase(),
+        }
       fetch(format('{}/api/user/restpwd', constants.BASSE_URL), {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
           Authorization: constants.API_KEY,
         },
-        body: JSON.stringify({
-          email: this.state.email.toLowerCase(),
-        }),
+        body: JSON.stringify(obj),
       })
         .then(response => {
           if (response.ok) {
@@ -86,21 +88,23 @@ export default class ForgotPassword extends Component {
           }
         })
         .then((responseData) => {
-          if (responseData.status == 200) {
+          console.log('responseData', responseData, obj)
+          if (responseData.error) {
+            Alert.alert(
+            'Error',
+            responseData.error,
+            [
+              {text: 'OK', onPress: () => console.log('OK Pressed')},
+            ],
+            { cancelable: false }
+            
+          )
+          } else {
             Alert.alert(
             'Success',
             'Please check email for reset password instructions',
             [
               { text: 'OK', onPress: () => navigate('Login') },
-            ],
-            { cancelable: false }
-          )
-          } else {
-            Alert.alert(
-            'Error',
-            'Username is incorrect.',
-            [
-              {text: 'OK', onPress: () => console.log('OK Pressed')},
             ],
             { cancelable: false }
           )
