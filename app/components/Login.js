@@ -111,7 +111,6 @@ export default class Login extends Component {
 
   authenticate() {
     if (this.validateForm()) {
-      this.showAd()
       const { navigate } = this.props.navigation;
       fetch(format('{}/api/user/auth', constants.BASSE_URL), {
         method: 'POST',
@@ -135,6 +134,7 @@ export default class Login extends Component {
 
           const uId = parseInt(responseData.profile.user_id);
           if (uId > 0) {
+            this.showAd()
             //save info to UserPreference table locally
             if (responseData.profile.user_type === constants.MERCHANT_TYPE) {
 
