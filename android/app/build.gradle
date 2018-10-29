@@ -110,7 +110,7 @@ android {
         applicationId "com.xanmar"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 27
+        versionCode 28
         versionName "1.11.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
