@@ -12,6 +12,7 @@ export default {
   MERCHANT_TYPE: 'merchant',
   CONSUMER_TYPE: 'consumer',
   SVC_PROVIDER_COUNT_KEY: 'svcProviderCount',
-  MAP_BOX_TOKEN: 'pk.eyJ1IjoieGFubWFyIiwiYSI6ImNqaG85amlyajI2ZWQzN3FvMHM0cDg3bHMifQ.RgNaBSIV3Hx2QbirnOAuUQ'
+  MAP_BOX_TOKEN: 'pk.eyJ1IjoieGFubWFyIiwiYSI6ImNqaG85amlyajI2ZWQzN3FvMHM0cDg3bHMifQ.RgNaBSIV3Hx2QbirnOAuUQ',
+  AD_UNIT_ID: 'ca-app-pub-3940256099942544/1033173712'
   //dev -> pk.eyJ1IjoiNXhsIiwiYSI6ImNqOXdia2xjZDF1aGIydnBvc3oyaDduemcifQ.RtHbVUIOb-M02BVPDecV6Q
 };
