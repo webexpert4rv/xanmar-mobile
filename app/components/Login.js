@@ -14,7 +14,7 @@ import constants from '../constants/c';
 import Communications from 'react-native-communications';
 import * as NetworkUtils from '../utils/networkUtils';
 import {
-  AdMobInterstitial,
+  PublisherBanner,
 } from 'react-native-admob'
 export default class Login extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -48,12 +48,6 @@ export default class Login extends Component {
 
   componentDidMount() {
     this.props.navigation.setParams({ handleNext: this.authenticate.bind(this) });
-    this.prepareAd();
-
-  }
-
-  componentWillUnmount() {
-    AdMobInterstitial.removeAllListeners();
   }
 
   validateForm() {
@@ -79,34 +73,18 @@ export default class Login extends Component {
     return formValid;
   }
 
-  prepareAd(){
-    AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712');
-    AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-    AdMobInterstitial.addEventListener('adLoaded',
-      () => console.log('AdMobInterstitial adLoaded')
-    );
-    AdMobInterstitial.addEventListener('adFailedToLoad',
-      (error) => console.warn(error)
-    );
-    AdMobInterstitial.addEventListener('adOpened',
-      () => console.log('AdMobInterstitial => adOpened')
-    );
-    AdMobInterstitial.addEventListener('adClosed',
-      () => {
-        console.log('AdMobInterstitial => adClosed');
-        AdMobInterstitial.requestAd().catch(error => console.warn(error));
-      }
-    );
-    AdMobInterstitial.addEventListener('adLeftApplication',
-      () => console.log('AdMobInterstitial => adLeftApplication')
-    );
-
-    AdMobInterstitial.requestAd().catch(error => console.warn(error));
-  }
 
   showAd(){
     // Display an interstitial
-    AdMobInterstitial.showAd().catch(error => console.warn(error));
+    return(
+        <PublisherBanner
+          adSize="banner"
+          validAdSizes={['mediumRectangle']}
+          onAdFailedToLoad={(error) => console.log(error)}
+          adUnitID="/6499/example/APIDemo/AdSizes"
+          ref={el => (this._adSizesExample = el)}
+        /> 
+    )
   }
 
   authenticate() {
@@ -326,7 +304,9 @@ export default class Login extends Component {
         <View style={{ marginTop: 20}}>
           <Text style={onboardingStyles.title}>Thank you for returning</Text>
         </View>
-
+        <View style={onboardingStyles.adStyle}>
+          { this.showAd() }
+        </View>
 
       </View>
     );
