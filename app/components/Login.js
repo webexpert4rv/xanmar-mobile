@@ -79,10 +79,10 @@ export default class Login extends Component {
     return(
         <PublisherBanner
           adSize="banner"
-          validAdSizes={['mediumRectangle']}
+          validAdSizes={['banner', 'mediumRectangle']}
           onAdFailedToLoad={(error) => console.log(error)}
-          adUnitID="/6499/example/APIDemo/AdSizes"
-          ref={el => (this._adSizesExample = el)}
+          adUnitID={constants.AD_UNIT_ID}
+          ref={el => (this._adSBanner = el)}
         /> 
     )
   }

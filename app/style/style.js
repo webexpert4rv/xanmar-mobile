@@ -352,7 +352,7 @@ export const common = StyleSheet.create({
 
 export const onboardingStyles = StyleSheet.create({
   adStyle:{
-    marginTop: 10,
+    marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center'
   },
