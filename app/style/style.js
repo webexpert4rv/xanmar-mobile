@@ -351,6 +351,11 @@ export const common = StyleSheet.create({
 });
 
 export const onboardingStyles = StyleSheet.create({
+  adStyle:{
+    marginTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   mainContainer: {
     backgroundColor: palette.DARK_BLUE,
     flex: 1,
