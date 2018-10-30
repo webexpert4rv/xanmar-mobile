@@ -44,7 +44,7 @@ export default class ConsumerRequestComment extends Component {
   }
 
   prepareAd(){
-    AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712');
+    AdMobInterstitial.setAdUnitID(constants.AD_UNIT_ID);
     AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
     AdMobInterstitial.addEventListener('adLoaded',
       () => console.log('AdMobInterstitial adLoaded')
