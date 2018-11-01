@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
-import { Alert, AppRegistry,
+import {ActivityIndicator,
+        Alert, AppRegistry,
         View,
         Text,
         TextInput,
@@ -26,13 +27,16 @@ export default class ForgotPassword extends Component {
         color: palette.WHITE,
       },
       headerTintColor: palette.WHITE,
-      headerRight: (
+      headerRight: params.isRequesting ? (
+        <ActivityIndicator size="small" color={palette.LIGHT_BLUE} style={{ paddingRight: 20 }} />
+      ) : (
         <View>
           <TouchableOpacity onPress={() => params.handleNext()}>
             <Text style={onboardingStyles.headerButton}>Reset Password</Text>
           </TouchableOpacity>
-        </View>),
-    };
+        </View>
+      )
+    }
   };
 
   constructor(props) {
@@ -40,12 +44,16 @@ export default class ForgotPassword extends Component {
     this.state = {
       showEmailError: false,
       email: '',
+      isRequesting: false,
     };
   }
 
   componentDidMount() {
     const {navigation} = this.props
-    navigation.setParams({ handleNext: this.resetpwd.bind(this) });
+    this.props.navigation.setParams(
+      { handleNext: this.resetpwd.bind(this),
+        isRequesting: this.state.isRequesting });
+
     const { params = {} } = navigation.state;
     this.setState({email: params.email})
   }
@@ -67,10 +75,11 @@ export default class ForgotPassword extends Component {
 
   resetpwd() {
     if (this.validateForm()) {
-      const { navigate } = this.props.navigation;
+      const { navigation } = this.props;
       const obj = {
           email: this.state.email.toLowerCase(),
         }
+      this.props.navigation.setParams({ isRequesting: true });
       fetch(format('{}/api/user/restpwd', constants.BASSE_URL), {
         method: 'POST',
         headers: {
@@ -81,6 +90,7 @@ export default class ForgotPassword extends Component {
         body: JSON.stringify(obj),
       })
         .then(response => {
+          this.props.navigation.setParams({ isRequesting: false })
           if (response.ok) {
             return response.json()
           } else {
@@ -104,7 +114,7 @@ export default class ForgotPassword extends Component {
             'Success',
             'Please check email for reset password instructions',
             [
-              { text: 'OK', onPress: () => navigate('Login') },
+              { text: 'OK', onPress: () => navigation.goBack() },
             ],
             { cancelable: false }
           )
