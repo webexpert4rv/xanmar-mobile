@@ -14,5 +14,7 @@ export default {
   SVC_PROVIDER_COUNT_KEY: 'svcProviderCount',
   MAP_BOX_TOKEN: 'pk.eyJ1IjoieGFubWFyIiwiYSI6ImNqaG85amlyajI2ZWQzN3FvMHM0cDg3bHMifQ.RgNaBSIV3Hx2QbirnOAuUQ',
   AD_UNIT_ID: 'ca-app-pub-3940256099942544/1033173712'
+  AD_UNIT_BANNER: 'ca-app-pub-3940256099942544/6300978111',
+  AD_UNIT_PUBLISHER: '/6499/example/APIDemo/AdSizes'
   //dev -> pk.eyJ1IjoiNXhsIiwiYSI6ImNqOXdia2xjZDF1aGIydnBvc3oyaDduemcifQ.RtHbVUIOb-M02BVPDecV6Q
 };

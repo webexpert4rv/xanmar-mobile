@@ -15,6 +15,7 @@ import Communications from 'react-native-communications';
 import * as NetworkUtils from '../utils/networkUtils';
 import {
   PublisherBanner,
+  AdMobBanner,
 } from 'react-native-admob'
 export default class Login extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -74,18 +75,31 @@ export default class Login extends Component {
   }
 
 
-  showAd(){
-    // Display an interstitial
+  showAdPublisher(){
+    // Display an banner
     return(
         <PublisherBanner
-          adSize="banner"
           validAdSizes={['banner', 'mediumRectangle']}
-          onAdFailedToLoad={(error) => console.log(error)}
-          adUnitID={constants.AD_UNIT_ID}
-          ref={el => (this._adSBanner = el)}
+          adUnitID={constants.AD_UNIT_PUBLISHER}
+          ref={el => (this._adPublisher = el)}
+          onAdLoaded={()=> this.setState({showBanner: false}) }
+          onAdFailedToLoad={(err)=> {console.log(err);this.setState({showBanner: true})}}
         /> 
     )
   }
+  showAdBanner(){
+    // Display an banner
+    return(
+        <AdMobBanner
+          testDevices={[AdMobBanner.simulatorId]}
+          adSize="fullBanner"
+          adUnitID={constants.AD_UNIT_BANNER}
+          ref={el => (this._basicBanner = el)}
+          onAdFailedToLoad={ (err)=> console.log('No Ad Aavailable', err) }
+        /> 
+    )
+  }
+
 
   authenticate() {
     if (this.validateForm()) {
@@ -263,6 +277,7 @@ export default class Login extends Component {
 
   render() {
     const { navigate } = this.props.navigation;
+    const {showBanner} = this.state
     return (
       <View style={onboardingStyles.mainContainer}>
         <View>
@@ -305,7 +320,8 @@ export default class Login extends Component {
           <Text style={onboardingStyles.title}>Thank you for returning</Text>
         </View>
         <View style={onboardingStyles.adStyle}>
-          { this.showAd() }
+          { this.showAdPublisher() }
+          {showBanner && this.showAdBanner() }
         </View>
 
       </View>
