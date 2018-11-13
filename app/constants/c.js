@@ -1,6 +1,6 @@
 export default {
   //https://xanmar-prod.herokuapp.com
-  BASSE_URL: 'https://xanmar-prod.herokuapp.com', //https://beta-xanmar-server.herokuapp.com http://192.168.86.154:3000 http://10.0.0.183:3000
+  BASSE_URL: 'https://beta-xanmar-server.herokuapp.com', //https://beta-xanmar-server.herokuapp.com http://192.168.86.154:3000 http://10.0.0.183:3000
   API_KEY: 'sfdsf1223',
   STRIPE_KEY: 'pk_live_QOLfh1QETEyKiUKjIBHRZ9yz', //pk_test_ZuSrnuCFcyPXTNTCkFKRk4pX pk_live_QOLfh1QETEyKiUKjIBHRZ9yz
   FREE_PLAN_1: 'xanmar-1',
@@ -12,6 +12,9 @@ export default {
   MERCHANT_TYPE: 'merchant',
   CONSUMER_TYPE: 'consumer',
   SVC_PROVIDER_COUNT_KEY: 'svcProviderCount',
-  MAP_BOX_TOKEN: 'pk.eyJ1IjoieGFubWFyIiwiYSI6ImNqaG85amlyajI2ZWQzN3FvMHM0cDg3bHMifQ.RgNaBSIV3Hx2QbirnOAuUQ'
+  MAP_BOX_TOKEN: 'pk.eyJ1IjoieGFubWFyIiwiYSI6ImNqaG85amlyajI2ZWQzN3FvMHM0cDg3bHMifQ.RgNaBSIV3Hx2QbirnOAuUQ',
+  AD_UNIT_ID: 'ca-app-pub-3940256099942544/1033173712',
+  AD_UNIT_BANNER: 'ca-app-pub-3940256099942544/6300978111',
+  AD_UNIT_PUBLISHER: '/6499/example/APIDemo/AdSizes'
   //dev -> pk.eyJ1IjoiNXhsIiwiYSI6ImNqOXdia2xjZDF1aGIydnBvc3oyaDduemcifQ.RtHbVUIOb-M02BVPDecV6Q
 };

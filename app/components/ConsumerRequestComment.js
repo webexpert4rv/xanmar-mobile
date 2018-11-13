@@ -15,6 +15,9 @@ import realm from './realm';
 import palette from '../style/palette';
 import * as events from '../broadcast/events';
 import * as NetworkUtils from '../utils/networkUtils';
+import {
+  AdMobInterstitial,
+} from 'react-native-admob'
 
 export default class ConsumerRequestComment extends Component {
   static navigationOptions = {
@@ -30,6 +33,44 @@ export default class ConsumerRequestComment extends Component {
       photo: state.params.photo,
       comment: '',
     };
+  }
+
+  componentWillUnmount() {
+    AdMobInterstitial.removeAllListeners();
+  }
+
+  componentDidMount() {
+    this.prepareAd();
+  }
+
+  prepareAd(){
+    AdMobInterstitial.setAdUnitID(constants.AD_UNIT_ID);
+    AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+    AdMobInterstitial.addEventListener('adLoaded',
+      () => console.log('AdMobInterstitial adLoaded')
+    );
+    AdMobInterstitial.addEventListener('adFailedToLoad',
+      (error) => console.warn(error)
+    );
+    AdMobInterstitial.addEventListener('adOpened',
+      () => console.log('AdMobInterstitial => adOpened')
+    );
+    AdMobInterstitial.addEventListener('adClosed',
+      () => {
+        console.log('AdMobInterstitial => adClosed');
+        AdMobInterstitial.requestAd().catch(error => console.warn(error));
+      }
+    );
+    AdMobInterstitial.addEventListener('adLeftApplication',
+      () => console.log('AdMobInterstitial => adLeftApplication')
+    );
+
+    AdMobInterstitial.requestAd().catch(error => console.warn(error));
+  }
+
+  showAd(){
+    // Display an interstitial
+    AdMobInterstitial.showAd().catch(error => console.warn(error));
   }
 
   goBack() {
@@ -152,7 +193,7 @@ export default class ConsumerRequestComment extends Component {
            }
           });
         }
-
+        this.showAd();
         const resetAction = NavigationActions.reset({
           index: 0,
           actions: [

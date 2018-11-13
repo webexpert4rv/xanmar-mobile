@@ -3,6 +3,7 @@ package com.xanmar;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.sbugert.rnadmob.RNAdMobPackage;
 import com.gettipsi.stripe.StripeReactPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -31,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNAdMobPackage(),
             new StripeReactPackage(),
             new ImagePickerPackage(),
           new VectorIconsPackage(),

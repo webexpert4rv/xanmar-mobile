@@ -13,7 +13,10 @@ import palette from '../style/palette';
 import constants from '../constants/c';
 import Communications from 'react-native-communications';
 import * as NetworkUtils from '../utils/networkUtils';
-
+import {
+  PublisherBanner,
+  AdMobBanner,
+} from 'react-native-admob'
 export default class Login extends Component {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
@@ -71,6 +74,33 @@ export default class Login extends Component {
     return formValid;
   }
 
+
+  showAdPublisher(){
+    // Display an banner
+    return(
+        <PublisherBanner
+          validAdSizes={['banner', 'mediumRectangle']}
+          adUnitID={constants.AD_UNIT_PUBLISHER}
+          ref={el => (this._adPublisher = el)}
+          onAdLoaded={()=> this.setState({showBanner: false}) }
+          onAdFailedToLoad={(err)=> {console.log(err);this.setState({showBanner: true})}}
+        /> 
+    )
+  }
+  showAdBanner(){
+    // Display an banner
+    return(
+        <AdMobBanner
+          testDevices={[AdMobBanner.simulatorId]}
+          adSize="fullBanner"
+          adUnitID={constants.AD_UNIT_BANNER}
+          ref={el => (this._basicBanner = el)}
+          onAdFailedToLoad={ (err)=> console.log('No Ad Aavailable', err) }
+        /> 
+    )
+  }
+
+
   authenticate() {
     if (this.validateForm()) {
       const { navigate } = this.props.navigation;
@@ -96,6 +126,7 @@ export default class Login extends Component {
 
           const uId = parseInt(responseData.profile.user_id);
           if (uId > 0) {
+            this.showAd()
             //save info to UserPreference table locally
             if (responseData.profile.user_type === constants.MERCHANT_TYPE) {
 
@@ -245,6 +276,8 @@ export default class Login extends Component {
   }
 
   render() {
+    const { navigate } = this.props.navigation;
+    const {showBanner} = this.state
     return (
       <View style={onboardingStyles.mainContainer}>
         <View>
@@ -278,7 +311,7 @@ export default class Login extends Component {
           />
           <View style={onboardingStyles.line} />
         </View>
-        <TouchableOpacity onPress={() => Communications.email(['support@xanmar.com'],null,null,'Forgot password','My email address is ' + `${this.state.email}`)}>
+        <TouchableOpacity onPress={() => navigate('ForgotPassword', {email: this.state.email})}>
           <View style={{ marginTop: 20}}>
             <Text style={[onboardingStyles.title, {color:palette.LIGHT_BLUE, fontSize: 15}]}>Forgot password</Text>
           </View>
@@ -286,7 +319,10 @@ export default class Login extends Component {
         <View style={{ marginTop: 20}}>
           <Text style={onboardingStyles.title}>Thank you for returning</Text>
         </View>
-
+        <View style={onboardingStyles.adStyle}>
+          { this.showAdPublisher() }
+          {showBanner && this.showAdBanner() }
+        </View>
 
       </View>
     );

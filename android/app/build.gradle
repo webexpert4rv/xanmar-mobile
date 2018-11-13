@@ -110,8 +110,8 @@ android {
         applicationId "com.xanmar"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 27
-        versionName "1.11.1"
+        versionCode 29
+        versionName "1.12.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -162,6 +162,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-admob')
     implementation project(':tipsi-stripe')
     implementation project(':react-native-image-picker')
     implementation project(':react-native-vector-icons')
