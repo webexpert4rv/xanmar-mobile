@@ -3,6 +3,7 @@ package com.xanmar;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.leo_pharma.analytics.AnalyticsPackage;
 import com.sbugert.rnadmob.RNAdMobPackage;
 import com.gettipsi.stripe.StripeReactPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -16,7 +17,6 @@ import com.facebook.soloader.SoLoader;
 import com.mapbox.rctmgl.RCTMGLPackage;
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new AnalyticsPackage(),
             new RNAdMobPackage(),
             new StripeReactPackage(),
             new ImagePickerPackage(),

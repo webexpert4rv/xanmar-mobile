@@ -17,6 +17,7 @@ import {
   PublisherBanner,
   AdMobBanner,
 } from 'react-native-admob'
+import {trackWithProperties} from '../utils/analytics'
 export default class Login extends Component {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
@@ -49,6 +50,7 @@ export default class Login extends Component {
 
   componentDidMount() {
     this.props.navigation.setParams({ handleNext: this.authenticate.bind(this) });
+    trackWithProperties('LOGIN_SCREEN', { date: new Date().toISOString()})
   }
 
   validateForm() {

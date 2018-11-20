@@ -38,7 +38,7 @@ import merchantReviews from './components/MerchantReviews';
 import merchantMap from './components/MerchantMap';
 import merchantPymt from './components/MerchantPayment';
 import palette from './style/palette';
-
+import * as analytics from './utils/analytics'
 //  just dumb, hack for issue
 //  https://github.com/react-community/react-navigation/issues/199
 // const userNavigator = StackNavigator({
@@ -190,6 +190,11 @@ const AppNavigator = StackNavigator({
 );
 
 export default class App extends React.Component {
+
+  componentDidMount() {
+    analytics.init()
+  }
+
   render() {
     return (
       <AppNavigator />

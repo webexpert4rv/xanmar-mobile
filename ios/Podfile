@@ -9,7 +9,7 @@ target 'xanmar' do
   # Pods for xanmar
   pod 'Firebase/Messaging'
   pod 'Google-Mobile-Ads-SDK'
-
+  pod 'Analytics'
   target 'xanmarTests' do
     inherit! :search_paths
     # Pods for testing

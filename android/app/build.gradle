@@ -162,7 +162,9 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-analytics-segment-io')
     compile project(':react-native-admob')
+    compile project(':react-native-analytics-segment-io')
     implementation project(':tipsi-stripe')
     implementation project(':react-native-image-picker')
     implementation project(':react-native-vector-icons')
@@ -175,10 +177,11 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.google.firebase:firebase-core:15.0.0' //this decides your firebase SDK version
     implementation project(':mapbox-react-native-mapbox-gl')
+    implementation 'com.segment.analytics.android:analytics:4.2.6'
     //implementation 'com.google.android.gms:play-services:15.0.0'
     implementation 'com.google.android.gms:play-services-base:15.0.0'
-implementation 'com.google.android.gms:play-services-wallet:15.0.0'
-implementation 'com.google.android.gms:play-services-identity:15.0.0'
+    implementation 'com.google.android.gms:play-services-wallet:15.0.0'
+    implementation 'com.google.android.gms:play-services-identity:15.0.0'
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
       transitive = true;
     }

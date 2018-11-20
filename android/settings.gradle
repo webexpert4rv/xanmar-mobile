@@ -1,4 +1,6 @@
 rootProject.name = 'xanmar'
+include ':react-native-analytics-segment-io'
+project(':react-native-analytics-segment-io').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-analytics-segment-io/android')
 include ':react-native-admob'
 project(':react-native-admob').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-admob/android')
 include ':tipsi-stripe'
@@ -14,3 +16,5 @@ project(':realm').projectDir = new File(rootProject.projectDir, '../node_modules
 include ':app'
 include ':mapbox-react-native-mapbox-gl'
 project(':mapbox-react-native-mapbox-gl').projectDir = new File(rootProject.projectDir, '../node_modules/@mapbox/react-native-mapbox-gl/android/rctmgl')
+include ':react-native-analytics-segment-io'
+project(':react-native-analytics-segment-io').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-analytics-segment-io/android')

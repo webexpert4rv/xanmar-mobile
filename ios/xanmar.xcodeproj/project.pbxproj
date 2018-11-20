@@ -60,6 +60,7 @@
 		C0D94B3BD97D45DA81088FEF /* libRNAdMobManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53ACD44217804D79B138F0AD /* libRNAdMobManager.a */; };
 		C28F414DEF6A4645A5DDDA18 /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 53AB8F4AFD6341D091ADEB74 /* libRNImagePicker.a */; };
 		C6B0A4E0C6794D42B627F03B /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 65DB5A0088D94DD3A8D02A4A /* FontAwesome.ttf */; };
+		CA65CBAA4C1B491E82A26F16 /* libRNAnalyticsSegmentIO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C06A08022B364386813228AF /* libRNAnalyticsSegmentIO.a */; };
 		CE6691B0BA5A4A288455F207 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6531C1A6E05744BFACDD2344 /* libRNVectorIcons.a */; };
 		D17FFEB8DC8345989D35557A /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F48F934319AA4236BF97E713 /* Foundation.ttf */; };
 		EE36616329B84539A7086475 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F37D8039FC094EAB97FC73EF /* libz.tbd */; };
@@ -367,6 +368,13 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
+		CE10E0AD21A3E53B00E8190E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 76019B51609B4F3AA1AF7C95 /* RNAnalyticsSegmentIO.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = EE249F841F0BC5B200AC5C78;
+			remoteInfo = RNAnalyticsSegmentIO;
+		};
 		CEA40AF721770D4C00D107BA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D4DD4C33B4634ED9AE33DA54 /* RNAdMobManager.xcodeproj */;
@@ -440,11 +448,13 @@
 		6A69C80BDBA8D00D08B0524F /* Pods-xanmarTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xanmarTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-xanmarTests/Pods-xanmarTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6B8F2213327E483B9AC3E61B /* RNFIRMessaging.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFIRMessaging.xcodeproj; path = "../node_modules/react-native-fcm/ios/RNFIRMessaging.xcodeproj"; sourceTree = "<group>"; };
 		6CF23C3A96344C09AB652DA6 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
+		76019B51609B4F3AA1AF7C95 /* RNAnalyticsSegmentIO.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNAnalyticsSegmentIO.xcodeproj; path = "../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		8EDD94871DB24E75AD949F65 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		9508EF79D53B4501A59E7AF8 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		A6C4DDBD5632488CA21D5D62 /* libRNFIRMessaging.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFIRMessaging.a; sourceTree = "<group>"; };
+		C06A08022B364386813228AF /* libRNAnalyticsSegmentIO.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNAnalyticsSegmentIO.a; sourceTree = "<group>"; };
 		C42232D137294B57A79D455C /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
 		CC34FBBADC314805A1C1BACA /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		D4DD4C33B4634ED9AE33DA54 /* RNAdMobManager.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNAdMobManager.xcodeproj; path = "../node_modules/react-native-admob/ios/RNAdMobManager.xcodeproj"; sourceTree = "<group>"; };
@@ -492,6 +502,7 @@
 				C28F414DEF6A4645A5DDDA18 /* libRNImagePicker.a in Frameworks */,
 				1111E4E48E924280A979ABA1 /* libTPSStripe.a in Frameworks */,
 				C0D94B3BD97D45DA81088FEF /* libRNAdMobManager.a in Frameworks */,
+				CA65CBAA4C1B491E82A26F16 /* libRNAnalyticsSegmentIO.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,6 +690,7 @@
 				53AB8F4AFD6341D091ADEB74 /* libRNImagePicker.a */,
 				38D4DDA12291453CB660FD1F /* libTPSStripe.a */,
 				53ACD44217804D79B138F0AD /* libRNAdMobManager.a */,
+				C06A08022B364386813228AF /* libRNAnalyticsSegmentIO.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -738,6 +750,7 @@
 				569125528E1F414C8B46685D /* RNImagePicker.xcodeproj */,
 				1112B9858125495FA18AEAE2 /* TPSStripe.xcodeproj */,
 				D4DD4C33B4634ED9AE33DA54 /* RNAdMobManager.xcodeproj */,
+				76019B51609B4F3AA1AF7C95 /* RNAnalyticsSegmentIO.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -821,6 +834,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CE10E0AA21A3E53B00E8190E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CE10E0AE21A3E53B00E8190E /* libRNAnalyticsSegmentIO.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CEA40AF421770D4C00D107BA /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -840,8 +861,6 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				6838DAC122FBCF7F6D767F8B /* [CP] Embed Pods Frameworks */,
-				1A2ADDC0C0B55C43D379498A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -862,7 +881,6 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				2E62F1F387958C5FEB419510 /* [CP] Embed Pods Frameworks */,
 				472D17783AC1222B7EC91FD5 /* [CP] Copy Pods Resources */,
 				4424AB541FB8D5CA00AAE438 /* Embed Frameworks */,
 				4424AB551FB8D73300AAE438 /* ShellScript */,
@@ -1015,6 +1033,10 @@
 				{
 					ProductGroup = CEA40AF421770D4C00D107BA /* Products */;
 					ProjectRef = D4DD4C33B4634ED9AE33DA54 /* RNAdMobManager.xcodeproj */;
+				},
+				{
+					ProductGroup = CE10E0AA21A3E53B00E8190E /* Products */;
+					ProjectRef = 76019B51609B4F3AA1AF7C95 /* RNAnalyticsSegmentIO.xcodeproj */;
 				},
 				{
 					ProductGroup = 44FDD6A01ED5BA39007C474E /* Products */;
@@ -1331,6 +1353,13 @@
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		CE10E0AE21A3E53B00E8190E /* libRNAnalyticsSegmentIO.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNAnalyticsSegmentIO.a;
+			remoteRef = CE10E0AD21A3E53B00E8190E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		CEA40AF821770D4C00D107BA /* libRNAdMobManager.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1401,21 +1430,6 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		1A2ADDC0C0B55C43D379498A /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-xanmarTests/Pods-xanmarTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1429,21 +1443,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/packager/react-native-xcode.sh";
-		};
-		2E62F1F387958C5FEB419510 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-xanmar/Pods-xanmar-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		4424AB551FB8D73300AAE438 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1477,16 +1476,16 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-xanmar/Pods-xanmar-resources.sh",
-				$PODS_CONFIGURATION_BUILD_DIR/Stripe/Stripe.bundle,
+				"${PODS_ROOT}/Target Support Files/Pods-xanmar/Pods-xanmar-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/Stripe/Stripe.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Stripe.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-xanmar/Pods-xanmar-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-xanmar/Pods-xanmar-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		5BDA4B0424A40060A4D46127 /* [CP] Check Pods Manifest.lock */ = {
@@ -1505,21 +1504,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6838DAC122FBCF7F6D767F8B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-xanmarTests/Pods-xanmarTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		E32DC5CF24A47639A800D1E1 /* [CP] Check Pods Manifest.lock */ = {
@@ -1622,12 +1606,14 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/tipsi-stripe/ios/TPSStripe",
 					"$(SRCROOT)/../node_modules/react-native-admob/ios",
+					"$(SRCROOT)/../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO",
 				);
 				INFOPLIST_FILE = xanmarTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1658,12 +1644,14 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/tipsi-stripe/ios/TPSStripe",
 					"$(SRCROOT)/../node_modules/react-native-admob/ios",
+					"$(SRCROOT)/../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO",
 				);
 				INFOPLIST_FILE = xanmarTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1706,6 +1694,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/tipsi-stripe/ios/TPSStripe",
 					"$(SRCROOT)/../node_modules/react-native-admob/ios",
+					"$(SRCROOT)/../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO",
 				);
 				INFOPLIST_FILE = xanmar/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1745,6 +1734,7 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/tipsi-stripe/ios/TPSStripe",
 					"$(SRCROOT)/../node_modules/react-native-admob/ios",
+					"$(SRCROOT)/../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO",
 				);
 				INFOPLIST_FILE = xanmar/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1779,11 +1769,13 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/tipsi-stripe/ios/TPSStripe",
 					"$(SRCROOT)/../node_modules/react-native-admob/ios",
+					"$(SRCROOT)/../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO",
 				);
 				INFOPLIST_FILE = "xanmar-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1823,11 +1815,13 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/tipsi-stripe/ios/TPSStripe",
 					"$(SRCROOT)/../node_modules/react-native-admob/ios",
+					"$(SRCROOT)/../node_modules/react-native-analytics-segment-io/ios/RNAnalyticsSegmentIO",
 				);
 				INFOPLIST_FILE = "xanmar-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1868,6 +1862,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.xanmar-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1892,6 +1887,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
