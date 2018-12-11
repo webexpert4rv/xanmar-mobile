@@ -14,6 +14,7 @@ import realm from './realm';
 import palette from '../style/palette';
 import constants from '../constants/c';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 export default class RegisterConsumer extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -172,6 +173,7 @@ export default class RegisterConsumer extends Component {
                   phone: this.state.phone,
                 });
             });
+            trackWithProperties(trackableEvents.CREATE_ACCOUNT, { type: 'consumer'})
             this.setState({
               userId: uId,
             });
@@ -182,7 +184,10 @@ export default class RegisterConsumer extends Component {
               }
             );
           }
-        }).catch(error => NetworkUtils.showNetworkError('Unable to register.'));
+        }).catch(error => { 
+            console.log("error", error)
+            NetworkUtils.showNetworkError('Unable to register.')}
+          );
     } else {
       navigate('RegisterVehicle',
       {

@@ -11,6 +11,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 export default class registerMerchant extends Component {
   static navigationOptions = {
@@ -196,6 +197,12 @@ export default class registerMerchant extends Component {
                   zip: this.state.zip,
                 });
             });
+            trackWithProperties(
+              trackableEvents.CREATE_ACCOUNT, 
+              { type: 'Service provider', 
+                zip: this.state.zip,
+              })
+            
             this.setState({
               userId: uId,
             });

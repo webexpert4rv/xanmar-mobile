@@ -12,6 +12,7 @@ import constants from '../constants/c';
 import realm from './realm';
 import palette from '../style/palette';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 export default class RegisterVehicle extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -150,7 +151,7 @@ export default class RegisterVehicle extends Component {
             realm.create('Vehicle',
             { vehicleId: responseData.vehicle_id, make: this.state.make, model: this.state.model, year: this.state.vehicleYear });
           });
-
+          trackWithProperties(trackableEvents.VEHICLE_ADDED, {   make: this.state.make, model: this.state.model, year: this.state.vehicleYear})
           if (this.state.onBoarding) {
 
             realm.write(() => {
