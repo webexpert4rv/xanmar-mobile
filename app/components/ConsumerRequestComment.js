@@ -183,6 +183,19 @@ export default class ConsumerRequestComment extends Component {
         //send service request events
         events.sendSvcRequestEvent(rSvcRequest);
 
+        //Track event
+        trackWithProperties(
+          trackableEvents.CONSUMER_SUBMIT_SERVICE_REQUEST, 
+          {
+            make: svcRequest.make,
+            model: svcRequest.model,
+            year: svcRequest.year,
+            zip: svcRequest.service_zip,
+            services: JSON.stringify(svcRequest.services),
+            photoAdded: svcRequest.photo_data != null,
+            commentAdded: svcRequest.comment&&svcRequest.comment.length > 0,
+          }
+        )
         const localSvc = realm.objects('ServiceCategory');
         for (var serviceCat of localSvc.values()) {
           realm.write(() => {
@@ -192,19 +205,7 @@ export default class ConsumerRequestComment extends Component {
            }
           });
         }
-        trackWithProperties(
-          trackableEvents.CONSUMER_SUBMIT_SERVICE_REQUEST, 
-          {
-            make: svcRequest.make,
-            model: svcRequest.model,
-            year: svcRequest.year,
-            zip: this.state.zip,
-            services: svcRequest.services,
-            photoAdded: this.state.photo != null,
-            commentAdded: this.state.comment > 0,
-
-          }
-        )
+        
         this.showAd();
         const resetAction = NavigationActions.reset({
           index: 0,

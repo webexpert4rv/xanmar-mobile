@@ -19,5 +19,6 @@ export default {
   ANALYTICS_IOS_KEY: 'rvLimdLxYm5IK10GnZlo5EFT2zIDun0q',
   ANALYTICS_ANDROID_KEY: 'm0Yd32JjuZakduCcXL5aPWnYO4qi8CIb',
   ANALYTICS: 'ON', // ON or OFF
+  ANALYTICS_LOG: 'ON', // ON or OFF
   //dev -> pk.eyJ1IjoiNXhsIiwiYSI6ImNqOXdia2xjZDF1aGIydnBvc3oyaDduemcifQ.RtHbVUIOb-M02BVPDecV6Q
 };
