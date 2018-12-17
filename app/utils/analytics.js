@@ -1,6 +1,6 @@
 import {Platform} from 'react-native';
 import constants from '../constants/c';
-import trackableEvents from '../constants/e';
+import eventConstants from '../constants/e';
 import Analytics, { AnalyticsConstants } from 'react-native-analytics-segment-io'
 const enabled = constants.ANALYTICS === 'ON';
 const key = Platform.OS === 'ios' ? constants.ANALYTICS_IOS_KEY : constants.ANALYTICS_ANDROID_KEY;
@@ -29,7 +29,7 @@ export const init = () => {
 	}
 };
 
-export const trackableEvents
+export const trackableEvents = eventConstants;
 
 export const trackWithProperties = (evt, properties) => {
 	if (enabled) {
