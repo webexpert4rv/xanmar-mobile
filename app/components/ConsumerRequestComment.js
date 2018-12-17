@@ -18,7 +18,7 @@ import * as NetworkUtils from '../utils/networkUtils';
 import {
   AdMobInterstitial,
 } from 'react-native-admob'
-
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 export default class ConsumerRequestComment extends Component {
   static navigationOptions = {
     header: null,
@@ -161,7 +161,6 @@ export default class ConsumerRequestComment extends Component {
       })
       .then((responseData) => {
         svcRequest.service_request_id = responseData.service_request_id;
-
         // save request locally
         const rSvcRequest = {
           vehicle_id: svcRequest.vehicle_id,
@@ -193,6 +192,19 @@ export default class ConsumerRequestComment extends Component {
            }
           });
         }
+        trackWithProperties(
+          trackableEvents.CONSUMER_SUBMIT_SERVICE_REQUEST, 
+          {
+            make: svcRequest.make,
+            model: svcRequest.model,
+            year: svcRequest.year,
+            zip: this.state.zip,
+            services: svcRequest.services,
+            photoAdded: this.state.photo != null,
+            commentAdded: this.state.comment > 0,
+
+          }
+        )
         this.showAd();
         const resetAction = NavigationActions.reset({
           index: 0,

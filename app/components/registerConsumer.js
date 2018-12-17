@@ -173,7 +173,7 @@ export default class RegisterConsumer extends Component {
                   phone: this.state.phone,
                 });
             });
-            trackWithProperties(trackableEvents.CREATE_ACCOUNT, { type: 'consumer'})
+            trackWithProperties(trackableEvents.CREATE_ACCOUNT_CONSUMER, { type: 'consumer'})
             this.setState({
               userId: uId,
             });
