@@ -128,7 +128,6 @@ export default class Login extends Component {
 
           const uId = parseInt(responseData.profile.user_id);
           if (uId > 0) {
-            this.showAd()
             //save info to UserPreference table locally
             if (responseData.profile.user_type === constants.MERCHANT_TYPE) {
 
