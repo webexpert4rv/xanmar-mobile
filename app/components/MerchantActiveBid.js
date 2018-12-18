@@ -14,6 +14,7 @@ import palette from '../style/palette';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -128,7 +129,12 @@ export default class MerchantActiveBid extends Component {
         }
       })
       .then((responseData) => {
-
+        //Track event
+        trackWithProperties(
+          trackableEvents.SP_SENDS_MESSAGE, 
+          {
+          }
+        )
       }).catch((error) => {
         console.log(error);
       }).catch(error => {});

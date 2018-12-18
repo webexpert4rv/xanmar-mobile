@@ -7,4 +7,5 @@ export default {
 	'SP_BIDDED_SERVICE_REQUEST': 'SP bidded on service request',
 	'SP_EDIT_PROFILE': 'SP edit profile',
 	'SP_EDIT_SUBSCRIPTION': 'SP edit subscription',
-}
+	'SP_SENDS_MESSAGE': 'SP sends message'
+}   

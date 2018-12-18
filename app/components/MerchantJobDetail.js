@@ -292,7 +292,12 @@ export default class MerchantJobDetail extends Component {
         }
       })
       .then((responseData) => {
-
+        //Track event
+        trackWithProperties(
+          trackableEvents.SP_SENDS_MESSAGE, 
+          {
+          }
+        )
       }).catch((error) => {
         console.log(error);
       }).catch(error => {});

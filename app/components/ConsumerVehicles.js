@@ -100,11 +100,11 @@ export default class ConsumerVehicles extends Component {
   renderRow(rowData, sectionID, rowID, highlightRow){
     //this is stupid query because realm doesn't support filter on the contents of a to-many relationship
     const sc = realm.objects('ServiceCategory');
-    let category;
+    let category = '';
     let found;
     for (let cat of sc.values()) {
       for (let svc of cat.services.values()) {
-        if (svc.service_id === rowData.services[0].service_id) {
+        if (svc.service_id === rowData.services[0] && rowData.services[0].service_id) {
           category = cat.name;
           found = true;
           break;
