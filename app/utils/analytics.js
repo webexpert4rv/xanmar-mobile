@@ -2,6 +2,7 @@ import {Platform} from 'react-native';
 import constants from '../constants/c';
 import eventConstants from '../constants/e';
 import Analytics, { AnalyticsConstants } from 'react-native-analytics-segment-io'
+import realm from '../components/realm';
 const enabled = constants.ANALYTICS === 'ON';
 const logEnabled = constants.ANALYTICS_LOG === 'ON';
 
@@ -40,10 +41,20 @@ export const init = () => {
 export const trackableEvents = eventConstants;
 
 export const trackWithProperties = (evt, properties) => {
+	let p = { ...properties , ...{ uId: getUserId() }}
 	if(logEnabled){
-		console.log('ANALYTICS::',evt, properties)
+		console.log('ANALYTICS::',evt, p)
 	}
 	if (enabled) {
-		Analytics.track(evt,properties)
+		Analytics.track(evt,p)
 	}
 }
+
+const getUserId = ()=> {
+    let uId = 0;
+    const userPrefs = realm.objects('UserPreference');
+    if (userPrefs.length > 0) {
+      uId = userPrefs[0].userId;
+    }
+    return uId;
+  }
