@@ -10,6 +10,7 @@ import realm from './realm';
 import * as events from '../broadcast/events';
 import renderIf from 'render-if';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 stripe.init({
   publishableKey: constants.STRIPE_KEY,

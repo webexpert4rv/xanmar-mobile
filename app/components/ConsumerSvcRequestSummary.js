@@ -16,6 +16,7 @@ import palette from '../style/palette';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -175,7 +176,22 @@ export default class ConsumerSvcRequestSummary extends Component {
         }
       })
       .then((responseData) => {
-
+        //Track Event
+         let state = this.state
+         trackWithProperties(
+          trackableEvents.CONSUMER_MARKS_COMPLETE, 
+          {
+            zip: state.bid.zip,
+          }
+         )
+         if(reviewRequest.review && reviewRequest.review.length > 0 ){
+          trackWithProperties(
+            trackableEvents.CONSUMER_LEFT_REVIEW, 
+            {
+              zip: state.bid.zip,
+            }
+           )
+         }
         // update status to complete
         let svcRequest = realm.objects('ServiceRequest');
         let sr = svcRequest.filtered(format('service_request_id == {}', reviewRequest.service_request_id));

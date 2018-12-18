@@ -16,6 +16,7 @@ import { bidStyles, common, inbox, formStyles } from '../style/style';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 export default class ConsumerSvcRequestBidDetails extends Component {
   static navigationOptions = {
@@ -155,6 +156,13 @@ export default class ConsumerSvcRequestBidDetails extends Component {
        })
        .then((responseData) => {
          events.sendMerchantJobAcceptedEvent(true);
+         //Track Event
+         trackWithProperties(
+          trackableEvents.CONSUMER_ACCEPT_BID, 
+          {
+            zip: this.state.bid.zip,
+          }
+         )
          const resetAction = NavigationActions.reset({
            index: 0,
            actions: [
