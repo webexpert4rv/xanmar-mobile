@@ -14,6 +14,7 @@ import palette from '../style/palette';
 import MessagePopup from './ServiceRequestMessagePopup';
 import * as events from '../broadcast/events';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 const emailIcon = require('../img/mail.png');
 const phoneIcon = require('../img/call.png');
@@ -52,6 +53,14 @@ export default class MerchantJobDetail extends Component {
     events.getSvcRequestMessageEvents().subscribe((value) => {
       this.loadMessages();
     });
+    //Track event
+    trackWithProperties(
+      trackableEvents.SP_VIEWS_SERVICE_REQUEST, 
+      {
+        zip: 'zip',
+        sp_zip: 'sp_zip',
+      }
+    )
   }
 
   goBack() {
@@ -191,6 +200,16 @@ export default class MerchantJobDetail extends Component {
            }
          })
          .then((responseData) => {
+          //Track event
+          trackWithProperties(
+            trackableEvents.SP_BIDDED_SERVICE_REQUEST, 
+            {
+              zip: 'zip',
+              sp_zip: 'sp_zip',
+              services: JSON.stringify(this.state.job.services),
+              bid: this.state.quote
+            }
+          )
            goBack();
          }).catch(error => NetworkUtils.showNetworkError('Unable to submit bid'));
       } else {

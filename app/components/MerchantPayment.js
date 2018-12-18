@@ -155,6 +155,13 @@ export default class MerchantPayment extends Component {
                 userPrefs[0].status = 'active';
               });
             }
+            //Track event
+            trackWithProperties(
+              trackableEvents.SP_EDIT_SUBSCRIPTION, 
+              {
+                plan: this.state.planSelected,
+              }
+            )
 
             if (this.state.fromProfile) {
               events.sendMerchantAccountChangeEvent(true);
@@ -275,7 +282,13 @@ export default class MerchantPayment extends Component {
               }
            })
           .then((responseData) => {
-
+            //Track event
+            trackWithProperties(
+              trackableEvents.SP_EDIT_SUBSCRIPTION, 
+              {
+                plan: this.state.planSelected,
+              }
+            )
             const userPrefs = realm.objects('UserPreference');
             if (userPrefs.length > 0) {
               realm.write(() => {

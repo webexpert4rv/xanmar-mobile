@@ -106,7 +106,6 @@ export default class MerchantJobs extends Component {
         })
       .then((responseData) => {
         const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-
         let rawJobs = responseData.jobs;
         let trimmedJobs = [];
         for (var i = 0; i < rawJobs.length; i++) {

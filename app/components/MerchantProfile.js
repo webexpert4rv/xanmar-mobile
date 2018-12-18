@@ -17,6 +17,7 @@ import palette from '../style/palette';
 import * as NetworkUtils from '../utils/networkUtils';
 
 const profileIcon = require('../img/tabbar/profile_on.png');
+import {trackWithProperties, trackableEvents} from '../utils/analytics'
 
 export default class MerchantProfile extends Component {
   static navigationOptions = {
@@ -196,6 +197,12 @@ export default class MerchantProfile extends Component {
         }
       })
       .then((responseData) => {
+        //Track event
+        trackWithProperties(
+          trackableEvents.SP_EDIT_PROFILE, 
+          {
+          }
+        )
       }).catch(error => NetworkUtils.showNetworkError("Unable to update profile"));
     }
   }
