@@ -12,6 +12,7 @@ import constants from '../constants/c';
 import * as accountEvents from '../broadcast/events';
 import Communications from 'react-native-communications';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackScreenProperties, trackableEvents} from '../utils/analytics'
 
 const profileIcon = require('../img/tabbar/profile_on.png');
 
@@ -31,6 +32,18 @@ export default class Profile extends Component {
 
   constructor(props) {
     super(props);
+    this.props.navigation.addListener(
+        'didFocus',
+        payload => {
+          const userType = this.determinUserType();
+          if(userType == "merchant" ){
+            trackScreenProperties(
+                trackableEvents.VIEWED_SP_PROFILE_PAGE, 
+                {}
+            )
+          }
+        }
+    );
   }
 
   componentWillMount() {

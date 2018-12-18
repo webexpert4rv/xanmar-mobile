@@ -41,14 +41,36 @@ export const init = () => {
 export const trackableEvents = eventConstants;
 
 export const trackWithProperties = (evt, properties) => {
-	let p = { ...properties , ...{ uId: getUserId() }}
+	let  uId = getUserId()
+	let p = { ...properties , ...{ uId: uId }}
 	if(logEnabled){
 		console.log('ANALYTICS::',evt, p)
 	}
+	if(uId){
+		Analytics.identify('user_id', { uId: uId })
+	}
+	
 	if (enabled) {
 		Analytics.track(evt,p)
 	}
 }
+
+export const trackScreenProperties = (evt, properties) => {
+	let  uId = getUserId()
+	let p = { ...properties , ...{ uId: uId }}
+	if(logEnabled){
+		console.log('ANALYTICS::',evt, p)
+	}
+	if(uId){
+		Analytics.identify('user_id', { uId: uId })
+	}
+	
+	if (enabled) {
+		Analytics.screen('evt', p)
+	}
+}
+
+
 
 const getUserId = ()=> {
     let uId = 0;

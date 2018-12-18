@@ -33,6 +33,7 @@ export default class ConsumerSvcRequestBids extends Component {
       srid: state.params.svcRequest.service_request_id,
       svcRequest: state.params.svcRequest,
     };
+    
   }
 
   goBack() {

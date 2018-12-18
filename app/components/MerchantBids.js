@@ -12,6 +12,7 @@ import IconBadge from 'react-native-icon-badge';
 import Icon from  'react-native-vector-icons/MaterialIcons';
 import renderIf from 'render-if';
 import * as NetworkUtils from '../utils/networkUtils';
+import {trackScreenProperties, trackableEvents} from '../utils/analytics'
 
 const bidsIcon = require('../img/tabbar/bids_on.png');
 
@@ -57,6 +58,15 @@ export default class MerchantBids extends Component {
     this.state = {
       dataSource: ds.cloneWithRows([]),
     };
+    this.props.navigation.addListener(
+        'didFocus',
+        payload => {
+          trackScreenProperties(
+              trackableEvents.VIEWED_BIDS_PAGE, 
+              {}
+          )
+        }
+    );
   }
 
   componentDidMount() {

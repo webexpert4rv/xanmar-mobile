@@ -12,6 +12,7 @@ import * as jobEvents from '../broadcast/events';
 import renderIf from 'render-if';
 import * as NetworkUtils from '../utils/networkUtils';
 import Swipeout from 'react-native-swipeout';
+import {trackScreenProperties, trackableEvents} from '../utils/analytics'
 
 const svcHistoryIcon = require('../img/tabbar/services_on.png');
 
@@ -36,6 +37,14 @@ export default class MerchantJobs extends Component {
       dataSource: ds.cloneWithRows([]),
       isLoading: true,
     };
+    this.props.navigation.addListener(
+        'didFocus',
+        payload => {
+          trackScreenProperties(
+              trackableEvents.VIEWED_SERVICE_REQUEST_PAGE, 
+          )
+        }
+    );
   }
 
   componentDidMount() {
